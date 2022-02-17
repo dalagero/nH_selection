@@ -2772,6 +2772,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 		cout << "Total R_s,delayed [Hz] (1.5-3MeV) for EH" << EH << " AD" << iad+1 << ":\t" << TOTAL_delayed_rate[2*(EH-1)+iad] << endl;
 		cout << "Total N_Acc for EH" << EH << " AD" << iad+1 << ":\t" << h_total_prompt_energy_DT800_3sig_DTnorm[iad]->Integral() << endl;
 		cout << "Total R_Acc [1/d] for EH" << EH << " AD" << iad+1 << ":\t" << (h_total_prompt_energy_DT800_3sig_DTnorm[iad]->Integral())/(TOTAL_LIVE[2*(EH-1)+iad]/(60*60*24)) << endl;
+		cout << "Total Percent Error on Prompt Singles Rate (uncorrected) for EH" << EH << " AD" << iad+1 << ":\t" << sqrt(h_total_prompt_energy_before_raw[iad]->Integral())/(h_total_prompt_energy_before_raw[iad]->Integral())*100 << endl << endl;
 	}
 
 	outfile->Close();
