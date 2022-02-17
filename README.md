@@ -13,3 +13,7 @@ Codes included:
 -finalize2000.C: adding up the plots from the runs done by findIBDs_2000.C
 
 -finalize_singles2000.C: properly scaling the synthetic accidentals background for each run and adding the plots from findSingles_new.C
+
+-submission scripts: submit_..., run_..., wrapper_... used to submit jobs to the IHEP cluster by hall
+
+-lists of the good runs: all together or separated by hall
