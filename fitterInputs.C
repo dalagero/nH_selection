@@ -27,11 +27,48 @@ const double radn_rate[1] = {0.176}; //rate of rad n in 1/day
 const double radn_rate_err[1] = {0.070}; //error of rate of rad n in 1/day
 const double amc_rate[8] = {0.04,0.04,0.04,0.03,0.02,0.01,0.01}; //rate of amc in 1/day
 const double amc_rate_err[8] = {0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01}; //error of rate of amc in 1/day
+const double tarpRelError = 0.0037; //target proton relative error
+
+void prompt(int EH, int AD){
+
+	TFile *in_file = new TFile(Form("../nH_files/TotaledPlots_EH%d_1500.root",EH));
+	TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT800_3sig_ad%d",AD));
+
+
+        char name[64];
+	const int numBins = 34;
+	double binEdges[numBins+1] = {1.5,1.7,1.9,2.1,2.3,2.5,2.7,2.9,3.1,3.3,3.5,3.7,3.9,4.1,4.3,4.5,4.7,4.9,5.1,5.3,5.5,5.7,5.9,6.1,6.3,6.5,6.7,6.9,7.1,7.3,7.5,7.7,7.9,8.1,12.};
+	sprintf(name, "h_rebinned_spectrum");
+	TH1F* h_rebinned_spectrum=new TH1F(name,name,numBins, binEdges);
+
+
+	for(int iBin=1; iBin < (in_hist->GetNbinsX())+2; iBin++){
+		if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
+		h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
+	} 
+
+	TCanvas *test = new TCanvas("test","test");
+	test->Divide(2,1);
+	test->cd(1);
+	in_hist->Draw();
+	test->cd(2);
+	h_rebinned_spectrum->Draw();
+
+
+	cout << "INSERT INTO num_coincidences VALUES (" << EH << "," << AD << ",1,\"[";
+	for(int iBin=1; iBin < (h_rebinned_spectrum->GetNbinsX())+1; iBin++){
+		cout << (h_rebinned_spectrum->GetBinContent(iBin));
+		if(iBin != h_rebinned_spectrum->GetNbinsX()) cout << ",";
+	}
+	cout << "]\",\"Olivia 1/21/2022\");" << endl;
+
+
+}
 
 
 void accidentals(int EH, int AD){
 
-	TFile *in_file = new TFile(Form("./TotaledSingles_1500_EH%d.root",EH));
+	TFile *in_file = new TFile(Form("../nH_files/TotaledSingles_1500_EH%d.root",EH));
 	TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT800_3sig_scaled_ad%d",AD));
 
         char name[64];
@@ -69,14 +106,6 @@ void accidentals(int EH, int AD){
 	scale = (scaled_hist->Integral())/(before_hist->Integral());
 
 	cout << "INSERT INTO bg_counts VALUES(\"Olivia 1/21/2022\", " << EH << ", " << AD << ", \"accidental\", " << counts << ", " << sqrt(counts/scale) * scale << ");" << endl;
-
-}
-
-
-void errorOutput(double t13_best, double t13_low, double t13_high){
-
-	cout << "Best fit for sin^2(2t13): " << pow(sin(2*t13_best),2) << endl;
-	cout << "Uncertainty: +" << pow(sin(2*t13_high),2)-pow(sin(2*t13_best),2) << " -" << pow(sin(2*t13_best),2)-pow(sin(2*t13_low),2) << endl;
 
 }
 
@@ -175,3 +204,15 @@ void radN(){
 	}
 }
 
+void effError(double DTeff, double DTeffError, double delayedEff, double delayedEffError){
+
+	cout << "Detection Efficiency Error: " << sqrt(pow(DTeffError/DTeff,2) + pow(delayedEffError/delayedEff,2) + pow(tarpRelError,2)) << endl;
+
+}
+
+void errorOutput(double t13_best, double t13_low, double t13_high){
+
+	cout << "Best fit for sin^2(2t13): " << pow(sin(2*t13_best),2) << endl;
+	cout << "Uncertainty: +" << pow(sin(2*t13_high),2)-pow(sin(2*t13_best),2) << " -" << pow(sin(2*t13_best),2)-pow(sin(2*t13_low),2) << endl;
+
+}
