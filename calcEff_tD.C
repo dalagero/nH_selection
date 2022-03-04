@@ -1219,7 +1219,7 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 	//Save histogram
         char outputname[64];
         char title[80];
-        sprintf(outputname,"./AdSimpleNL/3sig/DT_results.root");
+        sprintf(outputname,"../nH_files/DT_results.root");
 	TFile* outfile=new TFile(outputname, "RECREATE");
 
 	for(int iad = 0; iad < maxAD; iad++){
@@ -2120,7 +2120,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	char title[64];
 
 
-        sprintf(outputname,"./AdSimpleNL/DT800/delayedEnergy.root");
+        sprintf(outputname,"../nH_files/delayedEnergy.root");
 	TFile* outfile=new TFile(outputname, "RECREATE");
 
 		gStyle->SetOptFit(1111);
@@ -2154,11 +2154,64 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 	for(int iad = 0; iad < 8; iad++){
 		//Getting files:
-			sprintf(name,"./AdSimpleNL/DT800/SubtractedAccidentals_1500_EH%dAD%d.root",EH[iad],AD[iad]);
+			sprintf(name,"../nH_files/SubtractedAccidentals_1500_EH%dAD%d.root",EH[iad],AD[iad]);
 			TFile *subFile = new TFile(name);
+			
+			sprintf(name, "../nH_files/TotaledPlots_EH%d_1500.root",EH[iad]);
+			TFile *ibdFile = new TFile(name);
+
+			sprintf(name, "../nH_files/TotaledSingles_1500_EH%d.root",EH[iad]);
+			TFile *accFile = new TFile(name);
 
 		//Getting the histograms:
+			sprintf(name, "h_total_delayed_energy_DT800_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
+			if(DT == 1) sprintf(name, "h_total_delayed_energy_DT800_ad%d", AD[iad]);
+			TH1F* delayed_rate = (TH1F*)ibdFile->Get(name);
+			delayed_rate->SetName(Form("h_Edelayed_subtract_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_norm = (TH1F*)ibdFile->Get(name);
+			delayed_norm->SetName(Form("h_Edelayed_subtract_fine_DT800_norm_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_DTnorm = (TH1F*)ibdFile->Get(name);
+			delayed_DTnorm->SetName(Form("h_Edelayed_subtract_fine_DT800_DTnorm_eh%dad%d",EH[iad],AD[iad]));
+			
 			sprintf(name, "h_Edelayed_subtract_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
+			if(DT == 1) sprintf(name, "h_total_delayed_energy_DT800_scaled_ad%d", AD[iad]);
+			TH1F* acc_rate = (TH1F*)accFile->Get(name);
+			delayed_rate->Add(acc_rate, -1);
+			
+			sprintf(name, "h_Edelayed_subtract_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
+			if(DT == 1) sprintf(name, "h_total_delayed_energy_DT800_norm_ad%d", AD[iad]);
+			TH1F* acc_norm = (TH1F*)accFile->Get(name);
+			delayed_norm->Add(acc_norm, -1);
+
+			sprintf(name, "h_Edelayed_subtract_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
+			if(DT == 1) sprintf(name, "h_total_delayed_energy_DT800_DTnorm_ad%d", AD[iad]);
+			TH1F* acc_DTnorm = (TH1F*)accFile->Get(name);
+			delayed_DTnorm->Add(acc_DTnorm, -1);
+			
+				sprintf(name, "h_Edelayed_IBD_ad%d", AD[iad]); //IBD histogram for error calculation
+		//		if(DT == 1) sprintf(name, "h_Edelayed_IBD_DT800_Ep35_ad%d", AD[iad]);
+	//			if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_Ep35_ad%d", AD[iad]);
+				if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_ad%d", AD[iad]);
+				TH1F* delayed_IBD = (TH1F*)subFile->Get(name);
+
+			TH1F* delayed_fine_rate = (TH1F*)delayed_rate->Clone();
+			delayed_fine_rate->SetName(Form("h_Edelayed_subtract_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_fine_norm = (TH1F*)delayed_norm->Clone();
+			delayed_fine_norm->SetName(Form("h_Edelayed_subtract_fine_DT800_norm_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_fine_DTnorm = (TH1F*)delayed_DTnorm->Clone();
+			delayed_fine_DTnorm->SetName(Form("h_Edelayed_subtract_fine_DT800_DTnorm_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_fine_IBD = (TH1F*)delayed_IBD->Clone();
+			delayed_fine_IBD->SetName(Form("h_Edelayed_IBD_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+
+	/*		sprintf(name, "h_Edelayed_subtract_ad%d", AD[iad]);
 		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
 		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
 			if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_ad%d", AD[iad]);
@@ -2175,15 +2228,11 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_DTnorm_ad%d", AD[iad]);
 //			if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_DTnorm_ad%d", AD[iad]);
 			if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_DTnorm_ad%d", AD[iad]);
-			TH1F* delayed_DTnorm = (TH1F*)subFile->Get(name);
+			TH1F* delayed_DTnorm = (TH1F*)subFile->Get(name);*/
 
-				sprintf(name, "h_Edelayed_IBD_ad%d", AD[iad]); //IBD histogram for error calculation
-		//		if(DT == 1) sprintf(name, "h_Edelayed_IBD_DT800_Ep35_ad%d", AD[iad]);
-	//			if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_Ep35_ad%d", AD[iad]);
-				if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_ad%d", AD[iad]);
-				TH1F* delayed_IBD = (TH1F*)subFile->Get(name);
 
-			sprintf(name, "h_Edelayed_subtract_fine_ad%d", AD[iad]);
+
+/*			sprintf(name, "h_Edelayed_subtract_fine_ad%d", AD[iad]);
 	//		if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
 			if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_ad%d", AD[iad]);
 			TH1F* delayed_fine_rate = (TH1F*)subFile->Get(name);
@@ -2206,11 +2255,11 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		//		if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_Ep35_ad%d", AD[iad]);
 				if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_ad%d", AD[iad]);
 				TH1F* delayed_fine_IBD = (TH1F*)subFile->Get(name);
-				delayed_fine_IBD->SetName(Form("h_Edelayed_IBD_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+				delayed_fine_IBD->SetName(Form("h_Edelayed_IBD_fine_DT800_eh%dad%d",EH[iad],AD[iad]));*/
 
 			cout << "AD"<< iad+1 << endl<< "Rate:\t" << delayed_rate->Integral(delayed_rate->FindBin(2.7),delayed_rate->FindBin(2.8)) << "\twhich is:\t" << 100*delayed_rate->Integral(delayed_rate->FindBin(2.7),delayed_rate->FindBin(2.8))/delayed_rate->Integral(delayed_rate->FindBin(1.5),delayed_rate->FindBin(2.8)) << endl << "Norm:\t" << delayed_norm->Integral(delayed_norm->FindBin(2.7),delayed_norm->FindBin(2.8)) << "\twhich is:\t" << 100*delayed_norm->Integral(delayed_norm->FindBin(2.7),delayed_norm->FindBin(2.8))/delayed_norm->Integral(delayed_norm->FindBin(1.5),delayed_norm->FindBin(2.8)) << endl << "DTnorm:\t" << delayed_DTnorm->Integral(delayed_DTnorm->FindBin(2.7),delayed_DTnorm->FindBin(2.8)) << "\twhich is:\t" << 100*delayed_DTnorm->Integral(delayed_DTnorm->FindBin(2.7),delayed_DTnorm->FindBin(2.8))/delayed_DTnorm->Integral(delayed_DTnorm->FindBin(1.5),delayed_DTnorm->FindBin(2.8)) << endl;
 
-			//Getting histograms of the z-dependence
+/*			//Getting histograms of the z-dependence
 		TH1F* h_Edelayed_ibd_z[NzBins];
 		TH1F* h_Edelayed_sub_rate_z[NzBins];
 		TH1F* h_Edelayed_ibd_z_points[NzPoints];
@@ -2242,10 +2291,9 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 				h_Edelayed_sub_norm_z[iz]->SetBinError(iBin, sqrt(h_Edelayed_ibd_z[iz]->GetBinContent(iBin)));
 				h_Edelayed_sub_DTnorm_z[iz]->SetBinError(iBin, sqrt(h_Edelayed_ibd_z[iz]->GetBinContent(iBin)));
 			}
-		}
+		}*/
 
-
-		for(int iz = 0; iz < NzBins; iz++){
+/*		for(int iz = 0; iz < NzBins; iz++){
 			if((iz*NzPoints)%NzBins == 0) h_Edelayed_sub_rate_z_points[int(iz*NzPoints/NzBins)]=(TH1F*)h_Edelayed_sub_rate_z[iz]->Clone();
 			else h_Edelayed_sub_rate_z_points[int(iz*NzPoints/NzBins)]->Add(h_Edelayed_sub_rate_z[iz]);
 
@@ -2338,7 +2386,6 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 			}
 		}
 
-
 			//Getting histograms of the zVSr2-dependence
 		TH1F* h_Edelayed_ibd_zVSr2[Nr2Bins][NzBins];
 		TH1F* h_Edelayed_sub_rate_zVSr2[Nr2Bins][NzBins];
@@ -2405,7 +2452,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 				}
 			}
 		}
-
+*/
 			//renaming
 			sprintf(name, "h_Edelayed_subtract_rate_eh%dad%d", EH[iad], AD[iad]);
 			if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_rate_eh%dad%d", EH[iad], AD[iad]);
@@ -2469,6 +2516,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 				delayedFit_rate->SetParName(3,"sigma"); //sigma
 				delayedFit_rate->SetParName(4,"lambda"); //lambda
 			delayed_rate->Fit("delayedFit_rate", "R");
+			delayed_rate->SetStats(11111);
 			delayed_rate->Write();
 			delayed_fine_rate->Write();
 			delayed_rate_Sam->GetXaxis()->SetTitle("Energy [MeV]");
@@ -2613,19 +2661,19 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 				lambdaError_norm_Sam[iad] = delayedFit_norm_Sam->GetParError(4);
 				lambdaError_DTnorm_Sam[iad] = delayedFit_DTnorm_Sam->GetParError(4);
 
-		Ehigh_rate[iad] = peak_rate[iad]+5*sigma_rate[iad];
+/*		Ehigh_rate[iad] = peak_rate[iad]+5*sigma_rate[iad];
 		Elow_rate[iad] = peak_rate[iad]-5*sigma_rate[iad];
 		Ehigh_norm[iad] = peak_norm[iad]+5*sigma_norm[iad];
 		Elow_norm[iad] = peak_norm[iad]-5*sigma_norm[iad];
 		Ehigh_DTnorm[iad] = peak_DTnorm[iad]+5*sigma_DTnorm[iad];
-		Elow_DTnorm[iad] = peak_DTnorm[iad]-5*sigma_DTnorm[iad];
+		Elow_DTnorm[iad] = peak_DTnorm[iad]-5*sigma_DTnorm[iad];*/
 
-	/*	Ehigh_rate[iad] = 2.8;
+		Ehigh_rate[iad] = 2.8;
 		Elow_rate[iad] = 1.5;
 		Ehigh_norm[iad] = 2.8;
 		Elow_norm[iad] = 1.5;
 		Ehigh_DTnorm[iad] = 2.8;
-		Elow_DTnorm[iad] = 1.5;*/
+		Elow_DTnorm[iad] = 1.5;
 
 			N_nom_rate[iad] = delayed_fine_rate->Integral(delayed_fine_rate->FindBin(peak_rate[iad]-3*sigma_rate[iad]), delayed_fine_rate->FindBin(peak_rate[iad]+3*sigma_rate[iad]));
 			N_ext_rate[iad] = delayed_fine_rate->Integral(delayed_fine_rate->FindBin(Elow_rate[iad]), delayed_fine_rate->FindBin(Ehigh_rate[iad]));
@@ -2674,7 +2722,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 			h_efficiency_sigma_DTnorm[iad]->SetBinContent(iBin, (delayed_fine_DTnorm->Integral(delayed_fine_DTnorm->FindBin(peak_DTnorm[iad]-fract_sigma*sigma_DTnorm[iad]), delayed_fine_DTnorm->FindBin(peak_DTnorm[iad]+fract_sigma*sigma_DTnorm[iad])))/(delayed_fine_DTnorm->Integral(delayed_fine_DTnorm->FindBin(Elow_DTnorm[iad]), delayed_fine_DTnorm->FindBin(Ehigh_DTnorm[iad]))));
 		} 
 
-		//for z-dependence:
+/*		//for z-dependence:
 		for(int iz = 0; iz<NzPoints; iz++){
 			N_nom_rate_z[iad][iz] = h_Edelayed_sub_rate_z_points[iz]->Integral(h_Edelayed_sub_rate_z_points[iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad]), h_Edelayed_sub_rate_z_points[iz]->FindBin(peak_rate[iad]+3*sigma_rate[iad]));
 			N_ext_rate_z[iad][iz] = h_Edelayed_sub_rate_z_points[iz]->Integral(h_Edelayed_sub_rate_z_points[iz]->FindBin(Elow_rate[iad]), h_Edelayed_sub_rate_z_points[iz]->FindBin(Ehigh_rate[iad]));
@@ -2727,12 +2775,12 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 				efficiencyError_rate_zVSr2[iad][ir2][iz] = sqrt(pow((h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]+3*sigma_rate[iad])))/pow(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Elow_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Ehigh_rate[iad])),2),2)*(h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(Elow_rate[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad]))+h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(Ehigh_rate[iad]))) + pow(1./(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Elow_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Ehigh_rate[iad])))-(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]+3*sigma_rate[iad])))/pow(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Elow_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Ehigh_rate[iad])),2),2)*h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]+ 3*sigma_rate[iad])));
 
-		/*		double N_outer = h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Elow_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad])) + h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]+3*sigma_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Ehigh_rate[iad]));
-				efficiencyError_rate_zVSr2[iad][ir2][iz] = pow(efficiency_rate_zVSr2[iad][ir2][iz],2)*N_outer/N_nom_rate_zVSr2[iad][ir2][iz]*sqrt(pow(sqrt(N_outer)/N_outer,2)+pow(sqrt(N_nom_rate_zVSr2[iad][ir2][iz])/N_nom_rate_zVSr2[iad][ir2][iz],2));*/
+		//		double N_outer = h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Elow_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]-3*sigma_rate[iad])) + h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(peak_rate[iad]+3*sigma_rate[iad]), h_Edelayed_sub_rate_zVSr2_points[ir2][iz]->FindBin(Ehigh_rate[iad]));
+		//		efficiencyError_rate_zVSr2[iad][ir2][iz] = pow(efficiency_rate_zVSr2[iad][ir2][iz],2)*N_outer/N_nom_rate_zVSr2[iad][ir2][iz]*sqrt(pow(sqrt(N_outer)/N_outer,2)+pow(sqrt(N_nom_rate_zVSr2[iad][ir2][iz])/N_nom_rate_zVSr2[iad][ir2][iz],2));
 
-				N_nom_norm_zVSr2[iad][ir2][iz] = h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]+3*sigma_norm[iad]));
-				N_ext_norm_zVSr2[iad][ir2][iz] = h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Elow_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Ehigh_norm[iad]));
-				efficiency_norm_zVSr2[iad][ir2][iz] = N_nom_norm_zVSr2[iad][ir2][iz]/N_ext_norm_zVSr2[iad][ir2][iz];
+		//		N_nom_norm_zVSr2[iad][ir2][iz] = h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]+3*sigma_norm[iad]));
+		//		N_ext_norm_zVSr2[iad][ir2][iz] = h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Elow_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Ehigh_norm[iad]));
+		//		efficiency_norm_zVSr2[iad][ir2][iz] = N_nom_norm_zVSr2[iad][ir2][iz]/N_ext_norm_zVSr2[iad][ir2][iz];
 
 				efficiencyError_norm_zVSr2[iad][ir2][iz] = sqrt(pow((h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]+3*sigma_norm[iad])))/pow(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Elow_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Ehigh_norm[iad])),2),2)*(h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(Elow_norm[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]))+h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(Ehigh_norm[iad]))) + pow(1./(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Elow_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Ehigh_norm[iad])))-(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]+3*sigma_norm[iad])))/pow(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Elow_norm[iad]), h_Edelayed_sub_norm_zVSr2_points[ir2][iz]->FindBin(Ehigh_norm[iad])),2),2)*h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]-3*sigma_norm[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_norm[iad]+ 3*sigma_norm[iad])));
 
@@ -2742,14 +2790,14 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 				efficiencyError_DTnorm_zVSr2[iad][ir2][iz] = sqrt(pow((h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]-3*sigma_DTnorm[iad]), h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]+3*sigma_DTnorm[iad])))/pow(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(Elow_DTnorm[iad]), h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(Ehigh_DTnorm[iad])),2),2)*(h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(Elow_DTnorm[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]-3*sigma_DTnorm[iad]))+h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]-3*sigma_DTnorm[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(Ehigh_DTnorm[iad]))) + pow(1./(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(Elow_DTnorm[iad]), h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(Ehigh_DTnorm[iad])))-(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]-3*sigma_DTnorm[iad]), h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]+3*sigma_DTnorm[iad])))/pow(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->Integral(h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(Elow_DTnorm[iad]), h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->FindBin(Ehigh_DTnorm[iad])),2),2)*h_Edelayed_ibd_zVSr2_points[ir2][iz]->Integral(h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]-3*sigma_DTnorm[iad]), h_Edelayed_ibd_zVSr2_points[ir2][iz]->FindBin(peak_DTnorm[iad]+ 3*sigma_DTnorm[iad])));
 			}
-		}
+		}*/
 
 		delayed_IBD->SetName(Form("h_Edelayed_ibd_eh%dad%d",EH[iad],AD[iad]));
 		delayed_IBD->Write();
 		delayed_fine_IBD->Write();
 
 	int colors_zSlices[8] = {kBlack, kRed, kGreen, kBlue, kMagenta, kOrange, kCyan, kGray+1};
-		for(int iz = 0; iz < NzPoints; iz++){
+/*		for(int iz = 0; iz < NzPoints; iz++){
 			h_Edelayed_sub_rate_z_points[iz]->SetStats(0);
 			h_Edelayed_sub_rate_z_points[iz]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
 			h_Edelayed_sub_rate_z_points[iz]->GetYaxis()->SetTitle("Counts");
@@ -2804,7 +2852,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		linPEAK->Draw("same");
 		z_slice_Ed_perAD->SetGridy();
 		//z_slice_Ed_perAD->BuildLegend();
-		z_slice_Ed_perAD->Print(Form("./AdSimpleNL/DT800/z_slices_EH%dAD%d.png",EH[iad],AD[iad]));
+		z_slice_Ed_perAD->Print(Form("../nH_files/z_slices_EH%dAD%d.png",EH[iad],AD[iad]));
 
 //	TCanvas *r2_slice_Ed_perAD = new TCanvas(Form("r2_slice_Ed_eh%dad%d",EH[iad],AD[iad]),Form("r2_slice_Ed_eh%dad%d",EH[iad],AD[iad]));
 	r2_slice_Ed_perAD->cd(iad);
@@ -2829,7 +2877,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		linPEAKr->Draw("same");
 		r2_slice_Ed_perAD->SetGridy();
 		//r2_slice_Ed_perAD->BuildLegend();
-		r2_slice_Ed_perAD->Print(Form("./AdSimpleNL/DT800/r2_slices_EH%dAD%d.png",EH[iad],AD[iad]));
+		r2_slice_Ed_perAD->Print(Form("../nH_files/r2_slices_EH%dAD%d.png",EH[iad],AD[iad]));
 
 	TCanvas *zVSr2_slice_Ed_perAD = new TCanvas(Form("zVSr2_slice_Ed_eh%dad%d",EH[iad],AD[iad]),Form("zVSr2_slice_Ed_eh%dad%d",EH[iad],AD[iad]));
 	zVSr2_slice_Ed_perAD->cd();  //consider various marker styles
@@ -2856,10 +2904,10 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		linPEAKzVSr2->Draw("same");
 		zVSr2_slice_Ed_perAD->SetGridy();
 		//zVSr2_slice_Ed_perAD->BuildLegend();
-		zVSr2_slice_Ed_perAD->Print(Form("./AdSimpleNL/DT800/zVSr2_slices_EH%dAD%d.png",EH[iad],AD[iad]));
-
+		zVSr2_slice_Ed_perAD->Print(Form("../nH_files/zVSr2_slices_EH%dAD%d.png",EH[iad],AD[iad]));
+*/
 		outfile->cd();
-		for(int iz = 0; iz < NzPoints; iz++){
+/*		for(int iz = 0; iz < NzPoints; iz++){
 			h_Edelayed_sub_rate_z_points[iz]->SetStats(0);
 			h_Edelayed_sub_rate_z_points[iz]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
 			h_Edelayed_sub_rate_z_points[iz]->GetYaxis()->SetTitle("Counts");
@@ -2910,13 +2958,13 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 				h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->GetYaxis()->SetTitle("Counts");
 				h_Edelayed_sub_DTnorm_zVSr2_points[ir2][iz]->Write();
 			}
-		}
+		}*/
 	//	subFile->Close();
 
 	}
 
 
-	for(int iad = 0; iad < 8; iad++){
+/*	for(int iad = 0; iad < 8; iad++){
 		for(int iz = 0; iz < NzPoints; iz++){
 			h_Edelayed_sub_rate_z[iad][iz] = (TH1F*)outfile->Get(Form("h_Edelayed_sub_rate_z_points_eh%dad%d_iz%d", EH[iad], AD[iad],iz));
 			h_Edelayed_sub_norm_z[iad][iz] = (TH1F*)outfile->Get(Form("h_Edelayed_sub_norm_z_points_eh%dad%d_iz%d", EH[iad], AD[iad],iz));
@@ -2971,27 +3019,27 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 				h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]->SetName(Form("h_Edelayed_sub_norm_zVSr2_eh%dad%d_ir2%d_iz%d",EH[iad],AD[iad],ir2+1, iz+1));
 				h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]->SetName(Form("h_Edelayed_sub_DTnorm_zVSr2_eh%dad%d_ir2%d_iz%d",EH[iad],AD[iad],ir2+1, iz+1));
 
-	/*			if(iad == 0){
-					h_Edelayed_sub_rate_zVSr2_near[ir2][iz] = (TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]->Clone();
-					h_Edelayed_sub_norm_zVSr2_near[ir2][iz] = (TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]->Clone();
-					h_Edelayed_sub_DTnorm_zVSr2_near[ir2][iz] = (TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]->Clone();
-				}
-				else if(iad < 5){
-					h_Edelayed_sub_rate_zVSr2_near[ir2][iz]->Add((TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]);
-					h_Edelayed_sub_norm_zVSr2_near[ir2][iz]->Add((TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]);
-					h_Edelayed_sub_DTnorm_zVSr2_near[ir2][iz]->Add((TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]);
-				}
+	//			if(iad == 0){
+	//				h_Edelayed_sub_rate_zVSr2_near[ir2][iz] = (TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]->Clone();
+	//				h_Edelayed_sub_norm_zVSr2_near[ir2][iz] = (TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]->Clone();
+	//				h_Edelayed_sub_DTnorm_zVSr2_near[ir2][iz] = (TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]->Clone();
+	//			}
+	//			else if(iad < 5){
+	//				h_Edelayed_sub_rate_zVSr2_near[ir2][iz]->Add((TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]);
+	//				h_Edelayed_sub_norm_zVSr2_near[ir2][iz]->Add((TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]);
+	//				h_Edelayed_sub_DTnorm_zVSr2_near[ir2][iz]->Add((TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]);
+	//			}
 
-				if(iad == 5){
-					h_Edelayed_sub_rate_zVSr2_far[ir2][iz] = (TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]->Clone();
-					h_Edelayed_sub_norm_zVSr2_far[ir2][iz] = (TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]->Clone();
-					h_Edelayed_sub_DTnorm_zVSr2_far[ir2][iz] = (TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]->Clone();
-				}
-				else{
-					h_Edelayed_sub_rate_zVSr2_far[ir2][iz]->Add((TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]);
-					h_Edelayed_sub_norm_zVSr2_far[ir2][iz]->Add((TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]);
-					h_Edelayed_sub_DTnorm_zVSr2_far[ir2][iz]->Add((TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]);
-				}*/
+	//			if(iad == 5){
+	//				h_Edelayed_sub_rate_zVSr2_far[ir2][iz] = (TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]->Clone();
+	//				h_Edelayed_sub_norm_zVSr2_far[ir2][iz] = (TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]->Clone();
+	//				h_Edelayed_sub_DTnorm_zVSr2_far[ir2][iz] = (TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]->Clone();
+	//			}
+	//			else{
+	//				h_Edelayed_sub_rate_zVSr2_far[ir2][iz]->Add((TH1F*)h_Edelayed_sub_rate_zVSr2[iad][ir2][iz]);
+	//				h_Edelayed_sub_norm_zVSr2_far[ir2][iz]->Add((TH1F*)h_Edelayed_sub_norm_zVSr2[iad][ir2][iz]);
+	//				h_Edelayed_sub_DTnorm_zVSr2_far[ir2][iz]->Add((TH1F*)h_Edelayed_sub_DTnorm_zVSr2[iad][ir2][iz]);
+	//			}
 			}
 		}
 	}
@@ -3037,7 +3085,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 			efficiency_DTnorm_zVSr2_far[ir2][iz] = N_nom_DTnorm_zVSr2_far[ir2][iz]/N_ext_DTnorm_zVSr2_far[ir2][iz];
 		}
 	}
-
+*/
 
 	//histograms - values vs AD:
 	double peakAvg = 0;
@@ -3840,8 +3888,9 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	//	h_relDif_DTnorm_Sam_ADs->Draw("e1x0 same");
 	relDifVsAD_AllFits->BuildLegend();
 
-	TH1D* h_efficiency_z_rate[8];
 	int colors_AD[8] = {kBlack, kRed, kGreen, kBlue, kMagenta, kOrange, kCyan, kGray+1};
+
+/*	TH1D* h_efficiency_z_rate[8];
 	for(int iad = 0; iad < 8; iad++){
 		h_efficiency_z_rate[iad]=new TH1D(Form("h_effiency_z_rate_eh%dad%d",EH[iad],AD[iad]),Form("h_effiency_z_rate_eh%dad%d",EH[iad],AD[iad]),NzPoints,0.42+iad*.02,0.42+iad*.02+NzPoints);
 		for(int iz = 0; iz < NzPoints; iz++){ //filling histograms
@@ -3951,7 +4000,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		}
 		z_slice_compADs_rate->SetGridy();
 		//z_slice_compADs_rate->BuildLegend();
-		z_slice_compADs_rate->Print(Form("./AdSimpleNL/DT800/z_slice_compADs_rate_iz%d.png",iz+1));
+		z_slice_compADs_rate->Print(Form("../nH_files/z_slice_compADs_rate_iz%d.png",iz+1));
 	}
 
 	TH1D* h_efficiency_r2_rate[8];
@@ -4065,7 +4114,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		}
 		r2_slice_compADs_rate->SetGridy();
 		//r2_slice_compADs_rate->BuildLegend();
-		r2_slice_compADs_rate->Print(Form("./AdSimpleNL/DT800/r2_slice_compADs_rate_ir2%d.png",ir2+1));
+		r2_slice_compADs_rate->Print(Form("../nH_files/r2_slice_compADs_rate_ir2%d.png",ir2+1));
 	}
 
 
@@ -4104,7 +4153,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	zVSr2_slice_effs_rate->SetGridy();
 	zVSr2_slice_effs_rate->BuildLegend();
 
-
+*/
 
 
 /*	TCanvas *z_slice_effs_nearVSfar = new TCanvas("z_slice_effs_nearVSfar","z_slice_effs_nearVSfar");
@@ -4136,7 +4185,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		}
 	eff_sigma_rate->SetGridy();
 	eff_sigma_rate->BuildLegend();
-	eff_sigma_rate->Print("./AdSimpleNL/DT800/effSigma_rate.png");
+	eff_sigma_rate->Print("../nH_files/effSigma_rate.png");
 
 	TCanvas *eff_sigma_norm = new TCanvas("eff_sigma_norm","eff_sigma_norm");
 	eff_sigma_norm->cd();
@@ -4200,7 +4249,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		h_eff_sigma_nearFarDiff_rate->GetYaxis()->SetTitle("Near Avg - Far Avg Efficiency");
 		h_eff_sigma_nearFarDiff_rate->Draw();
 	eff_sigma_nearFarDiff_rate->SetGridy();
-	eff_sigma_nearFarDiff_rate->Print("./AdSimpleNL/DT800/effSigma_nearFarDiff_rate.png");
+	eff_sigma_nearFarDiff_rate->Print("../nH_files/effSigma_nearFarDiff_rate.png");
 
 	TCanvas *eff_sigma_nearFarDiff_norm = new TCanvas("eff_sigma_nearFarDiff_norm","eff_sigma_nearFarDiff_norm");
 	eff_sigma_nearFarDiff_norm->cd();
@@ -4367,7 +4416,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	int colors_zSlices[8] = {kBlack, kRed, kGreen, kBlue, kMagenta, kOrange, kCyan, kGray+1};
 
 //Do a near-far comparison of shape for the z-slices here
-	TH1F* h_Edelayed_sub_rate_z_near[NzPoints];
+/*	TH1F* h_Edelayed_sub_rate_z_near[NzPoints];
 	TH1F* h_Edelayed_sub_rate_z_far[NzPoints];
 	TH1F* h_Edelayed_sub_rate_z_nfRatio[NzPoints];
 	for(int iz = 0; iz < NzPoints; iz++){
@@ -4412,7 +4461,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		h_Edelayed_sub_rate_z_nfRatio[iz]->Draw();
 
 	}
-
+*/
 /*	TCanvas *nearADs_EdSub_z = new TCanvas("nearADs_EdSub_z","nearADs_EdSub_z");
 	nearADs_EdSub_z->cd();
 		h_Edelayed_sub_rate_z_near[0]->Draw();
@@ -4423,7 +4472,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 
 //Do a near-far comparison of shape for the r2-slices here
-	TH1F* h_Edelayed_sub_rate_r2_near[Nr2Points];
+/*	TH1F* h_Edelayed_sub_rate_r2_near[Nr2Points];
 	TH1F* h_Edelayed_sub_rate_r2_far[Nr2Points];
 	TH1F* h_Edelayed_sub_rate_r2_nfRatio[Nr2Points];
 	for(int ir2 = 0; ir2 < Nr2Points; ir2++){
@@ -4467,7 +4516,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	nearFar_EdRatio_r2->cd();
 		h_Edelayed_sub_rate_r2_nfRatio[ir2]->Draw();
 	}
-
+*/
 /*	TCanvas *nearADs_EdSub_r2 = new TCanvas("nearADs_EdSub_r2","nearADs_EdSub_r2");
 	nearADs_EdSub_r2->cd();
 		h_Edelayed_sub_rate_r2_near[0]->Draw();
@@ -4513,7 +4562,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 
 //zVSr2 efficiency comparisons
-	TH1D* h_efficiency_zVSr2_rate_nearVSfar[2];
+/*	TH1D* h_efficiency_zVSr2_rate_nearVSfar[2];
 	h_efficiency_zVSr2_rate_nearVSfar[0]=new TH1D("h_effiency_zVSr2_rate_near","h_effiency_zVSr2_rate_near",NzPoints*Nr2Points,0.42+0*.02,0.42+0*.02+Nr2Points*NzPoints);
 	h_efficiency_zVSr2_rate_nearVSfar[1]=new TH1D("h_effiency_zVSr2_rate_far","h_effiency_zVSr2_rate_far",NzPoints*Nr2Points,0.42+(1+4)*.02,0.42+(1+4)*.02+Nr2Points*NzPoints);
 	for(int iad = 0; iad < 2; iad++){
@@ -4549,7 +4598,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		h_efficiency_zVSr2_rate_nearVSfar[1]->Draw("e1x0 same");
 	zVSr2_slice_effs_rate_nearVSfar->SetGridy();
 	zVSr2_slice_effs_rate_nearVSfar->BuildLegend();
-
+*/
 
 
 }
@@ -4568,7 +4617,7 @@ void delayed_NvsF(int far_shift, int extRange){ //for extRange: 0 is fixed 1.5-2
 	char title[64];
 
 cout << "1" << endl;
-        sprintf(inputname,"./AdSimpleNL/DT800/delayedEnergy.root");
+        sprintf(inputname,"../nH_files/delayedEnergy.root");
 	TFile* infile=new TFile(inputname, "READ");
 cout << "2" << endl;
 	TH1F* Ed_rate_totAD_near = (TH1F*)infile->Get(Form("h_Edelayed_subtract_DT800_rate_eh%dad%d", EH[0], AD[0]));
