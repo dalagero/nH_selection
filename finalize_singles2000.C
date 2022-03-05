@@ -1567,8 +1567,8 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			TH1F *h_run_delayed_energy_DT800 = (TH1F*)runFile->Get(name);
 			h_total_delayed_energy_DT800[iad]->Add(h_run_delayed_energy_DT800);
 
-	//		sprintf(name,"h_d_singles_energy_fine_DT800_ad%d",iad+1);
-	//		TH1F *h_run_delayed_energy_fine_DT800 = (TH1F*)runFile->Get(name);
+			sprintf(name,"h_d_singles_energy_fine_DT800_ad%d",iad+1);
+			h_run_delayed_energy_fine_DT800_scaled[iad] = (TH1F*)runFile->Get(name);
 	//		h_total_delayed_energy_fine_DT800[iad]->Add(h_run_delayed_energy_fine_DT800);
 
 				sprintf(name,"h_acc_distVStime_ad%d",iad+1);
@@ -1820,10 +1820,10 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 				h_run_delayed_energy_fine_scaled[iad]->SetBinContent(ibin, binCounts);
 				h_run_delayed_energy_fine_scaled[iad]->SetBinError(ibin,sqrt(binCounts));
 
-				binCounts = 0;
-				binCounts = h_run_delayed_energy_fine_DT800->GetBinContent(ibin);
-				h_run_delayed_energy_fine_DT800_scaled[iad]->SetBinContent(ibin, binCounts);
-				h_run_delayed_energy_fine_DT800_scaled[iad]->SetBinError(ibin,sqrt(binCounts));
+	//			binCounts = 0;
+	//			binCounts = h_run_delayed_energy_fine_DT800->GetBinContent(ibin);
+	//			h_run_delayed_energy_fine_DT800_scaled[iad]->SetBinContent(ibin, binCounts);
+	//			h_run_delayed_energy_fine_DT800_scaled[iad]->SetBinError(ibin,sqrt(binCounts));
 			}
 
 	/*		h_run_acc_distance_scaled[iad]->Scale(scale[2*(EH-1)+iad]);
