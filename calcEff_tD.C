@@ -2169,11 +2169,26 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
 			if(DT == 1) sprintf(name, "h_total_delayed_energy_DT800_ad%d", AD[iad]);
 			TH1F* delayed_rate = (TH1F*)ibdFile->Get(name);
-			delayed_rate->SetName(Form("h_Edelayed_subtract_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+			delayed_rate->SetName(Form("h_Edelayed_subtract_DT800_eh%dad%d",EH[iad],AD[iad]));
 			TH1F* delayed_norm = (TH1F*)ibdFile->Get(name);
-			delayed_norm->SetName(Form("h_Edelayed_subtract_fine_DT800_norm_eh%dad%d",EH[iad],AD[iad]));
+			delayed_norm->SetName(Form("h_Edelayed_subtract_DT800_norm_eh%dad%d",EH[iad],AD[iad]));
 			TH1F* delayed_DTnorm = (TH1F*)ibdFile->Get(name);
-			delayed_DTnorm->SetName(Form("h_Edelayed_subtract_fine_DT800_DTnorm_eh%dad%d",EH[iad],AD[iad]));
+			delayed_DTnorm->SetName(Form("h_Edelayed_subtract_DT800_DTnorm_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_IBD = (TH1F*)ibdFile->Get(name);
+			delayed_IBD->SetName(Form("h_Edelayed_IBD_DT800_eh%dad%d",EH[iad],AD[iad]));
+			
+			sprintf(name, "h_total_delayed_energy_fine_DT800_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
+		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_fine_DT800_Ep35_ad%d", AD[iad]);
+			if(DT == 1) sprintf(name, "h_total_delayed_energy_fine_DT800_ad%d", AD[iad]);
+			TH1F* delayed_fine_rate = (TH1F*)ibdFile->Get(name);
+			delayed_fine_rate->SetName(Form("h_Edelayed_subtract_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_fine_norm = (TH1F*)ibdFile->Get(name);
+			delayed_fine_norm->SetName(Form("h_Edelayed_subtract_fine_DT800_norm_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_fine_DTnorm = (TH1F*)ibdFile->Get(name);
+			delayed_fine_DTnorm->SetName(Form("h_Edelayed_subtract_fine_DT800_DTnorm_eh%dad%d",EH[iad],AD[iad]));
+			TH1F* delayed_fine_IBD = (TH1F*)ibdFile->Get(name);
+			delayed_fine_IBD->SetName(Form("h_Edelayed_IBD_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
 			
 			sprintf(name, "h_Edelayed_subtract_ad%d", AD[iad]);
 		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
@@ -2196,20 +2211,36 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 			TH1F* acc_DTnorm = (TH1F*)accFile->Get(name);
 			delayed_DTnorm->Add(acc_DTnorm, -1);
 			
-				sprintf(name, "h_Edelayed_IBD_ad%d", AD[iad]); //IBD histogram for error calculation
+
+			sprintf(name, "h_total_delayed_energy_fine_DT800_scaled_1_ad%d", AD[iad]);
+			TH1F* acc_rate_fine_1 = (TH1F*)accFile->Get(name);
+			delayed_fine_rate->Add(acc_rate_fine_1, -1);
+			sprintf(name, "h_total_delayed_energy_fine_DT800_scaled_2_ad%d", AD[iad]);
+			TH1F* acc_rate_fine_2 = (TH1F*)accFile->Get(name);
+			delayed_fine_rate->Add(acc_rate_fine_2, -1);
+
+			sprintf(name, "h_total_delayed_energy_fine_DT800_norm_1_ad%d", AD[iad]);
+			TH1F* acc_norm_fine_1 = (TH1F*)accFile->Get(name);
+			delayed_fine_norm->Add(acc_norm_fine_1, -1);
+			sprintf(name, "h_total_delayed_energy_fine_DT800_norm_2_ad%d", AD[iad]);
+			TH1F* acc_norm_fine_2 = (TH1F*)accFile->Get(name);
+			delayed_fine_norm->Add(acc_norm_fine_2, -1);
+
+			sprintf(name, "h_total_delayed_energy_fine_DT800_DTnorm_1_ad%d", AD[iad]);
+			TH1F* acc_DTnorm_fine_1 = (TH1F*)accFile->Get(name);
+			delayed_fine_DTnorm->Add(acc_DTnorm_fine_1, -1);
+			sprintf(name, "h_total_delayed_energy_fine_DT800_DTnorm_2_ad%d", AD[iad]);
+			TH1F* acc_DTnorm_fine_2 = (TH1F*)accFile->Get(name);
+			delayed_fine_DTnorm->Add(acc_DTnorm_fine_2, -1);
+			
+		//		sprintf(name, "h_Edelayed_IBD_ad%d", AD[iad]); //IBD histogram for error calculation
 		//		if(DT == 1) sprintf(name, "h_Edelayed_IBD_DT800_Ep35_ad%d", AD[iad]);
 	//			if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_Ep35_ad%d", AD[iad]);
-				if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_ad%d", AD[iad]);
-				TH1F* delayed_IBD = (TH1F*)subFile->Get(name);
+		//		if(DT == 1) sprintf(name, "h_Edelayed_IBD_fine_DT800_ad%d", AD[iad]);
+		//		TH1F* delayed_IBD = (TH1F*)subFile->Get(name);
 
-			TH1F* delayed_fine_rate = (TH1F*)delayed_rate->Clone();
-			delayed_fine_rate->SetName(Form("h_Edelayed_subtract_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
-			TH1F* delayed_fine_norm = (TH1F*)delayed_norm->Clone();
-			delayed_fine_norm->SetName(Form("h_Edelayed_subtract_fine_DT800_norm_eh%dad%d",EH[iad],AD[iad]));
-			TH1F* delayed_fine_DTnorm = (TH1F*)delayed_DTnorm->Clone();
-			delayed_fine_DTnorm->SetName(Form("h_Edelayed_subtract_fine_DT800_DTnorm_eh%dad%d",EH[iad],AD[iad]));
-			TH1F* delayed_fine_IBD = (TH1F*)delayed_IBD->Clone();
-			delayed_fine_IBD->SetName(Form("h_Edelayed_IBD_fine_DT800_eh%dad%d",EH[iad],AD[iad]));
+
+
 
 	/*		sprintf(name, "h_Edelayed_subtract_ad%d", AD[iad]);
 		//	if(DT == 1) sprintf(name, "h_Edelayed_subtract_DT800_Ep35_ad%d", AD[iad]);
@@ -3797,6 +3828,21 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		h_relDif_norm_Sam_ADs->Fill(i+1, relDif_norm_Sam[i]);
 		h_relDif_DTnorm_Sam_ADs->Fill(i+1, relDif_DTnorm_Sam[i]);*/
 	}
+	
+	double temp_eff_low = 0;
+	double temp_eff_high = 0;
+	cout << "Delayed energy cut efficiencies:" << endl;
+	for(int i=0; i<8; i++){
+		if(i==0){
+			temp_eff_low = efficiency_rate[i];
+			temp_eff_high = efficiency_rate[i];
+		}
+		cout << i+1 << "\t" << efficiency_rate[i] << endl;
+		if(efficiency_rate[i] < temp_eff_low) temp_eff_low = efficiency_rate[i];
+		if(efficiency_rate[i] > temp_eff_high) temp_eff_high = efficiency_rate[i];
+	}
+	cout << "Uncertainty = " << (temp_eff_high - temp_eff_low)/2. << endl;
+	
 
 	TCanvas *absDifVsAD_AllFits = new TCanvas("absDifVsAD_AllFits","absDifVsAD_AllFits");
 		absDifVsAD_AllFits->cd();
