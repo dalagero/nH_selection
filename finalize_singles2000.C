@@ -464,6 +464,27 @@ void finalize(int hall_num, int pd_window_microsec){
 			h_total_acc_distance_norm[iad]=new TH1F(name,name,700,0,7.);
 		}
 
+		TH1F* h_total_acc_distance_3sig_scaled[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_distance_3sig_scaled_ad%d", iad+1);
+			h_total_acc_distance_3sig_scaled[iad]=new TH1F(name,name,700,0,7.);
+		}
+
+		TH1F* h_total_acc_distance_3sig_norm[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_distance_3sig_norm_ad%d", iad+1);
+			h_total_acc_distance_3sig_norm[iad]=new TH1F(name,name,700,0,7.);
+		}
+
+		TH1F* h_total_acc_distance_3sig_DTnorm[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_distance_3sig_DTnorm_ad%d", iad+1);
+			h_total_acc_distance_3sig_DTnorm[iad]=new TH1F(name,name,700,0,7.);
+		}
+
 		TH1F* h_total_acc_distance_Ep35_scaled[maxAD]; //distance histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
@@ -646,27 +667,50 @@ void finalize(int hall_num, int pd_window_microsec){
 			h_total_delayed_energy_fine_DTnorm[iad]=new TH1F(name,name,23000,0.7,3.);
 		}
 
-		TH1F* h_total_delayed_energy_fine_DT800_scaled[maxAD]; //delayed energy histogram
+		TH1F* h_total_delayed_energy_fine_DT800_scaled_1[maxAD]; //delayed energy histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
-			sprintf(name, "h_total_delayed_energy_fine_DT800_scaled_ad%d", iad+1);
+			sprintf(name, "h_total_delayed_energy_fine_DT800_scaled_1_ad%d", iad+1);
 		//	h_total_delayed_energy_fine_DT800_scaled[iad]=new TH1F(name,name,150,1.5,3.);
-			h_total_delayed_energy_fine_DT800_scaled[iad]=new TH1F(name,name,23000,0.7,3.);
+			h_total_delayed_energy_fine_DT800_scaled_1[iad]=new TH1F(name,name,23000,0.7,3.);
 		}
 
-		TH1F* h_total_delayed_energy_fine_DT800_norm[maxAD]; //delayed energy histogram
+		TH1F* h_total_delayed_energy_fine_DT800_norm_1[maxAD]; //delayed energy histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
-			sprintf(name, "h_total_delayed_energy_fine_DT800_norm_ad%d", iad+1);
+			sprintf(name, "h_total_delayed_energy_fine_DT800_norm_1_ad%d", iad+1);
 		//	h_total_delayed_energy_fine_DT800_norm[iad]=new TH1F(name,name,150,1.5,3.);
-			h_total_delayed_energy_fine_DT800_norm[iad]=new TH1F(name,name,23000,0.7,3.);
+			h_total_delayed_energy_fine_DT800_norm_1[iad]=new TH1F(name,name,23000,0.7,3.);
 		}
 
-		TH1F* h_total_delayed_energy_fine_DT800_DTnorm[maxAD]; //delayed energy histogram
+		TH1F* h_total_delayed_energy_fine_DT800_DTnorm_1[maxAD]; //delayed energy histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
-			sprintf(name, "h_total_delayed_energy_fine_DT800_DTnorm_ad%d", iad+1);
-			h_total_delayed_energy_fine_DT800_DTnorm[iad]=new TH1F(name,name,23000,0.7,3.);
+			sprintf(name, "h_total_delayed_energy_fine_DT800_DTnorm_1_ad%d", iad+1);
+			h_total_delayed_energy_fine_DT800_DTnorm_1[iad]=new TH1F(name,name,23000,0.7,3.);
+		}
+		
+		TH1F* h_total_delayed_energy_fine_DT800_scaled_2[maxAD]; //delayed energy histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_delayed_energy_fine_DT800_scaled_2_ad%d", iad+1);
+		//	h_total_delayed_energy_fine_DT800_scaled[iad]=new TH1F(name,name,150,1.5,3.);
+			h_total_delayed_energy_fine_DT800_scaled_2[iad]=new TH1F(name,name,23000,0.7,3.);
+		}
+
+		TH1F* h_total_delayed_energy_fine_DT800_norm_2[maxAD]; //delayed energy histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_delayed_energy_fine_DT800_norm_2_ad%d", iad+1);
+		//	h_total_delayed_energy_fine_DT800_norm[iad]=new TH1F(name,name,150,1.5,3.);
+			h_total_delayed_energy_fine_DT800_norm_2[iad]=new TH1F(name,name,23000,0.7,3.);
+		}
+
+		TH1F* h_total_delayed_energy_fine_DT800_DTnorm_2[maxAD]; //delayed energy histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_delayed_energy_fine_DT800_DTnorm_2_ad%d", iad+1);
+			h_total_delayed_energy_fine_DT800_DTnorm_2[iad]=new TH1F(name,name,23000,0.7,3.);
 		}
 
 			TH1F* h_total_delayed_energy_fine_Ep35_scaled[maxAD]; //delayed energy histogram
@@ -1132,13 +1176,6 @@ void finalize(int hall_num, int pd_window_microsec){
 			h_total_acc_DT[iad]=new TH1D(name,name,500,0,10);
 		}
 
-		TH1D* h_total_acc_DT_norm[maxAD]; //delta time histogram
-		for(int iad=0; iad<maxAD; ++iad){
-			char name[64];
-			sprintf(name, "h_total_acc_DT_norm_ad%d", iad+1);
-			h_total_acc_DT_norm[iad]=new TH1D(name,name,500,0,10);
-		}
-
 		TH1D* h_total_acc_DT_rate[maxAD]; //delta time histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
@@ -1146,11 +1183,39 @@ void finalize(int hall_num, int pd_window_microsec){
 			h_total_acc_DT_rate[iad]=new TH1D(name,name,500,0,10);
 		}
 
+		TH1D* h_total_acc_DT_norm[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_DT_norm_ad%d", iad+1);
+			h_total_acc_DT_norm[iad]=new TH1D(name,name,500,0,10);
+		}
+
 		TH1D* h_total_acc_DT_DTnorm[maxAD]; //delta time histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
 			sprintf(name, "h_total_acc_DT_DTnorm_ad%d", iad+1);
 			h_total_acc_DT_DTnorm[iad]=new TH1D(name,name,500,0,10);
+		}
+
+		TH1D* h_total_acc_DT_3sig_rate[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_DT_3sig_rate_ad%d", iad+1);
+			h_total_acc_DT_3sig_rate[iad]=new TH1D(name,name,500,0,10);
+		}
+
+		TH1D* h_total_acc_DT_3sig_norm[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_DT_3sig_norm_ad%d", iad+1);
+			h_total_acc_DT_3sig_norm[iad]=new TH1D(name,name,500,0,10);
+		}
+
+		TH1D* h_total_acc_DT_3sig_DTnorm[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_acc_DT_3sig_DTnorm_ad%d", iad+1);
+			h_total_acc_DT_3sig_DTnorm[iad]=new TH1D(name,name,500,0,10);
 		}
 
 		TH1D* h_total_acc_DT_Ep35[maxAD]; //delta time histogram
@@ -1304,7 +1369,7 @@ void finalize(int hall_num, int pd_window_microsec){
 
 		char ibdFileName[64];
 //		sprintf(ibdFileName, "./IBDs/EH%d/summary_TcLong_%d.root",EH,run_num);
-		sprintf(ibdFileName, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+		sprintf(ibdFileName, "./IBDs/EH%d/summary_%d_%d.root",EH,pd_window_microsec,run_num);
 		TFile *ibdFile = new TFile(ibdFileName);
 
 
@@ -1385,7 +1450,7 @@ void finalize(int hall_num, int pd_window_microsec){
 		char runFileName[64];
 //		sprintf(runFileName, "./accResults/EH%d/AccidentalsSummary_%d.root",hall_num, run_num);
 //		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_TcLong_%d.root",hall_num, run_num);
-		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_NU_%d_%d.root",hall_num, pd_window_microsec, run_num);
+		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_%d_%d.root",hall_num, pd_window_microsec, run_num);
 //		sprintf(runFileName, "./accResults/EH%d/round1/AccidentalsPlots_%d.root",hall_num, run_num);
 
 //		sprintf(runFileName, "./delayedSingles/EH%d/foundDelayedSingles_%d_%d.root",hall_num, pd_window_microsec, run_num);
@@ -1586,6 +1651,9 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 				sprintf(name,"h_acc_DT_Ep35_ad%d",iad+1);
 				TH1D *h_run_acc_DT_Ep35 = (TH1D*)runFile->Get(name);
 				h_total_acc_DT_Ep35[iad]->Add(h_run_acc_DT_Ep35);
+
+				sprintf(name,"h_acc_DT_3sig_ad%d",iad+1);
+				TH1D *h_run_acc_DT_3sig = (TH1D*)runFile->Get(name);
 
 			//For largeDist and shortDist plots:
 			sprintf(name,"h_p_singles_energy_largeDist_ad%d",iad+1);
@@ -1846,13 +1914,18 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			sprintf(name,"h_p_singles_energy_DT800_3sig_ad%d",iad+1);
 			TH1F *h_run_prompt_energy_DT800_3sig = (TH1F*)runFile->Get(name);
 
+			sprintf(name,"h_acc_distance_3sig_ad%d",iad+1);
+			TH1F *h_run_acc_distance_3sig = (TH1F*)runFile->Get(name);
+
 			h_total_acc_distance_scaled[iad]->Add(h_run_acc_distance_scaled[iad],scale[2*(EH-1)+iad]);
+				h_total_acc_distance_3sig_scaled[iad]->Add(h_run_acc_distance_3sig,scale[2*(EH-1)+iad]);
 			h_total_acc_distance_Ep35_scaled[iad]->Add(h_run_acc_distance_Ep35_scaled,scale[2*(EH-1)+iad]);
 			h_total_delayed_energy_scaled[iad]->Add(h_run_delayed_energy_scaled[iad],scale[2*(EH-1)+iad]);
 				h_total_delayed_energy_fine_scaled[iad]->Add(h_run_delayed_energy_fine_scaled[iad],scale[2*(EH-1)+iad]);
 			h_total_prompt_energy_scaled[iad]->Add(h_run_prompt_energy_scaled[iad],scale[2*(EH-1)+iad]);
 			h_total_delayed_energy_DT800_scaled[iad]->Add(h_run_delayed_energy_DT800_scaled[iad],scale[2*(EH-1)+iad]);
-				h_total_delayed_energy_fine_DT800_scaled[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],scale[2*(EH-1)+iad]);
+				if(run_order < 550) h_total_delayed_energy_fine_DT800_scaled_1[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],scale[2*(EH-1)+iad]);
+				else h_total_delayed_energy_fine_DT800_scaled_2[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],scale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT800_scaled[iad]->Add(h_run_prompt_energy_DT800_scaled[iad],scale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT800_3sig_scaled[iad]->Add(h_run_prompt_energy_DT800_3sig,scale[2*(EH-1)+iad]);
 //	cout << "Before Ep35" << endl;
@@ -1868,12 +1941,14 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 //	cout << "After Ep35 and DT800_Ep35" << endl;
 
 			h_total_acc_distance_norm[iad]->Add(h_run_acc_distance_scaled[iad],normScale[2*(EH-1)+iad]);
+				h_total_acc_distance_3sig_norm[iad]->Add(h_run_acc_distance_3sig,normScale[2*(EH-1)+iad]);
 			h_total_acc_distance_Ep35_norm[iad]->Add(h_run_acc_distance_Ep35_scaled,normScale[2*(EH-1)+iad]);
 			h_total_delayed_energy_norm[iad]->Add(h_run_delayed_energy_scaled[iad],normScale[2*(EH-1)+iad]);
 				h_total_delayed_energy_fine_norm[iad]->Add(h_run_delayed_energy_fine_scaled[iad],normScale[2*(EH-1)+iad]);
 			h_total_prompt_energy_norm[iad]->Add(h_run_prompt_energy_scaled[iad],normScale[2*(EH-1)+iad]);
 			h_total_delayed_energy_DT800_norm[iad]->Add(h_run_delayed_energy_DT800_scaled[iad],normScale[2*(EH-1)+iad]);
-				h_total_delayed_energy_fine_DT800_norm[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],normScale[2*(EH-1)+iad]);
+				if(run_order < 550) h_total_delayed_energy_fine_DT800_norm_1[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],normScale[2*(EH-1)+iad]);
+				else h_total_delayed_energy_fine_DT800_norm_2[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],normScale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT800_norm[iad]->Add(h_run_prompt_energy_DT800_scaled[iad],normScale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT800_3sig_norm[iad]->Add(h_run_prompt_energy_DT800_3sig,normScale[2*(EH-1)+iad]);
 					h_total_delayed_energy_fine_Ep35_norm[iad]->Add(h_run_delayed_energy_fine_Ep35,normScale[2*(EH-1)+iad]);
@@ -1893,6 +1968,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_acc_distVStime_norm[iad]->Add(h_run_acc_distVStime,normScale[2*(EH-1)+iad]);
 			h_total_acc_distVStime_Ep35_norm[iad]->Add(h_run_acc_distVStime_Ep35,normScale[2*(EH-1)+iad]);
 			h_total_acc_DT_norm[iad]->Add(h_run_acc_DT,normScale[2*(EH-1)+iad]);
+			h_total_acc_DT_3sig_norm[iad]->Add(h_run_acc_DT_3sig,normScale[2*(EH-1)+iad]);
 			h_total_acc_DT_Ep35_norm[iad]->Add(h_run_acc_DT_Ep35,normScale[2*(EH-1)+iad]);
 
 			sprintf(name, "h_delayed_energy_scaled_p35_ad%d", iad+1);
@@ -1955,6 +2031,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_acc_distVStime_rate[iad]->Add(h_run_acc_distVStime,scale[2*(EH-1)+iad]);
 			h_total_acc_distVStime_Ep35_rate[iad]->Add(h_run_acc_distVStime_Ep35,scale[2*(EH-1)+iad]);
 			h_total_acc_DT_rate[iad]->Add(h_run_acc_DT,scale[2*(EH-1)+iad]);
+			h_total_acc_DT_3sig_rate[iad]->Add(h_run_acc_DT_3sig,scale[2*(EH-1)+iad]);
 			h_total_acc_DT_Ep35_rate[iad]->Add(h_run_acc_DT_Ep35,scale[2*(EH-1)+iad]);
 
 			//DT normalized DT plots
@@ -1975,6 +2052,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			DTscale[2*(EH-1)+iad] = (h_ibd_DT->Integral(startBinDT,500))/(h_run_acc_DT->Integral(startBinDT,500));
 
 			h_total_acc_DT_DTnorm[iad]->Add(h_run_acc_DT,DTscale[2*(EH-1)+iad]);
+			h_total_acc_DT_3sig_DTnorm[iad]->Add(h_run_acc_DT_3sig,DTscale[2*(EH-1)+iad]);
 			DTscale_Ep35[2*(EH-1)+iad] = (h_ibd_DT_Ep35->Integral(startBinDT,500))/(h_run_acc_DT_Ep35->Integral(startBinDT,500));
 			h_total_acc_DT_Ep35_DTnorm[iad]->Add(h_run_acc_DT_Ep35,DTscale_Ep35[2*(EH-1)+iad]);
 			h_total_acc_DT_Ep35_DTnorm[iad]->Add(h_run_acc_DT_Ep35,DTscale[2*(EH-1)+iad]);
@@ -1983,10 +2061,12 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_delayed_energy_DTnorm[iad]->Add(h_run_delayed_energy_scaled[iad],DTscale[2*(EH-1)+iad]);
 				h_total_delayed_energy_fine_DTnorm[iad]->Add(h_run_delayed_energy_fine_scaled[iad],DTscale[2*(EH-1)+iad]);
 
+				h_total_acc_distance_3sig_DTnorm[iad]->Add(h_run_acc_distance_3sig,DTscale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT800_DTnorm[iad]->Add(h_run_prompt_energy_DT800_scaled[iad],DTscale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT800_3sig_DTnorm[iad]->Add(h_run_prompt_energy_DT800_3sig,DTscale[2*(EH-1)+iad]);
 			h_total_delayed_energy_DT800_DTnorm[iad]->Add(h_run_delayed_energy_DT800_scaled[iad],DTscale[2*(EH-1)+iad]);
-				h_total_delayed_energy_fine_DT800_DTnorm[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],DTscale[2*(EH-1)+iad]);
+				if(run_order < 550) h_total_delayed_energy_fine_DT800_DTnorm_1[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],DTscale[2*(EH-1)+iad]);
+				else h_total_delayed_energy_fine_DT800_DTnorm_2[iad]->Add(h_run_delayed_energy_fine_DT800_scaled[iad],DTscale[2*(EH-1)+iad]);
 					h_total_delayed_energy_fine_Ep35_DTnorm[iad]->Add(h_run_delayed_energy_fine_Ep35,DTscale[2*(EH-1)+iad]);
 					h_total_delayed_energy_fine_DT800_Ep35_DTnorm[iad]->Add(h_run_delayed_energy_fine_DT800_Ep35,DTscale[2*(EH-1)+iad]);
 
@@ -2080,11 +2160,13 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 	//	if(run_order >= 99) break;
 		run[EH-1] +=1;
 		run_order += 1;
+		
+	//	if(run_order == 550) break;
 	}
 
         char outputname[64];
 //        sprintf(outputname,"./accResults/TotaledSingles_TcLong_EH%d.root",hall_num);
-        sprintf(outputname,"./accResults/TotaledSingles_NU_%d_EH%d.root",pd_window_microsec,hall_num);
+        sprintf(outputname,"./accResults/TotaledSingles_%d_EH%d.root",pd_window_microsec,hall_num);
 //        sprintf(outputname,"./accResults/TotaledSingles_4sigma_EH%d.root",hall_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
@@ -2316,6 +2398,21 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_acc_distance_norm[iad]->GetYaxis()->SetTitle("Counts");
 			h_total_acc_distance_norm[iad]->Write();
 
+			//h_total_acc_distance_3sig_scaled[iad]->SetStats(0);
+			h_total_acc_distance_3sig_scaled[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_total_acc_distance_3sig_scaled[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_acc_distance_3sig_scaled[iad]->Write();
+
+			//h_total_acc_distance_3sig_norm[iad]->SetStats(0);
+			h_total_acc_distance_3sig_norm[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_total_acc_distance_3sig_norm[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_acc_distance_3sig_norm[iad]->Write();
+
+			//h_total_acc_distance_3sig_DTnorm[iad]->SetStats(0);
+			h_total_acc_distance_3sig_DTnorm[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_total_acc_distance_3sig_DTnorm[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_acc_distance_3sig_DTnorm[iad]->Write();
+
 			//h_total_acc_distance_Ep35_scaled[iad]->SetStats(0);
 			h_total_acc_distance_Ep35_scaled[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_total_acc_distance_Ep35_scaled[iad]->GetYaxis()->SetTitle("Counts");
@@ -2450,20 +2547,35 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_delayed_energy_fine_DTnorm[iad]->GetYaxis()->SetTitle("Counts");
 			h_total_delayed_energy_fine_DTnorm[iad]->Write();
 
-			h_total_delayed_energy_fine_DT800_scaled[iad]->SetStats(0);
-			h_total_delayed_energy_fine_DT800_scaled[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
-			h_total_delayed_energy_fine_DT800_scaled[iad]->GetYaxis()->SetTitle("Counts");
-			h_total_delayed_energy_fine_DT800_scaled[iad]->Write();
+			h_total_delayed_energy_fine_DT800_scaled_1[iad]->SetStats(0);
+			h_total_delayed_energy_fine_DT800_scaled_1[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+			h_total_delayed_energy_fine_DT800_scaled_1[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_delayed_energy_fine_DT800_scaled_1[iad]->Write();
 
-			h_total_delayed_energy_fine_DT800_norm[iad]->SetStats(0);
-			h_total_delayed_energy_fine_DT800_norm[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
-			h_total_delayed_energy_fine_DT800_norm[iad]->GetYaxis()->SetTitle("Counts");
-			h_total_delayed_energy_fine_DT800_norm[iad]->Write();
+			h_total_delayed_energy_fine_DT800_norm_1[iad]->SetStats(0);
+			h_total_delayed_energy_fine_DT800_norm_1[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+			h_total_delayed_energy_fine_DT800_norm_1[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_delayed_energy_fine_DT800_norm_1[iad]->Write();
 
-			h_total_delayed_energy_fine_DT800_DTnorm[iad]->SetStats(0);
-			h_total_delayed_energy_fine_DT800_DTnorm[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
-			h_total_delayed_energy_fine_DT800_DTnorm[iad]->GetYaxis()->SetTitle("Counts");
-			h_total_delayed_energy_fine_DT800_DTnorm[iad]->Write();
+			h_total_delayed_energy_fine_DT800_DTnorm_1[iad]->SetStats(0);
+			h_total_delayed_energy_fine_DT800_DTnorm_1[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+			h_total_delayed_energy_fine_DT800_DTnorm_1[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_delayed_energy_fine_DT800_DTnorm_1[iad]->Write();
+			
+			h_total_delayed_energy_fine_DT800_scaled_2[iad]->SetStats(0);
+			h_total_delayed_energy_fine_DT800_scaled_2[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+			h_total_delayed_energy_fine_DT800_scaled_2[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_delayed_energy_fine_DT800_scaled_2[iad]->Write();
+
+			h_total_delayed_energy_fine_DT800_norm_2[iad]->SetStats(0);
+			h_total_delayed_energy_fine_DT800_norm_2[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+			h_total_delayed_energy_fine_DT800_norm_2[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_delayed_energy_fine_DT800_norm_2[iad]->Write();
+
+			h_total_delayed_energy_fine_DT800_DTnorm_2[iad]->SetStats(0);
+			h_total_delayed_energy_fine_DT800_DTnorm_2[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+			h_total_delayed_energy_fine_DT800_DTnorm_2[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_delayed_energy_fine_DT800_DTnorm_2[iad]->Write();
 
 				h_total_delayed_energy_fine_Ep35_scaled[iad]->SetStats(0);
 				h_total_delayed_energy_fine_Ep35_scaled[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
@@ -2717,20 +2829,35 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 				h_total_acc_DT[iad]->GetYaxis()->SetTitle("Counts");
 				h_total_acc_DT[iad]->Write();
 
-		//		h_total_acc_DT_norm[iad]->SetStats(0);
-				h_total_acc_DT_norm[iad]->GetXaxis()->SetTitle("DT [m]");
-				h_total_acc_DT_norm[iad]->GetYaxis()->SetTitle("Counts");
-				h_total_acc_DT_norm[iad]->Write();
-
 		//		h_total_acc_DT_rate[iad]->SetStats(0);
 				h_total_acc_DT_rate[iad]->GetXaxis()->SetTitle("DT [m]");
 				h_total_acc_DT_rate[iad]->GetYaxis()->SetTitle("Counts");
 				h_total_acc_DT_rate[iad]->Write();
 
+		//		h_total_acc_DT_norm[iad]->SetStats(0);
+				h_total_acc_DT_norm[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_total_acc_DT_norm[iad]->GetYaxis()->SetTitle("Counts");
+				h_total_acc_DT_norm[iad]->Write();
+
 		//		h_total_acc_DT_DTnorm[iad]->SetStats(0);
 				h_total_acc_DT_DTnorm[iad]->GetXaxis()->SetTitle("DT [m]");
 				h_total_acc_DT_DTnorm[iad]->GetYaxis()->SetTitle("Counts");
 				h_total_acc_DT_DTnorm[iad]->Write();
+
+		//		h_total_acc_DT_3sig_rate[iad]->SetStats(0);
+				h_total_acc_DT_3sig_rate[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_total_acc_DT_3sig_rate[iad]->GetYaxis()->SetTitle("Counts");
+				h_total_acc_DT_3sig_rate[iad]->Write();
+
+		//		h_total_acc_DT_3sig_norm[iad]->SetStats(0);
+				h_total_acc_DT_3sig_norm[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_total_acc_DT_3sig_norm[iad]->GetYaxis()->SetTitle("Counts");
+				h_total_acc_DT_3sig_norm[iad]->Write();
+
+		//		h_total_acc_DT_3sig_DTnorm[iad]->SetStats(0);
+				h_total_acc_DT_3sig_DTnorm[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_total_acc_DT_3sig_DTnorm[iad]->GetYaxis()->SetTitle("Counts");
+				h_total_acc_DT_3sig_DTnorm[iad]->Write();
 
 		//		h_total_acc_DT_Ep35[iad]->SetStats(0);
 				h_total_acc_DT_Ep35[iad]->GetXaxis()->SetTitle("DT [m]");
@@ -2763,6 +2890,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_acc_promptVStime_DT800_DTnorm[iad]->GetXaxis()->SetTitle("Delta Time [us]");
 			h_total_acc_promptVStime_DT800_DTnorm[iad]->GetYaxis()->SetTitle("Prompt Energy [MeV]");
 			h_total_acc_promptVStime_DT800_DTnorm[iad]->Write();
+			
 
 		}
 

@@ -1325,6 +1325,13 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			sprintf(name, "h_ibd_DT_ad%d", iad+1);
 			h_ibd_DT[iad]=new TH1D(name,name,500,0,10);
 		}
+		
+		TH1D* h_ibd_DT_3sig[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_ibd_DT_3sig_ad%d", iad+1);
+			h_ibd_DT_3sig[iad]=new TH1D(name,name,500,0,10);
+		}
 
 		TH1D* h_ibd_DT_Ep35[maxAD]; //delta time histogram
 		for(int iad=0; iad<maxAD; ++iad){
@@ -1359,6 +1366,13 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			char name[64];
 			sprintf(name, "h_distance_before_Ep35_ad%d", iad+1);
 			h_distance_before_Ep35[iad]=new TH1F(name,name,700,0,7.);
+		}
+
+		TH1F* h_distance_3sig[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_distance_3sig_ad%d", iad+1);
+			h_distance_3sig[iad]=new TH1F(name,name,700,0,7.);
 		}
 
 		TH1F* h_distance_before_400[maxAD]; //distance histogram where Tc < 400 us
@@ -1712,8 +1726,13 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])) h_prompt_energy_DT800_3sig[det_num]->Fill(p_energy);
 		}
 
+
 		h_delta_time_1us[det_num]->Fill(d_sec*1.e6+d_nanosec*1.e-3-p_sec*1.e6-p_nanosec*1.e-3);
 		h_distance_before[det_num]->Fill(distance*1.e-3);
+		if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])){
+			h_distance_3sig[det_num]->Fill(distance*1.e-3);
+			h_ibd_DT_3sig[det_num]->Fill(DTvalue);
+		}
 
 			h_ibd_distVStime[det_num]->Fill(d_sec*1.e6+d_nanosec*1.e-3-p_sec*1.e6-p_nanosec*1.e-3,distance*1.e-3);
 			h_ibd_DT[det_num]->Fill(DTvalue);
@@ -2118,6 +2137,11 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 				h_ibd_DT[iad]->GetYaxis()->SetTitle("Counts");
 				h_ibd_DT[iad]->Write();
 
+		//		h_ibd_DT_3sig[iad]->SetStats(0);
+				h_ibd_DT_3sig[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_ibd_DT_3sig[iad]->GetYaxis()->SetTitle("Counts");
+				h_ibd_DT_3sig[iad]->Write();
+
 		//		h_ibd_DT_Ep35[iad]->SetStats(0);
 				h_ibd_DT_Ep35[iad]->GetXaxis()->SetTitle("DT [m]");
 				h_ibd_DT_Ep35[iad]->GetYaxis()->SetTitle("Counts");
@@ -2138,6 +2162,11 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			h_distance_before_Ep35[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_distance_before_Ep35[iad]->GetYaxis()->SetTitle("Counts");
 			h_distance_before_Ep35[iad]->Write();
+
+			//h_distance_3sig[iad]->SetStats(0);
+			h_distance_3sig[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_distance_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_distance_3sig[iad]->Write();
 
 			//h_distance_before_400[iad]->SetStats(0);
 			h_distance_before_400[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
@@ -2243,11 +2272,11 @@ void all(int run_order, int pd_window_microsec){
 	}
 	fclose(runfile);
 
-	sprintf(outputname_find, "./IBDs/EH%d/foundIBDs_NU_%d_%d.root",EH,pd_window_microsec,run_num);
-	sprintf(outputname_summarize, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+	sprintf(outputname_find, "./IBDs/EH%d/foundIBDs_%d_%d.root",EH,pd_window_microsec,run_num);
+	sprintf(outputname_summarize, "./IBDs/EH%d/summary_%d_%d.root",EH,pd_window_microsec,run_num);
 
 
-	find(run_order, pd_window_microsec); //Finding the IBD candidates
+//	find(run_order, pd_window_microsec); //Finding the IBD candidates
 	summarize(run_num, pd_window_microsec); //Making the plots
 
 }

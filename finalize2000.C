@@ -325,6 +325,13 @@ void finalize(int hall_num, int pd_window_microsec){
 			h_total_distance_before[iad]=new TH1F(name,name,700,0,7.);
 		}
 
+		TH1F* h_total_distance_3sig[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_distance_3sig_ad%d", iad+1);
+			h_total_distance_3sig[iad]=new TH1F(name,name,700,0,7.);
+		}
+
 		TH1F* h_total_distance_before_Ep35[maxAD]; //distance histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
@@ -386,6 +393,13 @@ void finalize(int hall_num, int pd_window_microsec){
 			char name[64];
 			sprintf(name, "h_total_ibd_DT_ad%d", iad+1);
 			h_total_ibd_DT[iad]=new TH1D(name,name,500,0,10);
+		}
+
+		TH1D* h_total_ibd_DT_3sig[maxAD]; //DT histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_total_ibd_DT_3sig_ad%d", iad+1);
+			h_total_ibd_DT_3sig[iad]=new TH1D(name,name,500,0,10);
 		}
 
 		TH1D* h_total_ibd_DT_Ep35[maxAD]; //DT histogram
@@ -743,7 +757,7 @@ void finalize(int hall_num, int pd_window_microsec){
 
 		char runFileName[64];
 //		sprintf(runFileName, "./IBDs/EH%d/summary_TcLong_2_%d.root",EH,run_num);
-		sprintf(runFileName, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+		sprintf(runFileName, "./IBDs/EH%d/summary_%d_%d.root",EH,pd_window_microsec,run_num);
 //		sprintf(runFileName, "./IBDs/EH%d/round1/summary_%d.root",EH,run_num);
 
 		if(FILE *file = fopen(runFileName, "r")) fclose(file);
@@ -851,6 +865,10 @@ void finalize(int hall_num, int pd_window_microsec){
 			sprintf(name,"h_ibd_DT_ad%d",iad+1);
 			TH1D *h_run_ibd_DT = (TH1D*)runFile->Get(name);
 			h_total_ibd_DT[iad]->Add(h_run_ibd_DT);
+
+			sprintf(name,"h_ibd_DT_3sig_ad%d",iad+1);
+			TH1D *h_run_ibd_DT_3sig = (TH1D*)runFile->Get(name);
+			h_total_ibd_DT_3sig[iad]->Add(h_run_ibd_DT_3sig);
 
 			sprintf(name,"h_ibd_DT_Ep35_ad%d",iad+1);
 			TH1D *h_run_ibd_DT_Ep35 = (TH1D*)runFile->Get(name);
@@ -1055,6 +1073,10 @@ void finalize(int hall_num, int pd_window_microsec){
 			TH1F *h_run_distance_before = (TH1F*)runFile->Get(name);
 			h_total_distance_before[iad]->Add(h_run_distance_before);
 
+			sprintf(name,"h_distance_3sig_ad%d",iad+1);
+			TH1F *h_run_distance_3sig = (TH1F*)runFile->Get(name);
+			h_total_distance_3sig[iad]->Add(h_run_distance_3sig);
+
 			sprintf(name,"h_distance_before_Ep35_ad%d",iad+1);
 			TH1F *h_run_distance_before_Ep35 = (TH1F*)runFile->Get(name);
 			h_total_distance_before_Ep35[iad]->Add(h_run_distance_before_Ep35);
@@ -1253,7 +1275,7 @@ void finalize(int hall_num, int pd_window_microsec){
 
         char outputname[64];
 //	sprintf(outputname,"./IBDs/TotaledPlots_TcLong_EH%d_Ep2.root",hall_num);
-	sprintf(outputname,"./IBDs/TotaledPlots_NU_EH%d_%d.root",hall_num,pd_window_microsec);
+	sprintf(outputname,"./IBDs/TotaledPlots_EH%d_%d.root",hall_num,pd_window_microsec);
 //	sprintf(outputname,"./IBDs/TotaledPlots_4sigma_EH%d.root",hall_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
@@ -1287,6 +1309,11 @@ void finalize(int hall_num, int pd_window_microsec){
 				h_total_ibd_DT[iad]->GetXaxis()->SetTitle("DT [m]");
 				h_total_ibd_DT[iad]->GetYaxis()->SetTitle("Counts");
 				h_total_ibd_DT[iad]->Write();
+
+		//		h_total_ibd_DT_3sig[iad]->SetStats(0);
+				h_total_ibd_DT_3sig[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_total_ibd_DT_3sig[iad]->GetYaxis()->SetTitle("Counts");
+				h_total_ibd_DT_3sig[iad]->Write();
 
 		//		h_total_ibd_DT_Ep35[iad]->SetStats(0);
 				h_total_ibd_DT_Ep35[iad]->GetXaxis()->SetTitle("DT [m]");
@@ -1579,6 +1606,11 @@ void finalize(int hall_num, int pd_window_microsec){
 			h_total_distance_before[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_total_distance_before[iad]->GetYaxis()->SetTitle("Counts");
 			h_total_distance_before[iad]->Write();
+
+			//h_total_distance_3sig[iad]->SetStats(0);
+			h_total_distance_3sig[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_total_distance_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_total_distance_3sig[iad]->Write();
 
 			//h_total_distance_before_Ep35[iad]->SetStats(0);
 			h_total_distance_before_Ep35[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");

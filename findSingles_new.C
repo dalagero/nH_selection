@@ -1997,6 +1997,13 @@ void plot(int run_num, float pElow, float pEhigh, float dElow, float dEhigh, int
 			h_acc_distance[iad]=new TH1F(name,name,700,0,7.);
 		}
 
+		TH1F* h_acc_distance_3sig[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_acc_distance_3sig_ad%d", iad+1);
+			h_acc_distance_3sig[iad]=new TH1F(name,name,700,0,7.);
+		}
+
 //Delayed energy plots for various distance ranges
 		TH1F* h_delayed_energy_scaled_dist[maxAD][6]; //delayed energy histogram
 		for(int dist=0; dist<6; dist++){
@@ -2122,6 +2129,13 @@ void plot(int run_num, float pElow, float pEhigh, float dElow, float dEhigh, int
 			char name[64];
 			sprintf(name, "h_acc_DT_ad%d", iad+1);
 			h_acc_DT[iad]=new TH1D(name,name,500,0,10);
+		}
+
+		TH1D* h_acc_DT_3sig[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_acc_DT_3sig_ad%d", iad+1);
+			h_acc_DT_3sig[iad]=new TH1D(name,name,500,0,10);
 		}
 
 		TH1D* h_acc_DT_Ep35[maxAD]; //delta time histogram
@@ -2330,6 +2344,11 @@ void plot(int run_num, float pElow, float pEhigh, float dElow, float dEhigh, int
 			h_acc_promptVStime_DT800[det_num]->Fill(ranTime, p_energy);
 			if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])) h_p_singles_energy_DT800_3sig[det_num]->Fill(p_energy);
 		}
+		
+		if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])){
+			h_acc_distance_3sig[det_num]->Fill(distance*1.e-3);
+			h_acc_DT_3sig[det_num]->Fill(DTvalue);
+		}
 
 		h_d_singles_energy[det_num]->Fill(d_energy);
 		h_d_singles_energy_fine[det_num]->Fill(d_energy);
@@ -2443,6 +2462,11 @@ void plot(int run_num, float pElow, float pEhigh, float dElow, float dEhigh, int
 				h_acc_DT[iad]->GetXaxis()->SetTitle("DT [m]");
 				h_acc_DT[iad]->GetYaxis()->SetTitle("Counts");
 				h_acc_DT[iad]->Write();
+
+		//		h_acc_DT_3sig[iad]->SetStats(0);
+				h_acc_DT_3sig[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_acc_DT_3sig[iad]->GetYaxis()->SetTitle("Counts");
+				h_acc_DT_3sig[iad]->Write();
 
 		//		h_acc_DT_Ep35[iad]->SetStats(0);
 				h_acc_DT_Ep35[iad]->GetXaxis()->SetTitle("DT [m]");
@@ -2585,6 +2609,10 @@ void plot(int run_num, float pElow, float pEhigh, float dElow, float dEhigh, int
 			h_acc_distance[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_acc_distance[iad]->GetYaxis()->SetTitle("Counts");
 			h_acc_distance[iad]->Write();
+
+			h_acc_distance_3sig[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_acc_distance_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_acc_distance_3sig[iad]->Write();
 
 			h_acc_distance_Ep35[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_acc_distance_Ep35[iad]->GetYaxis()->SetTitle("Counts");
@@ -2912,6 +2940,13 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 			h_acc_distance[iad]=new TH1F(name,name,700,0,7.);
 		}
 
+		TH1F* h_acc_distance_3sig[maxAD]; //distance histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_acc_distance_3sig_ad%d", iad+1);
+			h_acc_distance_3sig[iad]=new TH1F(name,name,700,0,7.);
+		}
+
 //Delayed energy plots for various distance ranges
 		TH1F* h_delayed_energy_scaled_dist[maxAD][6]; //delayed energy histogram
 		for(int dist=0; dist<6; dist++){
@@ -3037,6 +3072,13 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 			char name[64];
 			sprintf(name, "h_acc_DT_ad%d", iad+1);
 			h_acc_DT[iad]=new TH1D(name,name,500,0,10);
+		}
+
+		TH1D* h_acc_DT_3sig[maxAD]; //delta time histogram
+		for(int iad=0; iad<maxAD; ++iad){
+			char name[64];
+			sprintf(name, "h_acc_DT_3sig_ad%d", iad+1);
+			h_acc_DT_3sig[iad]=new TH1D(name,name,500,0,10);
 		}
 
 		TH1D* h_acc_DT_Ep35[maxAD]; //delta time histogram
@@ -3262,6 +3304,11 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 				if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])) h_p_singles_energy_DT800_3sig[det_num]->Fill(p_energy);
 			}
 
+			if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])){
+				h_acc_distance_3sig[det_num]->Fill(distance*1.e-3);
+				h_acc_DT_3sig[det_num]->Fill(DTvalue);
+			}
+
 			if(distance*1.e-3 > 5.0)h_delayed_energy_vs_distance[det_num]->Fill(d_energy, 5.25);
 			else h_delayed_energy_vs_distance[det_num]->Fill(d_energy, distance*1.e-3);
 
@@ -3367,6 +3414,11 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 				h_acc_DT[iad]->GetYaxis()->SetTitle("Counts");
 				h_acc_DT[iad]->Write();
 
+		//		h_acc_DT_3sig[iad]->SetStats(0);
+				h_acc_DT_3sig[iad]->GetXaxis()->SetTitle("DT [m]");
+				h_acc_DT_3sig[iad]->GetYaxis()->SetTitle("Counts");
+				h_acc_DT_3sig[iad]->Write();
+
 		//		h_acc_DT_Ep35[iad]->SetStats(0);
 				h_acc_DT_Ep35[iad]->GetXaxis()->SetTitle("DT [m]");
 				h_acc_DT_Ep35[iad]->GetYaxis()->SetTitle("Counts");
@@ -3433,6 +3485,11 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 			h_d_singles_energy_fine[iad]->GetXaxis()->SetTitle("Singles Energy [MeV]");
 			h_d_singles_energy_fine[iad]->GetYaxis()->SetTitle("Counts");
 			h_d_singles_energy_fine[iad]->Write();
+
+		//	h_d_singles_energy_fine_DT800[iad]->SetStats(0);
+			h_d_singles_energy_fine_DT800[iad]->GetXaxis()->SetTitle("Singles Energy [MeV]");
+			h_d_singles_energy_fine_DT800[iad]->GetYaxis()->SetTitle("Counts");
+			h_d_singles_energy_fine_DT800[iad]->Write();
 
 		//	h_delayed_energy_scaled_Ep35[iad]->SetStats(0);
 			h_delayed_energy_scaled_Ep35[iad]->GetXaxis()->SetTitle("Singles Energy [MeV]");
@@ -3506,6 +3563,10 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 			h_acc_distance[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_acc_distance[iad]->GetYaxis()->SetTitle("Counts");
 			h_acc_distance[iad]->Write();
+
+			h_acc_distance_3sig[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_acc_distance_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_acc_distance_3sig[iad]->Write();
 
 			h_acc_distance_Ep35[iad]->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_acc_distance_Ep35[iad]->GetYaxis()->SetTitle("Counts");
@@ -3601,27 +3662,27 @@ void all(int run_order, int pd_window_microsec){
 	}
 	fclose(runfile);
 
-        sprintf(outputname_findPrompt,"./promptSingles/EH%d/foundPromptSingles_NU_%d_%d.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_findDelayed,"./delayedSingles/EH%d/foundDelayedSingles_NU_%d_%d.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize_long1,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d_part1.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize_long2,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d_part2.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize_long3,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d_part3.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_plot,"./accResults/EH%d/AccidentalsPlots_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_findPrompt,"./promptSingles/EH%d/foundPromptSingles_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_findDelayed,"./delayedSingles/EH%d/foundDelayedSingles_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize,"./accResults/EH%d/AccidentalsSummary_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize_long1,"./accResults/EH%d/AccidentalsSummary_%d_%d_part1.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize_long2,"./accResults/EH%d/AccidentalsSummary_%d_%d_part2.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize_long3,"./accResults/EH%d/AccidentalsSummary_%d_%d_part3.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_plot,"./accResults/EH%d/AccidentalsPlots_%d_%d.root",EH,pd_window_microsec,run_num);
 
-	find(run_order, 1.5, 3, pd_window_microsec+400, 400, pd_window_microsec); //For delayed singles -- usually 1.75 to 2.89 MeV
-	find(run_order, 1.5, 12., pd_window_microsec+300, 500, pd_window_microsec); //For prompt singles
-	find(run_order, 1.5, 12., 500, pd_window_microsec+300, pd_window_microsec); //For "inverted" prompt singles
+//	find(run_order, 1.5, 3, pd_window_microsec+400, 400, pd_window_microsec); //For delayed singles -- usually 1.75 to 2.89 MeV
+//	find(run_order, 1.5, 12., pd_window_microsec+300, 500, pd_window_microsec); //For prompt singles
+//	find(run_order, 1.5, 12., 500, pd_window_microsec+300, pd_window_microsec); //For "inverted" prompt singles
 
 	if(run_num != 24614 && run_num != 37322 && run_num != 37645 && run_num != 63825 && run_num != 63941 && run_order != 672 && run_order != 2636 && run_order != 2641 && run_order != 3004 && run_order != 3123 && run_order != 625 && run_order != 2786){
-		summarize(run_num, 1.5, 12., 1.5, 3,pd_window_microsec); //1.5-3 or 1.9-2.74
+//		summarize(run_num, 1.5, 12., 1.5, 3,pd_window_microsec); //1.5-3 or 1.9-2.74
 		plot(run_num, 1.5, 12., 1.5, 3, pd_window_microsec);
 	}
 
 	else{
-		summarize_long(run_num, 1, 1.5, 12., 1.5, 3,pd_window_microsec); //Part 1
-		summarize_long(run_num, 2, 1.5, 12., 1.5, 3,pd_window_microsec); //Part 2
-		summarize_long(run_num, 3, 1.5, 12., 1.5, 3,pd_window_microsec); //Part 3
+//		summarize_long(run_num, 1, 1.5, 12., 1.5, 3,pd_window_microsec); //Part 1
+//		summarize_long(run_num, 2, 1.5, 12., 1.5, 3,pd_window_microsec); //Part 2
+//		summarize_long(run_num, 3, 1.5, 12., 1.5, 3,pd_window_microsec); //Part 3
 		plot_long(run_num, 1.5, 12., 1.5, 3, pd_window_microsec);
 	}
 
