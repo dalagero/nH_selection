@@ -103,6 +103,27 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		sprintf(name, "h_rateSub_distance_800_ad%d", ad_num);
 		TH1F* h_rateSub_distance_800=new TH1F(name,name,700,0,7.); //distance histogram
 
+	sprintf(name, "h_IBDDistance_3sig_ad%d", ad_num);
+	TH1F* h_IBDDistance_3sig=new TH1F(name,name,700,0,7.); //distance histogram
+
+	sprintf(name, "h_accDistance_3sig_rate_ad%d", ad_num);
+	TH1F* h_accDistance_3sig_rate=new TH1F(name,name,700,0,7.); //distance histogram
+
+	sprintf(name, "h_accDistance_3sig_norm_ad%d", ad_num);
+	TH1F* h_accDistance_3sig_norm=new TH1F(name,name,700,0,7.); //distance histogram
+
+	sprintf(name, "h_accDistance_3sig_DTnorm_ad%d", ad_num);
+	TH1F* h_accDistance_3sig_DTnorm=new TH1F(name,name,700,0,7.); //distance histogram
+
+	sprintf(name, "h_normSub_distance_3sig_ad%d", ad_num);
+	TH1F* h_normSub_distance_3sig=new TH1F(name,name,700,0,7.); //distance histogram
+
+	sprintf(name, "h_rateSub_distance_3sig_ad%d", ad_num);
+	TH1F* h_rateSub_distance_3sig=new TH1F(name,name,700,0,7.); //distance histogram
+
+	sprintf(name, "h_DTnormSub_distance_3sig_ad%d", ad_num);
+	TH1F* h_DTnormSub_distance_3sig=new TH1F(name,name,700,0,7.); //distance histogram
+
 	int time = 0;
 			TH1F* h_rate_modified[4][5]; //staged modification of rate subtraction
 			for(int tim=0; tim<4; tim++){
@@ -170,6 +191,9 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 
 		sprintf(name, "h_Eprompt_subtract_DT800_ad%d", ad_num);
 		TH1F* h_Eprompt_sub_DT800=new TH1F(name,name,113,0.7,12.);
+
+			sprintf(name, "h_Eprompt_subtract_DT800_3sig_ad%d", ad_num);
+			TH1F* h_Eprompt_sub_DT800_3sig=new TH1F(name,name,113,0.7,12.);
 
 		sprintf(name, "h_Edelayed_subtract_DT800_ad%d", ad_num);
 		TH1F* h_Edelayed_sub_DT800=new TH1F(name,name,230,0.7,3.);
@@ -662,6 +686,15 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		sprintf(name,"h_sub_DT_DTnorm_ad%d",ad_num);
 		TH1D* h_sub_DT_DTnorm=new TH1D(name,name,500,0,10);
 
+			sprintf(name,"h_sub_DT_3sig_norm_ad%d",ad_num);
+			TH1D* h_sub_DT_3sig_norm=new TH1D(name,name,500,0,10);
+
+			sprintf(name,"h_sub_DT_3sig_rate_ad%d",ad_num);
+			TH1D* h_sub_DT_3sig_rate=new TH1D(name,name,500,0,10);
+
+			sprintf(name,"h_sub_DT_3sig_DTnorm_ad%d",ad_num);
+			TH1D* h_sub_DT_3sig_DTnorm=new TH1D(name,name,500,0,10);
+
 		sprintf(name,"h_sub_DT_Ep35_norm_ad%d",ad_num);
 		TH1D* h_sub_DT_Ep35_norm=new TH1D(name,name,500,0,10);
 
@@ -679,11 +712,11 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 
 	//Loading the files
 	char IBDFileName[64];
-	sprintf(IBDFileName, "./AdSimpleNL/DT800/TotaledPlots_EH%d_%d.root",hall_num,pd_window_microsec);
+	sprintf(IBDFileName, "../nH_files/TotaledPlots_EH%d_%d.root",hall_num,pd_window_microsec);
 	TFile *IBDFile = new TFile(IBDFileName);
 
 	char accFileName[64];
-	sprintf(accFileName, "./AdSimpleNL/DT800/TotaledSingles_%d_EH%d.root",pd_window_microsec,hall_num);
+	sprintf(accFileName, "../nH_files/TotaledSingles_%d_EH%d.root",pd_window_microsec,hall_num);
 	TFile *accFile = new TFile(accFileName);
 
 	double accCounts=0;
@@ -765,6 +798,22 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		TH1F *h_acc_norm = (TH1F*)accFile->Get(name);
 		h_accDistance_norm->Add(h_acc_norm);
 
+			sprintf(name, "h_total_distance_3sig_ad%d",ad_num);
+			TH1F *h_IBD_distance_3sig = (TH1F*)IBDFile->Get(name);
+			h_IBDDistance_3sig->Add(h_IBD_distance_3sig);
+
+			sprintf(name, "h_total_acc_distance_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_scaled_3sig = (TH1F*)accFile->Get(name);
+			h_accDistance_3sig_rate->Add(h_acc_scaled_3sig);
+
+			sprintf(name, "h_total_acc_distance_3sig_norm_ad%d", ad_num);
+			TH1F *h_acc_norm_3sig = (TH1F*)accFile->Get(name);
+			h_accDistance_3sig_norm->Add(h_acc_norm_3sig);
+
+			sprintf(name, "h_total_acc_distance_3sig_DTnorm_ad%d", ad_num);
+			TH1F *h_acc_DTnorm_3sig = (TH1F*)accFile->Get(name);
+			h_accDistance_3sig_DTnorm->Add(h_acc_DTnorm_3sig);
+
 		for(int ibin=0; ibin<702; ibin++){
 			icounts = 0;
 			icounts = h_IBDDistance->GetBinContent(ibin);
@@ -775,6 +824,13 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		h_rateSub_distance->Add(h_accDistance_rate,-1);
 		h_normSub_distance->Add(h_IBD_distance);
 		h_normSub_distance->Add(h_accDistance_norm,-1);
+
+		h_rateSub_distance_3sig->Add(h_IBD_distance_3sig);
+		h_rateSub_distance_3sig->Add(h_accDistance_3sig_rate,-1);
+		h_normSub_distance_3sig->Add(h_IBD_distance_3sig);
+		h_normSub_distance_3sig->Add(h_accDistance_3sig_norm,-1);
+		h_DTnormSub_distance_3sig->Add(h_IBD_distance_3sig);
+		h_DTnormSub_distance_3sig->Add(h_accDistance_3sig_norm,-1);
 
 		h_ratio->Divide(h_rateSub_distance,h_normSub_distance,1,1);
 
@@ -899,6 +955,18 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		sprintf(name, "h_total_acc_DT_DTnorm_ad%d",ad_num);
 		TH1D *h_acc_DT_DTnorm = (TH1D*)accFile->Get(name);
 
+			sprintf(name, "h_total_ibd_DT_3sig_ad%d",ad_num);
+			TH1D *h_ibd_DT_3sig = (TH1D*)IBDFile->Get(name);
+
+			sprintf(name, "h_total_acc_DT_3sig_rate_ad%d",ad_num);
+			TH1D *h_acc_DT_3sig_rate = (TH1D*)accFile->Get(name);
+
+			sprintf(name, "h_total_acc_DT_3sig_norm_ad%d",ad_num);
+			TH1D *h_acc_DT_3sig_norm = (TH1D*)accFile->Get(name);
+
+			sprintf(name, "h_total_acc_DT_3sig_DTnorm_ad%d",ad_num);
+			TH1D *h_acc_DT_3sig_DTnorm = (TH1D*)accFile->Get(name);
+
 		sprintf(name, "h_total_ibd_DT_Ep35_ad%d",ad_num);
 		TH1D *h_ibd_DT_Ep35 = (TH1D*)IBDFile->Get(name);
 
@@ -918,6 +986,14 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		h_sub_DT_norm->Add(h_acc_DT_norm,-1);
 		h_sub_DT_rate->Add(h_acc_DT_rate,-1);
 		h_sub_DT_DTnorm->Add(h_acc_DT_DTnorm,-1);
+
+			h_sub_DT_3sig_norm->Add(h_ibd_DT_3sig);
+			h_sub_DT_3sig_rate->Add(h_ibd_DT_3sig);
+			h_sub_DT_3sig_DTnorm->Add(h_ibd_DT_3sig);
+
+			h_sub_DT_3sig_norm->Add(h_acc_DT_3sig_norm,-1);
+			h_sub_DT_3sig_rate->Add(h_acc_DT_3sig_rate,-1);
+			h_sub_DT_3sig_DTnorm->Add(h_acc_DT_3sig_DTnorm,-1);
 
 		h_sub_DT_Ep35_norm->Add(h_ibd_DT_Ep35);
 		h_sub_DT_Ep35_rate->Add(h_ibd_DT_Ep35);
@@ -998,27 +1074,32 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 		h_Edelayed_sub_DT800_DTnorm->Add(h_IBD_Edelayed_DT800);
 		h_Edelayed_sub_DT800_DTnorm->Add(h_acc_Edelayed_DT800_DTnorm, -1);
 cout << "1" << endl;
-			sprintf(name, "h_total_delayed_energy_fine_before_ad%d",ad_num);
+/*			sprintf(name, "h_total_delayed_energy_fine_before_ad%d",ad_num);
 			TH1F *h_IBD_Edelayed_fine = (TH1F*)IBDFile->Get(name);
 				h_IBD_Edelayed_fine->Rebin(10);
-			sprintf(name, "h_total_delayed_energy_fine_scaled_ad%d", ad_num);
+cout << "1.2" << endl;
+			sprintf(name, "h_total_delayed_energy_fine_scaled_1_ad%d", ad_num);
 			TH1F *h_acc_Edelayed_fine_scaled = (TH1F*)accFile->Get(name);
 				h_acc_Edelayed_fine_scaled->Rebin(10);
-			sprintf(name, "h_total_delayed_energy_fine_norm_ad%d", ad_num);
+cout << "1.4" << endl;
+			sprintf(name, "h_total_delayed_energy_fine_norm_1_ad%d", ad_num);
 			TH1F *h_acc_Edelayed_fine_norm = (TH1F*)accFile->Get(name);
 				h_acc_Edelayed_fine_norm->Rebin(10);
-			sprintf(name, "h_total_delayed_energy_fine_DTnorm_ad%d", ad_num);
+cout << "1.6" << endl;
+			sprintf(name, "h_total_delayed_energy_fine_DTnorm_1_ad%d", ad_num);
 			TH1F *h_acc_Edelayed_fine_DTnorm = (TH1F*)accFile->Get(name);
 				h_acc_Edelayed_fine_DTnorm->Rebin(10);
+cout << "1.8" << endl;
 
 			h_Edelayed_IBD_fine->Add(h_IBD_Edelayed_fine);
 			h_Edelayed_sub_fine->Add(h_IBD_Edelayed_fine);
-			h_Edelayed_sub_fine->Add(h_acc_Edelayed_fine_scaled, -(1.0 +0.00));
+			h_Edelayed_sub_fine->Add(h_acc_Edelayed_fine_scaled, -(1.0));
 			h_Edelayed_sub_fine_norm->Add(h_IBD_Edelayed_fine);
 			h_Edelayed_sub_fine_norm->Add(h_acc_Edelayed_fine_norm, -(1.0 +0.00));
 			h_Edelayed_sub_fine_DTnorm->Add(h_IBD_Edelayed_fine);
 			h_Edelayed_sub_fine_DTnorm->Add(h_acc_Edelayed_fine_DTnorm, -1);
 cout << "2" << endl;
+		
 			sprintf(name, "h_total_delayed_energy_fine_DT800_ad%d",ad_num);
 			TH1F *h_IBD_Edelayed_fine_DT800 = (TH1F*)IBDFile->Get(name);
 				h_IBD_Edelayed_fine_DT800->Rebin(10);
@@ -1034,7 +1115,7 @@ cout << "2" << endl;
 
 			h_Edelayed_IBD_fine_DT800->Add(h_IBD_Edelayed_fine_DT800);
 			h_Edelayed_sub_fine_DT800->Add(h_IBD_Edelayed_fine_DT800);
-			h_Edelayed_sub_fine_DT800->Add(h_acc_Edelayed_fine_DT800_scaled, -(1.0 +0.00));
+			h_Edelayed_sub_fine_DT800->Add(h_acc_Edelayed_fine_DT800_scaled, -(1.0));
 			h_Edelayed_sub_fine_DT800_norm->Add(h_IBD_Edelayed_fine_DT800);
 			h_Edelayed_sub_fine_DT800_norm->Add(h_acc_Edelayed_fine_DT800_norm, -(1.0 +0.00));
 			h_Edelayed_sub_fine_DT800_DTnorm->Add(h_IBD_Edelayed_fine_DT800);
@@ -1082,7 +1163,7 @@ cout << "4" << endl;
 			h_Edelayed_sub_fine_DT800_Ep35_norm->Add(h_IBD_Edelayed_fine_DT800_Ep35);
 			h_Edelayed_sub_fine_DT800_Ep35_norm->Add(h_acc_Edelayed_fine_DT800_Ep35_norm, -(1.0 +0.00));
 			h_Edelayed_sub_fine_DT800_Ep35_DTnorm->Add(h_IBD_Edelayed_fine_DT800_Ep35);
-			h_Edelayed_sub_fine_DT800_Ep35_DTnorm->Add(h_acc_Edelayed_fine_DT800_Ep35_DTnorm, -1);
+			h_Edelayed_sub_fine_DT800_Ep35_DTnorm->Add(h_acc_Edelayed_fine_DT800_Ep35_DTnorm, -1);*/
 cout << "5" << endl;
 
 			for(int iz = 0; iz < NzBins; iz++){
@@ -1207,6 +1288,14 @@ cout << "5" << endl;
 		h_Eprompt_sub_DT800_norm->Add(h_acc_Eprompt_DT800_norm, -1);
 		h_Eprompt_sub_DT800_DTnorm->Add(h_IBD_Eprompt_DT800);
 		h_Eprompt_sub_DT800_DTnorm->Add(h_acc_Eprompt_DT800_DTnorm, -1);
+
+			sprintf(name, "h_total_prompt_energy_DT800_3sig_ad%d",ad_num);
+			TH1F *h_IBD_Eprompt_DT800_3sig = (TH1F*)IBDFile->Get(name);
+			sprintf(name, "h_total_prompt_energy_DT800_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_Eprompt_DT800_3sig_scaled = (TH1F*)accFile->Get(name);
+			
+			h_Eprompt_sub_DT800_3sig->Add(h_IBD_Eprompt_DT800_3sig);
+			h_Eprompt_sub_DT800_3sig->Add(h_acc_Eprompt_DT800_3sig_scaled, -1);
 
 cout << "delayed and prompt done" << endl;
 
@@ -1741,7 +1830,7 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 
 			gStyle->SetOptFit(1111);
         char outputname[64];
-        sprintf(outputname,"./AdSimpleNL/DT800/SubtractedAccidentals_%d_EH%dAD%d.root",pd_window_microsec,hall_num,ad_num);
+        sprintf(outputname,"../nH_files/SubtractedAccidentals_%d_EH%dAD%d.root",pd_window_microsec,hall_num,ad_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
 			h_normSub_distance->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
@@ -1750,6 +1839,7 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 			h_normSub_distance->Fit("subFit","R");
 			h_normSub_distance->Write();
 
+		//	h_rateSub_distance->Rebin(20);
 			h_rateSub_distance->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_rateSub_distance->GetYaxis()->SetTitle("Counts");
 			cout << endl << endl << endl << "Rate Corrected Distance (Rate) Plot" << endl;
@@ -1803,6 +1893,18 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 						h_rate_modified[tim][stage]->Write();
 					}
 				}
+
+			h_rateSub_distance_3sig->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_rateSub_distance_3sig->GetYaxis()->SetTitle("Counts");
+			h_rateSub_distance_3sig->Write();
+
+			h_normSub_distance_3sig->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_normSub_distance_3sig->GetYaxis()->SetTitle("Counts");
+			h_normSub_distance_3sig->Write();
+
+			h_DTnormSub_distance_3sig->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
+			h_DTnormSub_distance_3sig->GetYaxis()->SetTitle("Counts");
+			h_DTnormSub_distance_3sig->Write();
 
 			h_dist_ratio_rateTOnorm->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_dist_ratio_rateTOnorm->GetYaxis()->SetTitle("Ratio of Rate/Normalized Distance");
@@ -1860,73 +1962,108 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 
 		//		h_acc_DT_rate->SetStats(0);
 				h_acc_DT_rate->GetXaxis()->SetTitle("DT [m]");
-				h_acc_DT_rate->GetYaxis()->SetTitle("Counts");
+				h_acc_DT_rate->GetYaxis()->SetTitle("Counts/0.02 MeV");
 				h_acc_DT_rate->Write();
 
 		//		h_acc_DT_DTnorm->SetStats(0);
 				h_acc_DT_DTnorm->GetXaxis()->SetTitle("DT [m]");
-				h_acc_DT_DTnorm->GetYaxis()->SetTitle("Counts");
+				h_acc_DT_DTnorm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 				h_acc_DT_DTnorm->Write();
 
 		//		h_sub_DT_norm->SetStats(0);
 				h_sub_DT_norm->GetXaxis()->SetTitle("DT [m]");
-				h_sub_DT_norm->GetYaxis()->SetTitle("Counts");
+				h_sub_DT_norm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 				h_sub_DT_norm->Write();
 
 		//		h_sub_DT_rate->SetStats(0);
 				h_sub_DT_rate->GetXaxis()->SetTitle("DT [m]");
-				h_sub_DT_rate->GetYaxis()->SetTitle("Counts");
+				h_sub_DT_rate->GetYaxis()->SetTitle("Counts/0.02 MeV");
 				h_sub_DT_rate->Write();
 
 		//		h_sub_DT_DTnorm->SetStats(0);
 				h_sub_DT_DTnorm->GetXaxis()->SetTitle("DT [m]");
-				h_sub_DT_DTnorm->GetYaxis()->SetTitle("Counts");
+				h_sub_DT_DTnorm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 				h_sub_DT_DTnorm->Write();
 
 		//		h_sub_DT_rate_mod->SetStats(0);
 				h_sub_DT_rate_mod->GetXaxis()->SetTitle("DT [m]");
-				h_sub_DT_rate_mod->GetYaxis()->SetTitle("Counts");
+				h_sub_DT_rate_mod->GetYaxis()->SetTitle("Counts/0.02 MeV");
 				h_sub_DT_rate_mod->Write();
 
 			//		h_ibd_DT_Ep35->SetStats(0);
 					h_ibd_DT_Ep35->GetXaxis()->SetTitle("DT [m]");
-					h_ibd_DT_Ep35->GetYaxis()->SetTitle("Counts");
+					h_ibd_DT_Ep35->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_ibd_DT_Ep35->Write();
 
 			//		h_acc_DT_Ep35_norm->SetStats(0);
 					h_acc_DT_Ep35_norm->GetXaxis()->SetTitle("DT [m]");
-					h_acc_DT_Ep35_norm->GetYaxis()->SetTitle("Counts");
+					h_acc_DT_Ep35_norm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_acc_DT_Ep35_norm->Write();
 
 			//		h_acc_DT_Ep35_rate->SetStats(0);
 					h_acc_DT_Ep35_rate->GetXaxis()->SetTitle("DT [m]");
-					h_acc_DT_Ep35_rate->GetYaxis()->SetTitle("Counts");
+					h_acc_DT_Ep35_rate->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_acc_DT_Ep35_rate->Write();
 
 			//		h_acc_DT_Ep35_DTnorm->SetStats(0);
 					h_acc_DT_Ep35_DTnorm->GetXaxis()->SetTitle("DT [m]");
-					h_acc_DT_Ep35_DTnorm->GetYaxis()->SetTitle("Counts");
+					h_acc_DT_Ep35_DTnorm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_acc_DT_Ep35_DTnorm->Write();
 
 			//		h_sub_DT_Ep35_norm->SetStats(0);
 					h_sub_DT_Ep35_norm->GetXaxis()->SetTitle("DT [m]");
-					h_sub_DT_Ep35_norm->GetYaxis()->SetTitle("Counts");
+					h_sub_DT_Ep35_norm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_sub_DT_Ep35_norm->Write();
 
 			//		h_sub_DT_Ep35_rate->SetStats(0);
 					h_sub_DT_Ep35_rate->GetXaxis()->SetTitle("DT [m]");
-					h_sub_DT_Ep35_rate->GetYaxis()->SetTitle("Counts");
+					h_sub_DT_Ep35_rate->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_sub_DT_Ep35_rate->Write();
 
 			//		h_sub_DT_Ep35_DTnorm->SetStats(0);
 					h_sub_DT_Ep35_DTnorm->GetXaxis()->SetTitle("DT [m]");
-					h_sub_DT_Ep35_DTnorm->GetYaxis()->SetTitle("Counts");
+					h_sub_DT_Ep35_DTnorm->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_sub_DT_Ep35_DTnorm->Write();
 
 			//		h_sub_DT_Ep35_rate_mod->SetStats(0);
 					h_sub_DT_Ep35_rate_mod->GetXaxis()->SetTitle("DT [m]");
-					h_sub_DT_Ep35_rate_mod->GetYaxis()->SetTitle("Counts");
+					h_sub_DT_Ep35_rate_mod->GetYaxis()->SetTitle("Counts/0.02 MeV");
 					h_sub_DT_Ep35_rate_mod->Write();
+
+		//		h_ibd_DT_3sig->SetStats(0);
+				h_ibd_DT_3sig->GetXaxis()->SetTitle("DT [m]");
+				h_ibd_DT_3sig->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_ibd_DT_3sig->Write();
+
+		//		h_acc_DT_3sig_norm->SetStats(0);
+				h_acc_DT_3sig_norm->GetXaxis()->SetTitle("DT [m]");
+				h_acc_DT_3sig_norm->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_acc_DT_3sig_norm->Write();
+
+		//		h_acc_DT_3sig_rate->SetStats(0);
+				h_acc_DT_3sig_rate->GetXaxis()->SetTitle("DT [m]");
+				h_acc_DT_3sig_rate->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_acc_DT_3sig_rate->Write();
+
+		//		h_acc_DT_3sig_DTnorm->SetStats(0);
+				h_acc_DT_3sig_DTnorm->GetXaxis()->SetTitle("DT [m]");
+				h_acc_DT_3sig_DTnorm->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_acc_DT_3sig_DTnorm->Write();
+
+		//		h_sub_DT_3sig_norm->SetStats(0);
+				h_sub_DT_3sig_norm->GetXaxis()->SetTitle("DT [m]");
+				h_sub_DT_3sig_norm->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_sub_DT_3sig_norm->Write();
+
+		//		h_sub_DT_3sig_rate->SetStats(0);
+				h_sub_DT_3sig_rate->GetXaxis()->SetTitle("DT [m]");
+				h_sub_DT_3sig_rate->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_sub_DT_3sig_rate->Write();
+
+		//		h_sub_DT_3sig_DTnorm->SetStats(0);
+				h_sub_DT_3sig_DTnorm->GetXaxis()->SetTitle("DT [m]");
+				h_sub_DT_3sig_DTnorm->GetYaxis()->SetTitle("Counts/0.02 MeV");
+				h_sub_DT_3sig_DTnorm->Write();
 
 			h_Edelayed_IBD->GetXaxis()->SetTitle("Energy [MeV]");
 			h_Edelayed_IBD->GetYaxis()->SetTitle("Counts");
@@ -2132,6 +2269,10 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 				h_Edelayed_sub_DT800->GetXaxis()->SetTitle("Energy [MeV]");
 				h_Edelayed_sub_DT800->GetYaxis()->SetTitle("Counts");
 				h_Edelayed_sub_DT800->GetXaxis()->SetRangeUser(1.5,3);
+				
+				h_Eprompt_sub_DT800_3sig->GetXaxis()->SetTitle("Energy [MeV]");
+				h_Eprompt_sub_DT800_3sig->GetYaxis()->SetTitle("Counts");
+				h_Eprompt_sub_DT800_3sig->Write();
 /*		TF1* delayedFit_DT800 = new TF1("delayedFit_DT800", "[0]*([1]*exp(-pow(x-[2],2)/(2*[3]*[3])) / ([3]*sqrt(2*TMath::Pi()))+(1.-[1])*[4]/(2*(exp([4]*[2])-1)) * exp([3]*[3]*[4]*[4]/2) * exp([4]*x) * ( TMath::Erf(([2]-(x+[3]*[3]*[4]))/(sqrt(2)*[3])) - TMath::Erf((0-(x+[3]*[3]*[4]))/(sqrt(2)*[3])) ))",1.6,2.8);
 			delayedFit_DT800->SetParameter(0,(h_Edelayed_sub_DT800->GetBinContent(h_Edelayed_sub_DT800->FindBin(2.3)))/3.); //normalization
 			delayedFit_DT800->SetParameter(1,0.8); //alpha
@@ -2915,7 +3056,7 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 	h_acc_DT_DTnorm->Draw("same");
 
 	cDT->BuildLegend();
-	sprintf(title,"./AdSimpleNL/DT800/DTplots_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/DTplots_EH%dAD%d.png",hall_num,ad_num);
 	cDT->Print(title);
 
 	TCanvas *cDT_Ep = new TCanvas("cDT_Ep","DT plots_Ep");
@@ -2929,7 +3070,7 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 	h_acc_DT_Ep35_DTnorm->Draw("same");
 
 	cDT_Ep->BuildLegend();
-	sprintf(title,"./AdSimpleNL/DT800/DTplots_Ep_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/DTplots_Ep_EH%dAD%d.png",hall_num,ad_num);
 	cDT_Ep->Print(title);
 
 	TCanvas *cPrompt = new TCanvas("cPrompt","Prompt");
@@ -2963,7 +3104,7 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 	h_Eprompt_sub_DT800_norm->Draw("same");
 
 	//cEnergy->BuildLegend();
-	sprintf(title,"./AdSimpleNL/DT800/PromptSub_compNoDTwDT800_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/PromptSub_compNoDTwDT800_EH%dAD%d.png",hall_num,ad_num);
 	cEnergy->Print(title);
 
 
@@ -3000,25 +3141,25 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 	//h_acc_Eprompt_norm->Draw("same");
 
 	//cpVSd->BuildLegend();
-	sprintf(title,"./AdSimpleNL/DT800/promptTOdelayed_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/promptTOdelayed_EH%dAD%d.png",hall_num,ad_num);
 	cpVSd->Print(title);
 
 	TCanvas *d_rate = new TCanvas("d_rate","d_rate");
 	d_rate->cd();
 	h_Edelayed_sub->Draw();
-	sprintf(title,"./AdSimpleNL/DT800/Edelayed_rate_fit_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/Edelayed_rate_fit_EH%dAD%d.png",hall_num,ad_num);
 	d_rate->Print(title);
 
 	TCanvas *d_norm = new TCanvas("d_norm","d_norm");
 	d_norm->cd();
 	h_Edelayed_sub_norm->Draw();
-	sprintf(title,"./AdSimpleNL/DT800/Edelayed_norm_fit_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/Edelayed_norm_fit_EH%dAD%d.png",hall_num,ad_num);
 	d_norm->Print(title);
 
 	TCanvas *d_DTnorm = new TCanvas("d_DTnorm","d_DTnorm");
 	d_DTnorm->cd();
 	h_Edelayed_sub_DTnorm->Draw();
-	sprintf(title,"./AdSimpleNL/DT800/Edelayed_DTnorm_fit_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/Edelayed_DTnorm_fit_EH%dAD%d.png",hall_num,ad_num);
 	d_DTnorm->Print(title);
 
 	TCanvas *d_DT800_rate = new TCanvas("d_DT800_rate","d_DT800_rate");
@@ -3026,13 +3167,13 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 //	h_Edelayed_sub_DT800->Rebin(2);
 //	h_Edelayed_sub_DT800->GetXaxis()->SetRangeUser(1.5,3);
 	h_Edelayed_sub_DT800->Draw();
-	sprintf(title,"./AdSimpleNL/DT800/Edelayed_DT800_rate_fit_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/Edelayed_DT800_rate_fit_EH%dAD%d.png",hall_num,ad_num);
 	d_DT800_rate->Print(title);
 
 	TCanvas *d_DT800_norm = new TCanvas("d_DT800_norm","d_DT800_norm");
 	d_DT800_norm->cd();
 	h_Edelayed_sub_DT800_norm->Draw();
-	sprintf(title,"./AdSimpleNL/DT800/Edelayed_DT800_norm_fit_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/Edelayed_DT800_norm_fit_EH%dAD%d.png",hall_num,ad_num);
 	d_DT800_norm->Print(title);
 
 	TCanvas *d_DT800_DTnorm = new TCanvas("d_DT800_DTnorm","d_DT800_DTnorm");
@@ -3040,7 +3181,7 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 	h_Edelayed_sub_DT800_DTnorm->Draw();
 //	delayedFit_DT800_DTnorm->Draw("same");
 //	delayedFit_DT800_DTnorm_Sam->Draw("same");
-	sprintf(title,"./AdSimpleNL/DT800/Edelayed_DT800_DTnorm_fit_EH%dAD%d.png",hall_num,ad_num);
+	sprintf(title,"../nH_files/Edelayed_DT800_DTnorm_fit_EH%dAD%d.png",hall_num,ad_num);
 	d_DT800_DTnorm->Print(title);
 
 
@@ -3466,6 +3607,21 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 		h_sub_delayed_energy_scaled_dist[0]->Draw("same");
 		
 */
+
+/*	TCanvas *test = new TCanvas("test","test");//BIG FAT TEST
+		test->cd();
+		h_Edelayed_IBD_fine->SetLineColor(kBlack);
+		h_Edelayed_IBD_fine->Draw();
+		h_acc_Edelayed_fine_scaled->SetLineColor(kRed);
+		h_acc_Edelayed_fine_scaled->Draw("same");*/
+
+
+cout << "EH" << hall_num << " AD" << ad_num << ":\t" << endl << "Distance" << endl << h_IBD_distance->Integral(h_IBD_distance->FindBin(2), h_IBD_distance->FindBin(5)) << " +/- " << sqrt(h_IBD_distance->Integral(h_IBD_distance->FindBin(2), h_IBD_distance->FindBin(5))) << "\t" <<h_rateSub_distance->Integral(h_rateSub_distance->FindBin(2), h_rateSub_distance->FindBin(5)) << "\t" << 100*(h_rateSub_distance->Integral(h_rateSub_distance->FindBin(2), h_rateSub_distance->FindBin(5)))/(h_IBD_distance->Integral(h_IBD_distance->FindBin(2), h_IBD_distance->FindBin(5))) << " %" << endl;
+
+cout << "Distance (3sig)" << endl << h_IBD_distance_3sig->Integral(h_IBD_distance_3sig->FindBin(2), h_IBD_distance_3sig->FindBin(5)) << " +/- " << sqrt(h_IBD_distance_3sig->Integral(h_IBD_distance_3sig->FindBin(2), h_IBD_distance_3sig->FindBin(5))) << "\t" <<h_rateSub_distance_3sig->Integral(h_rateSub_distance_3sig->FindBin(2), h_rateSub_distance_3sig->FindBin(5)) << "\t" << 100*(h_rateSub_distance_3sig->Integral(h_rateSub_distance_3sig->FindBin(2), h_rateSub_distance_3sig->FindBin(5)))/(h_IBD_distance_3sig->Integral(h_IBD_distance_3sig->FindBin(2), h_IBD_distance_3sig->FindBin(5))) << " %" << endl;
+
+cout << "DT (3sig)" << endl<< h_ibd_DT_3sig->Integral(h_ibd_DT_3sig->FindBin(3), h_ibd_DT_3sig->FindBin(10)) << " +/- " << sqrt(h_ibd_DT_3sig->Integral(h_ibd_DT_3sig->FindBin(3), h_ibd_DT_3sig->FindBin(10))) << "\t" <<h_sub_DT_3sig_rate->Integral(h_sub_DT_3sig_rate->FindBin(3), h_sub_DT_3sig_rate->FindBin(10)) << "\t" << 100*(h_sub_DT_3sig_rate->Integral(h_sub_DT_3sig_rate->FindBin(3), h_sub_DT_3sig_rate->FindBin(10)))/(h_ibd_DT_3sig->Integral(h_ibd_DT_3sig->FindBin(3), h_ibd_DT_3sig->FindBin(10))) << " %" << endl;
+
 
 }
 
