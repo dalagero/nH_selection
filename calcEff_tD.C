@@ -790,7 +790,7 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 
 	//Get files & histograms
 	char inputname[64];
-	sprintf(inputname,"./AdSimpleNL/3sig/distEff2000_results.root");
+	sprintf(inputname,"./nH_files/distEff2000_results.root");
 	TFile *distFile = new TFile(inputname);
 
 	for(int iScale = 0; iScale < num_scales; iScale++){
@@ -1447,8 +1447,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 //		h_eff_DT_norm[0]->GetYaxis()->SetRangeUser(-0.1,0.1);
 		h_eff_DT_norm[0]->GetXaxis()->SetRangeUser(0.01,3);
 		eff_norm->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/eff_DT_norm.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/eff_DT_Ep35_norm.png");
+		sprintf(title,"./nH_files/eff_DT_norm.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/eff_DT_Ep35_norm.png");
 		eff_norm->Print(title);
 
 	TCanvas *eff_rate = new TCanvas("eff_rate","eff_rate");
@@ -1462,8 +1462,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 //		h_eff_DT_rate[0]->GetYaxis()->SetRangeUser(-0.1,0.1);
 		h_eff_DT_rate[0]->GetXaxis()->SetRangeUser(0.01,3);
 		eff_rate->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/eff_DT_rate.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/eff_DT_Ep35_rate.png");
+		sprintf(title,"./nH_files/eff_DT_rate.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/eff_DT_Ep35_rate.png");
 		eff_rate->Print(title);
 
 	TCanvas *eff_DTnorm = new TCanvas("eff_DTnorm","eff_DTnorm");
@@ -1477,8 +1477,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 //		h_eff_DT_DTnorm[0]->GetYaxis()->SetRangeUser(-0.05,0.05);
 		h_eff_DT_DTnorm[0]->GetXaxis()->SetRangeUser(0.01,3);
 		eff_DTnorm->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/eff_DT_DTnorm.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/eff_DT_Ep35_DTnorm.png");
+		sprintf(title,"./nH_files/eff_DT_DTnorm.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/eff_DT_Ep35_DTnorm.png");
 		eff_DTnorm->Print(title);
 
 	TCanvas *effDiff_norm = new TCanvas("effDiff_norm","effDiff_norm");
@@ -1499,8 +1499,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_norm[4]->GetYaxis()->SetRangeUser(-0.05,0.05);
 		h_effDiff_DT_norm[4]->GetXaxis()->SetRangeUser(0.01,3);
 		effDiff_norm->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_norm.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_norm.png");
+		sprintf(title,"./nH_files/effDiff_DT_norm.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_norm.png");
 		effDiff_norm->Print(title);
 
 	TCanvas *effDiff_rate = new TCanvas("effDiff_rate","effDiff_rate"); //do the thing here
@@ -1520,8 +1520,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		if(Ep_cut == 1) h_effDiff_DT_rate[4]->GetYaxis()->SetRangeUser(-0.006,0.006);
 		h_effDiff_DT_rate[4]->GetXaxis()->SetRangeUser(0.01,3);
 		effDiff_rate->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_rate.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_rate.png");
+		sprintf(title,"./nH_files/effDiff_DT_rate.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_rate.png");
 		effDiff_rate->Print(title);
 
 	TCanvas *effDiff_DTnorm = new TCanvas("effDiff_DTnorm","effDiff_DTnorm");
@@ -1540,8 +1540,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_DTnorm[4]->GetYaxis()->SetRangeUser(-0.05,0.05);
 		h_effDiff_DT_DTnorm[4]->GetXaxis()->SetRangeUser(0.01,3);
 		effDiff_DTnorm->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_DTnorm.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_DTnorm.png");
+		sprintf(title,"./nH_files/effDiff_DT_DTnorm.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_DTnorm.png");
 		effDiff_DTnorm->Print(title);
 
 
@@ -1559,8 +1559,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_norm_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_effDiff_DT_norm_farAvg->GetYaxis()->SetRangeUser(-0.03,0.03);
 		effDiff_norm_farAvg->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_norm_farAvg.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_norm_farAvg.png");
+		sprintf(title,"./nH_files/effDiff_DT_norm_farAvg.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_norm_farAvg.png");
 		effDiff_norm_farAvg->Print(title);
 
 	TCanvas *effDiff_rate_farAvg = new TCanvas("effDiff_rate_farAvg","effDiff_rate_farAvg");
@@ -1576,8 +1576,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_rate_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_effDiff_DT_rate_farAvg->GetYaxis()->SetRangeUser(-0.03,0.03);
 		effDiff_rate_farAvg->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_rate_farAvg.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_rate_farAvg.png");
+		sprintf(title,"./nH_files/effDiff_DT_rate_farAvg.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_rate_farAvg.png");
 		effDiff_rate_farAvg->Print(title);
 
 	TCanvas *effDiff_DTnorm_farAvg = new TCanvas("effDiff_DTnorm_farAvg","effDiff_DTnorm_farAvg");
@@ -1593,8 +1593,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_DTnorm_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_effDiff_DT_DTnorm_farAvg->GetYaxis()->SetRangeUser(-0.03,0.03);
 		effDiff_DTnorm_farAvg->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_DTnorm_farAvg.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_DTnorm_farAvg.png");
+		sprintf(title,"./nH_files/effDiff_DT_DTnorm_farAvg.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_DTnorm_farAvg.png");
 		effDiff_DTnorm_farAvg->Print(title);
 
 	//*****Near VS Far*****
@@ -1609,8 +1609,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_norm_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_effDiff_DT_norm_farAvg->GetYaxis()->SetRangeUser(-0.03,0.03);
 		effDiff_norm_nearVSfar->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_norm_nearVSfar.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_norm_nearVsFar.png");
+		sprintf(title,"./nH_files/effDiff_norm_nearVSfar.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_norm_nearVsFar.png");
 		effDiff_norm_nearVSfar->Print(title);
 
 	TCanvas *effDiff_rate_nearVSfar = new TCanvas("effDiff_rate_nearVSfar","effDiff_rate_nearVSfar");
@@ -1624,8 +1624,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_rate_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_effDiff_DT_rate_farAvg->GetYaxis()->SetRangeUser(-0.03,0.03);
 		effDiff_rate_nearVSfar->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_rate_nearVSfar.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_rate_nearVSfar.png");
+		sprintf(title,"./nH_files/effDiff_rate_nearVSfar.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_rate_nearVSfar.png");
 		effDiff_rate_nearVSfar->Print(title);
 
 	TCanvas *effDiff_DTnorm_nearVSfar = new TCanvas("effDiff_DTnorm_nearVSfar","effDiff_DTnorm_nearVSfar");
@@ -1639,8 +1639,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_effDiff_DT_DTnorm_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_effDiff_DT_DTnorm_farAvg->GetYaxis()->SetRangeUser(-0.03,0.03);
 		effDiff_DTnorm_nearVSfar->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/effDiff_DTnorm_nearVSfar.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/effDiff_DT_Ep35_DTnorm_nearVSfar.png");
+		sprintf(title,"./nH_files/effDiff_DTnorm_nearVSfar.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/effDiff_DT_Ep35_DTnorm_nearVSfar.png");
 		effDiff_DTnorm_nearVSfar->Print(title);
 
 
@@ -1685,7 +1685,7 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_rel_effDiff_DT_DTnorm[4]->GetYaxis()->SetRangeUser(-0.02,0.02);
 		h_rel_effDiff_DT_DTnorm[4]->GetXaxis()->SetRangeUser(0.01,3);
 		rel_effDiff_DTnorm->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_DTnorm.png");
+		sprintf(title,"./nH_files/rel_effDiff_DT_DTnorm.png");
 		rel_effDiff_DTnorm->Print(title);
 
 
@@ -1703,8 +1703,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_rel_effDiff_DT_norm_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_rel_effDiff_DT_norm_farAvg->GetYaxis()->SetRangeUser(-0.02,0.02);
 		rel_effDiff_norm_farAvg->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_norm_farAvg.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_Ep35_norm_farAvg.png");
+		sprintf(title,"./nH_files/rel_effDiff_DT_norm_farAvg.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/rel_effDiff_DT_Ep35_norm_farAvg.png");
 		rel_effDiff_norm_farAvg->Print(title);
 
 	TCanvas *rel_effDiff_rate_farAvg = new TCanvas("rel_effDiff_rate_farAvg","rel_effDiff_rate_farAvg");
@@ -1720,8 +1720,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_rel_effDiff_DT_rate_farAvg->GetXaxis()->SetRangeUser(0.01,3);
 		h_rel_effDiff_DT_rate_farAvg->GetYaxis()->SetRangeUser(-0.02,0.02);
 		rel_effDiff_rate_farAvg->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_rate_farAvg.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_Ep35_rate_farAvg.png");
+		sprintf(title,"./nH_files/rel_effDiff_DT_rate_farAvg.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/rel_effDiff_DT_Ep35_rate_farAvg.png");
 		rel_effDiff_rate_farAvg->Print(title);
 
 	TCanvas *rel_effDiff_DTnorm_farAvg = new TCanvas("rel_effDiff_DTnorm_farAvg","rel_effDiff_DTnorm_farAvg");
@@ -1740,8 +1740,8 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 		h_rel_effDiff_DT_DTnorm_farAvg->GetYaxis()->SetRangeUser(-0.02,0.02);
 //		h_rel_effDiff_DT_DTnorm_farAvg->GetYaxis()->SetRangeUser(-0.005,0.005);
 		rel_effDiff_DTnorm_farAvg->BuildLegend();
-		sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_DTnorm_farAvg.png");
-		if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/rel_effDiff_DT_Ep35_DTnorm_farAvg.png");
+		sprintf(title,"./nH_files/rel_effDiff_DT_DTnorm_farAvg.png");
+		if(Ep_cut == 1) sprintf(title,"./nH_files/rel_effDiff_DT_Ep35_DTnorm_farAvg.png");
 		rel_effDiff_DTnorm_farAvg->Print(title);
 
 	TCanvas *adEffs = new TCanvas("adEffs","AD Efficiencies");
@@ -1768,11 +1768,169 @@ void DTcut(int Ep_cut, int weighted, int rateMod){
 	adEffs->BuildLegend();
 //	adEffs->SetGridx();
 //	adEffs->SetGridy();
-	sprintf(title,"./AdSimpleNL/3sig/adEfficiencies_DT_BedaErrors.png");
-	if(Ep_cut == 1) sprintf(title,"./AdSimpleNL/3sig/adEfficiencies_DT_Ep35_BedaErrors.png");
+	sprintf(title,"./nH_files/adEfficiencies_DT_BedaErrors.png");
+	if(Ep_cut == 1) sprintf(title,"./nH_files/adEfficiencies_DT_Ep35_BedaErrors.png");
 	adEffs->Print(title);
 
 
+}
+
+void DTeff(){
+	char name[64];
+	int EH[8] = {1,1,2,2,3,3,3,3};
+	int AD[8] = {1,2,1,2,1,2,3,4};
+
+	char outputname[64];
+	char title[64];
+	
+	double DTcut = 0.8; //DT cut value in m
+	double eff100 = 3.0; //DT cut value in m
+	double DTeff_rate[8] = {0,0,0,0,0,0,0,0};
+	double DTeff_norm[8] = {0,0,0,0,0,0,0,0};
+	double DTeff_DTnorm[8] = {0,0,0,0,0,0,0,0};
+
+
+//        sprintf(outputname,"../nH_files/DTeff.root");
+//	TFile* outfile=new TFile(outputname, "RECREATE");
+
+	for(int iad = 0; iad < 8; iad++){
+		//Getting files:
+			sprintf(name,"../nH_files/SubtractedAccidentals_NU_1500_EH%dAD%d.root",EH[iad],AD[iad]);
+			TFile *subFile = new TFile(name);
+			
+			sprintf(name, "../nH_files/TotaledPlots_NU_EH%d_1500.root",EH[iad]);
+			TFile *ibdFile = new TFile(name);
+
+			sprintf(name, "../nH_files/TotaledSingles_NU_1500_EH%d.root",EH[iad]);
+			TFile *accFile = new TFile(name);
+
+		//Getting the histograms:
+			sprintf(name, "h_total_ibd_DT_ad%d", AD[iad]);
+			TH1F* ibd_DT = (TH1F*)subFile->Get(name);
+			sprintf(name, "h_total_acc_DT_rate_ad%d", AD[iad]);
+			TH1F* acc_DT_rate = (TH1F*)subFile->Get(name);
+			sprintf(name, "h_total_acc_DT_norm_ad%d", AD[iad]);
+			TH1F* acc_DT_norm = (TH1F*)subFile->Get(name);
+			sprintf(name, "h_total_acc_DT_DTnorm_ad%d", AD[iad]);
+			TH1F* acc_DT_DTnorm = (TH1F*)subFile->Get(name);
+			sprintf(name, "h_sub_DT_rate_ad%d", AD[iad]);
+			TH1F* sub_DT_rate = (TH1F*)subFile->Get(name);
+			sprintf(name, "h_sub_DT_norm_ad%d", AD[iad]);
+			TH1F* sub_DT_norm = (TH1F*)subFile->Get(name);
+			sprintf(name, "h_sub_DT_DTnorm_ad%d", AD[iad]);
+			TH1F* sub_DT_DTnorm = (TH1F*)subFile->Get(name);
+
+			DTeff_rate[iad] = (sub_DT_rate->Integral(sub_DT_rate->FindBin(0.),sub_DT_rate->FindBin(DTcut)))/(sub_DT_rate->Integral(sub_DT_rate->FindBin(0.),sub_DT_rate->FindBin(eff100)));
+			DTeff_norm[iad] = (sub_DT_norm->Integral(sub_DT_norm->FindBin(0.),sub_DT_norm->FindBin(DTcut)))/(sub_DT_norm->Integral(sub_DT_norm->FindBin(0.),sub_DT_norm->FindBin(eff100)));
+			DTeff_DTnorm[iad] = (sub_DT_DTnorm->Integral(sub_DT_DTnorm->FindBin(0.),sub_DT_DTnorm->FindBin(DTcut)))/(sub_DT_DTnorm->Integral(sub_DT_DTnorm->FindBin(0.),sub_DT_DTnorm->FindBin(eff100)));
+	}
+	
+	//Calculating the average efficiency and the uncertainty of all the ADs
+	double DTavg_rate = 0;
+	double DTavg_norm = 0;
+	double DTavg_DTnorm = 0;
+	
+	double DTuncert_rate = 0;
+	double DTuncert_norm = 0;
+	double DTuncert_DTnorm = 0;
+	
+	double temp_low_rate = 0;
+	double temp_high_rate = 0;
+	double temp_low_norm = 0;
+	double temp_high_norm = 0;
+	double temp_low_DTnorm = 0;
+	double temp_high_DTnorm = 0;
+	
+	for(int iad = 0; iad < 8; iad++){
+		DTavg_rate += DTeff_rate[iad];
+		DTavg_norm += DTeff_norm[iad];
+		DTavg_DTnorm += DTeff_DTnorm[iad];
+		
+		if(iad == 0){
+			temp_low_rate=DTeff_rate[iad];
+			temp_high_rate=DTeff_rate[iad];
+			temp_low_norm=DTeff_norm[iad];
+			temp_high_norm=DTeff_norm[iad];
+			temp_low_DTnorm=DTeff_DTnorm[iad];
+			temp_high_DTnorm=DTeff_DTnorm[iad];
+		}
+		else{
+			if(DTeff_rate[iad] < temp_low_rate) temp_low_rate = DTeff_rate[iad];
+			if(DTeff_norm[iad] < temp_low_norm) temp_low_norm = DTeff_norm[iad];
+			if(DTeff_DTnorm[iad] < temp_low_DTnorm) temp_low_DTnorm = DTeff_DTnorm[iad];
+			if(DTeff_rate[iad] > temp_high_rate) temp_high_rate = DTeff_rate[iad];
+			if(DTeff_norm[iad] > temp_high_norm) temp_high_norm = DTeff_norm[iad];
+			if(DTeff_DTnorm[iad] > temp_high_DTnorm) temp_high_DTnorm = DTeff_DTnorm[iad];
+		}
+	}
+	
+	DTavg_rate = DTavg_rate/8.;
+	DTavg_norm = DTavg_norm/8.;
+	DTavg_DTnorm = DTavg_DTnorm/8.;
+	
+	DTuncert_rate = (temp_high_rate - temp_low_rate)/2;
+	DTuncert_norm = (temp_high_norm - temp_low_norm)/2;
+	DTuncert_DTnorm = (temp_high_DTnorm - temp_low_DTnorm)/2;
+	
+	//Calculating the average efficiency and the uncertainty of just the near ADs
+	double DTavg_rate_near = 0;
+	double DTavg_norm_near = 0;
+	double DTavg_DTnorm_near = 0;
+	
+	double DTuncert_rate_near = 0;
+	double DTuncert_norm_near = 0;
+	double DTuncert_DTnorm_near = 0;
+	
+	double temp_low_rate_near = 0;
+	double temp_high_rate_near = 0;
+	double temp_low_norm_near = 0;
+	double temp_high_norm_near = 0;
+	double temp_low_DTnorm_near = 0;
+	double temp_high_DTnorm_near = 0;
+	
+	for(int iad = 0; iad < 4; iad++){
+		DTavg_rate_near += DTeff_rate[iad];
+		DTavg_norm_near += DTeff_norm[iad];
+		DTavg_DTnorm_near += DTeff_DTnorm[iad];
+		
+		if(iad == 0){
+			temp_low_rate_near=DTeff_rate[iad];
+			temp_high_rate_near=DTeff_rate[iad];
+			temp_low_norm_near=DTeff_norm[iad];
+			temp_high_norm_near=DTeff_norm[iad];
+			temp_low_DTnorm_near=DTeff_DTnorm[iad];
+			temp_high_DTnorm_near=DTeff_DTnorm[iad];
+		}
+		else{
+			if(DTeff_rate[iad] < temp_low_rate_near) temp_low_rate_near = DTeff_rate[iad];
+			if(DTeff_norm[iad] < temp_low_norm_near) temp_low_norm_near = DTeff_norm[iad];
+			if(DTeff_DTnorm[iad] < temp_low_DTnorm_near) temp_low_DTnorm_near = DTeff_DTnorm[iad];
+			if(DTeff_rate[iad] > temp_high_rate_near) temp_high_rate_near = DTeff_rate[iad];
+			if(DTeff_norm[iad] > temp_high_norm_near) temp_high_norm_near = DTeff_norm[iad];
+			if(DTeff_DTnorm[iad] > temp_high_DTnorm_near) temp_high_DTnorm_near = DTeff_DTnorm[iad];
+		}
+	}
+	
+	DTavg_rate_near = DTavg_rate_near/4.;
+	DTavg_norm_near = DTavg_norm_near/4.;
+	DTavg_DTnorm_near = DTavg_DTnorm_near/4.;
+	
+	DTuncert_rate_near = (temp_high_rate_near - temp_low_rate_near)/2;
+	DTuncert_norm_near = (temp_high_norm_near - temp_low_norm_near)/2;
+	DTuncert_DTnorm_near = (temp_high_DTnorm_near - temp_low_DTnorm_near)/2;
+
+	
+	//Printing the statements
+	cout << "**********************ALL ADS**********************" << endl;
+	cout << "Average DT Efficiency for Rate-Corrected = \t" << DTavg_rate << "\t+/-\t" << DTuncert_rate << endl;
+	cout << "Average DT Efficiency for Normalized = \t" << DTavg_norm << "\t+/-\t" << DTuncert_norm << endl;
+	cout << "Average DT Efficiency for DT normalized = \t" << DTavg_DTnorm << "\t+/-\t" << DTuncert_DTnorm << endl << endl;
+
+	cout << "**********************NEAR ADS**********************" << endl;
+	cout << "Average DT Efficiency for Rate-Corrected = \t" << DTavg_rate_near << "\t+/-\t" << DTuncert_rate_near << endl;
+	cout << "Average DT Efficiency for Normalized = \t" << DTavg_norm_near << "\t+/-\t" << DTuncert_norm_near << endl;
+	cout << "Average DT Efficiency for DT normalized = \t" << DTavg_DTnorm_near << "\t+/-\t" << DTuncert_DTnorm_near << endl << endl;
+	
 }
 
 void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have this included: (, double Elow, double Ehigh)
@@ -3831,8 +3989,10 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	
 	double temp_eff_low = 0;
 	double temp_eff_high = 0;
+	double temp_eff_avg = 0;
 	cout << "Delayed energy cut efficiencies:" << endl;
 	for(int i=0; i<8; i++){
+		temp_eff_avg += efficiency_rate[i];
 		if(i==0){
 			temp_eff_low = efficiency_rate[i];
 			temp_eff_high = efficiency_rate[i];
@@ -3841,7 +4001,15 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 		if(efficiency_rate[i] < temp_eff_low) temp_eff_low = efficiency_rate[i];
 		if(efficiency_rate[i] > temp_eff_high) temp_eff_high = efficiency_rate[i];
 	}
+	temp_eff_avg = temp_eff_avg/8.;
+	cout << "Average Efficiency = " << temp_eff_avg << endl;
 	cout << "Uncertainty = " << (temp_eff_high - temp_eff_low)/2. << endl;
+	
+	
+	cout << "N_extended table:" << endl;
+	for(int iad = 0; iad < 8; iad++){
+		cout << "AD" << iad+1 << "\t" << N_ext_rate[iad] << endl;
+	}
 	
 
 	TCanvas *absDifVsAD_AllFits = new TCanvas("absDifVsAD_AllFits","absDifVsAD_AllFits");
