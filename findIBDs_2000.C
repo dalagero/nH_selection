@@ -999,8 +999,12 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
     cout<<outputname_find<<endl;
 
 //Hard-coded: Delayed Energy 3 sigma cut for Prompt Energy Plots
-	double peak_Ed[8] = {2.25265, 2.25556, 2.25893, 2.25995, 2.26061, 2.26219, 2.25559, 2.26959};
-	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
+//	double peak_Ed[8] = {2.25265, 2.25556, 2.25893, 2.25995, 2.26061, 2.26219, 2.25559, 2.26959};
+//	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
+
+//For NU Results
+	double peak_Ed[8] = {2.26019, 2.26252, 2.26865, 2.26805, 2.26442, 2.26818, 2.26226, 2.27394};
+	double sigma_Ed[8] = {0.136494, 0.137613, 0.135735, 0.135387, 0.136701, 0.134367, 0.135997, 0.135052};
 
 	if(EH == 1 || EH == 2) maxAD = 2;
 	if(EH == 3) maxAD = 4;
@@ -1319,21 +1323,21 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 				h_ibd_promptVStime_DT800[iad]=new TH2F(name,name,1999,1,2000,113,0.7,12.);
 			}
 
-		TH1D* h_ibd_DT[maxAD]; //delta time histogram
+		TH1D* h_ibd_DT[maxAD]; //DT histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
 			sprintf(name, "h_ibd_DT_ad%d", iad+1);
 			h_ibd_DT[iad]=new TH1D(name,name,500,0,10);
 		}
 		
-		TH1D* h_ibd_DT_3sig[maxAD]; //delta time histogram
+		TH1D* h_ibd_DT_3sig[maxAD]; //DT histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
 			sprintf(name, "h_ibd_DT_3sig_ad%d", iad+1);
 			h_ibd_DT_3sig[iad]=new TH1D(name,name,500,0,10);
 		}
 
-		TH1D* h_ibd_DT_Ep35[maxAD]; //delta time histogram
+		TH1D* h_ibd_DT_Ep35[maxAD]; //DT histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
 			sprintf(name, "h_ibd_DT_Ep35_ad%d", iad+1);
@@ -2272,8 +2276,8 @@ void all(int run_order, int pd_window_microsec){
 	}
 	fclose(runfile);
 
-	sprintf(outputname_find, "./IBDs/EH%d/foundIBDs_%d_%d.root",EH,pd_window_microsec,run_num);
-	sprintf(outputname_summarize, "./IBDs/EH%d/summary_%d_%d.root",EH,pd_window_microsec,run_num);
+	sprintf(outputname_find, "./IBDs/EH%d/foundIBDs_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+	sprintf(outputname_summarize, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
 
 
 //	find(run_order, pd_window_microsec); //Finding the IBD candidates

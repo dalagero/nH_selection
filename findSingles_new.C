@@ -1766,8 +1766,12 @@ void plot(int run_num, float pElow, float pEhigh, float dElow, float dEhigh, int
 	if(EH == 3) maxAD = 4;
 
 //Hard-coded: Delayed Energy 3 sigma cut for Prompt Energy Plots
-	double peak_Ed[8] = {2.25265, 2.25556, 2.25893, 2.25995, 2.26061, 2.26219, 2.25559, 2.26959};
-	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
+//	double peak_Ed[8] = {2.25265, 2.25556, 2.25893, 2.25995, 2.26061, 2.26219, 2.25559, 2.26959};
+//	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
+
+//For NU Results
+	double peak_Ed[8] = {2.26019, 2.26252, 2.26865, 2.26805, 2.26442, 2.26818, 2.26226, 2.27394};
+	double sigma_Ed[8] = {0.136494, 0.137613, 0.135735, 0.135387, 0.136701, 0.134367, 0.135997, 0.135052};
 
 	const int NzBins = 20;
 	double nZbins = NzBins;
@@ -2710,8 +2714,12 @@ void plot_long(int run_num, float pElow, float pEhigh, float dElow, float dEhigh
 	if(EH == 3) maxAD = 4;
 
 //Hard-coded: Delayed Energy 3 sigma cut for Prompt Energy Plots
-	double peak_Ed[8] = {2.25265, 2.25556, 2.25893, 2.25995, 2.26061, 2.26219, 2.25559, 2.26959};
-	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
+//	double peak_Ed[8] = {2.25265, 2.25556, 2.25893, 2.25995, 2.26061, 2.26219, 2.25559, 2.26959};
+//	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
+
+//For NU Results
+	double peak_Ed[8] = {2.26019, 2.26252, 2.26865, 2.26805, 2.26442, 2.26818, 2.26226, 2.27394};
+	double sigma_Ed[8] = {0.136494, 0.137613, 0.135735, 0.135387, 0.136701, 0.134367, 0.135997, 0.135052};
 
 	const int NzBins = 20;
 	double nZbins = NzBins;
@@ -3662,13 +3670,13 @@ void all(int run_order, int pd_window_microsec){
 	}
 	fclose(runfile);
 
-        sprintf(outputname_findPrompt,"./promptSingles/EH%d/foundPromptSingles_%d_%d.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_findDelayed,"./delayedSingles/EH%d/foundDelayedSingles_%d_%d.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize,"./accResults/EH%d/AccidentalsSummary_%d_%d.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize_long1,"./accResults/EH%d/AccidentalsSummary_%d_%d_part1.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize_long2,"./accResults/EH%d/AccidentalsSummary_%d_%d_part2.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_summarize_long3,"./accResults/EH%d/AccidentalsSummary_%d_%d_part3.root",EH,pd_window_microsec,run_num);
-        sprintf(outputname_plot,"./accResults/EH%d/AccidentalsPlots_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_findPrompt,"./promptSingles/EH%d/foundPromptSingles_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_findDelayed,"./delayedSingles/EH%d/foundDelayedSingles_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize_long1,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d_part1.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize_long2,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d_part2.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_summarize_long3,"./accResults/EH%d/AccidentalsSummary_NU_%d_%d_part3.root",EH,pd_window_microsec,run_num);
+        sprintf(outputname_plot,"./accResults/EH%d/AccidentalsPlots_NU_%d_%d.root",EH,pd_window_microsec,run_num);
 
 //	find(run_order, 1.5, 3, pd_window_microsec+400, 400, pd_window_microsec); //For delayed singles -- usually 1.75 to 2.89 MeV
 //	find(run_order, 1.5, 12., pd_window_microsec+300, 500, pd_window_microsec); //For prompt singles
