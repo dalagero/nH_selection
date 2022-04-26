@@ -67,7 +67,7 @@ void prompt(){
 	for(int iad=0; iad<8; iad++){
 
 		TFile *in_file = new TFile(Form("../nH_files/TotaledPlots_NU_EH%d_1500.root",EH[iad]));
-		TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT2000_3sig_ad%d",AD[iad]));
+		TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT%d_3sig_ad%d",DTcut, AD[iad]));
 		
 		char name[64];
 		const int numBins = 34;
@@ -116,7 +116,7 @@ void acc_spectra(){
 
 	for(int iad=0; iad<8; iad++){
 		TFile *in_file = new TFile(Form("../nH_files/TotaledSingles_NU_1500_EH%d.root",EH[iad]));
-		TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT2000_3sig_scaled_ad%d",AD[iad]));
+		TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT%d_3sig_scaled_ad%d",DTcut,AD[iad]));
 
 		char name[64];
 		const int numBins = 34;
@@ -158,7 +158,7 @@ void acc_counts(){
 
 	for(int iad=0; iad<8; iad++){
 		TFile *in_file = new TFile(Form("../nH_files/TotaledSingles_NU_1500_EH%d.root",EH[iad]));
-		TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT800_3sig_scaled_ad%d",AD[iad]));
+		TH1F *in_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_DT%d_3sig_scaled_ad%d",DTcut,AD[iad]));
 
 		double counts = 0;
 		counts = in_hist->Integral();
