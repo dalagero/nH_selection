@@ -195,6 +195,21 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 			sprintf(name, "h_Eprompt_subtract_DT800_3sig_ad%d", ad_num);
 			TH1F* h_Eprompt_sub_DT800_3sig=new TH1F(name,name,113,0.7,12.);
 
+			sprintf(name, "h_Eprompt_subtract_DT300_3sig_ad%d", ad_num);
+			TH1F* h_Eprompt_sub_DT300_3sig=new TH1F(name,name,113,0.7,12.);
+
+			sprintf(name, "h_Eprompt_subtract_DT500_3sig_ad%d", ad_num);
+			TH1F* h_Eprompt_sub_DT500_3sig=new TH1F(name,name,113,0.7,12.);
+
+			sprintf(name, "h_Eprompt_subtract_DT1000_3sig_ad%d", ad_num);
+			TH1F* h_Eprompt_sub_DT1000_3sig=new TH1F(name,name,113,0.7,12.);
+
+			sprintf(name, "h_Eprompt_subtract_DT1500_3sig_ad%d", ad_num);
+			TH1F* h_Eprompt_sub_DT1500_3sig=new TH1F(name,name,113,0.7,12.);
+
+			sprintf(name, "h_Eprompt_subtract_DT2000_3sig_ad%d", ad_num);
+			TH1F* h_Eprompt_sub_DT2000_3sig=new TH1F(name,name,113,0.7,12.);
+
 		sprintf(name, "h_Edelayed_subtract_DT800_ad%d", ad_num);
 		TH1F* h_Edelayed_sub_DT800=new TH1F(name,name,230,0.7,3.);
 
@@ -712,11 +727,11 @@ void subtract(int hall_num, int ad_num, int pd_window_microsec){
 
 	//Loading the files
 	char IBDFileName[64];
-	sprintf(IBDFileName, "../nH_files/TotaledPlots_EH%d_%d.root",hall_num,pd_window_microsec);
+	sprintf(IBDFileName, "../nH_files/TotaledPlots_NU_EH%d_%d.root",hall_num,pd_window_microsec);
 	TFile *IBDFile = new TFile(IBDFileName);
 
 	char accFileName[64];
-	sprintf(accFileName, "../nH_files/TotaledSingles_%d_EH%d.root",pd_window_microsec,hall_num);
+	sprintf(accFileName, "../nH_files/TotaledSingles_NU_%d_EH%d.root",pd_window_microsec,hall_num);
 	TFile *accFile = new TFile(accFileName);
 
 	double accCounts=0;
@@ -1293,9 +1308,49 @@ cout << "5" << endl;
 			TH1F *h_IBD_Eprompt_DT800_3sig = (TH1F*)IBDFile->Get(name);
 			sprintf(name, "h_total_prompt_energy_DT800_3sig_scaled_ad%d", ad_num);
 			TH1F *h_acc_Eprompt_DT800_3sig_scaled = (TH1F*)accFile->Get(name);
+
+			sprintf(name, "h_total_prompt_energy_DT300_3sig_ad%d",ad_num);
+			TH1F *h_IBD_Eprompt_DT300_3sig = (TH1F*)IBDFile->Get(name);
+			sprintf(name, "h_total_prompt_energy_DT300_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_Eprompt_DT300_3sig_scaled = (TH1F*)accFile->Get(name);
+
+			sprintf(name, "h_total_prompt_energy_DT500_3sig_ad%d",ad_num);
+			TH1F *h_IBD_Eprompt_DT500_3sig = (TH1F*)IBDFile->Get(name);
+			sprintf(name, "h_total_prompt_energy_DT500_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_Eprompt_DT500_3sig_scaled = (TH1F*)accFile->Get(name);
+
+			sprintf(name, "h_total_prompt_energy_DT1000_3sig_ad%d",ad_num);
+			TH1F *h_IBD_Eprompt_DT1000_3sig = (TH1F*)IBDFile->Get(name);
+			sprintf(name, "h_total_prompt_energy_DT1000_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_Eprompt_DT1000_3sig_scaled = (TH1F*)accFile->Get(name);
+
+			sprintf(name, "h_total_prompt_energy_DT1500_3sig_ad%d",ad_num);
+			TH1F *h_IBD_Eprompt_DT1500_3sig = (TH1F*)IBDFile->Get(name);
+			sprintf(name, "h_total_prompt_energy_DT1500_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_Eprompt_DT1500_3sig_scaled = (TH1F*)accFile->Get(name);
+
+			sprintf(name, "h_total_prompt_energy_DT2000_3sig_ad%d",ad_num);
+			TH1F *h_IBD_Eprompt_DT2000_3sig = (TH1F*)IBDFile->Get(name);
+			sprintf(name, "h_total_prompt_energy_DT2000_3sig_scaled_ad%d", ad_num);
+			TH1F *h_acc_Eprompt_DT2000_3sig_scaled = (TH1F*)accFile->Get(name);
 			
 			h_Eprompt_sub_DT800_3sig->Add(h_IBD_Eprompt_DT800_3sig);
 			h_Eprompt_sub_DT800_3sig->Add(h_acc_Eprompt_DT800_3sig_scaled, -1);
+			
+			h_Eprompt_sub_DT300_3sig->Add(h_IBD_Eprompt_DT300_3sig);
+			h_Eprompt_sub_DT300_3sig->Add(h_acc_Eprompt_DT300_3sig_scaled, -1);
+
+			h_Eprompt_sub_DT500_3sig->Add(h_IBD_Eprompt_DT500_3sig);
+			h_Eprompt_sub_DT500_3sig->Add(h_acc_Eprompt_DT500_3sig_scaled, -1);
+
+			h_Eprompt_sub_DT1000_3sig->Add(h_IBD_Eprompt_DT1000_3sig);
+			h_Eprompt_sub_DT1000_3sig->Add(h_acc_Eprompt_DT1000_3sig_scaled, -1);
+
+			h_Eprompt_sub_DT1500_3sig->Add(h_IBD_Eprompt_DT1500_3sig);
+			h_Eprompt_sub_DT1500_3sig->Add(h_acc_Eprompt_DT1500_3sig_scaled, -1);
+
+			h_Eprompt_sub_DT2000_3sig->Add(h_IBD_Eprompt_DT2000_3sig);
+			h_Eprompt_sub_DT2000_3sig->Add(h_acc_Eprompt_DT2000_3sig_scaled, -1);
 
 cout << "delayed and prompt done" << endl;
 
@@ -1830,16 +1885,17 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 
 			gStyle->SetOptFit(1111);
         char outputname[64];
-        sprintf(outputname,"../nH_files/SubtractedAccidentals_%d_EH%dAD%d.root",pd_window_microsec,hall_num,ad_num);
+        sprintf(outputname,"../nH_files/SubtractedAccidentals_NU_%d_EH%dAD%d.root",pd_window_microsec,hall_num,ad_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
+			h_normSub_distance->Rebin(10);
 			h_normSub_distance->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_normSub_distance->GetYaxis()->SetTitle("Counts");
 			cout << endl << endl << endl << "Subtracted Distance (Normalized) Plot" << endl;
 			h_normSub_distance->Fit("subFit","R");
 			h_normSub_distance->Write();
 
-		//	h_rateSub_distance->Rebin(20);
+			h_rateSub_distance->Rebin(10);
 			h_rateSub_distance->GetXaxis()->SetTitle("Distance Between Prompt and Delayed [m]");
 			h_rateSub_distance->GetYaxis()->SetTitle("Counts");
 			cout << endl << endl << endl << "Rate Corrected Distance (Rate) Plot" << endl;
@@ -2273,6 +2329,27 @@ h_prompt_energy_vs_time_DTnorm_DT800_sub->Add(h_acc_promptVStime_DTnorm_DT800,-1
 				h_Eprompt_sub_DT800_3sig->GetXaxis()->SetTitle("Energy [MeV]");
 				h_Eprompt_sub_DT800_3sig->GetYaxis()->SetTitle("Counts");
 				h_Eprompt_sub_DT800_3sig->Write();
+
+				h_Eprompt_sub_DT300_3sig->GetXaxis()->SetTitle("Energy [MeV]");
+				h_Eprompt_sub_DT300_3sig->GetYaxis()->SetTitle("Counts");
+				h_Eprompt_sub_DT300_3sig->Write();
+
+				h_Eprompt_sub_DT500_3sig->GetXaxis()->SetTitle("Energy [MeV]");
+				h_Eprompt_sub_DT500_3sig->GetYaxis()->SetTitle("Counts");
+				h_Eprompt_sub_DT500_3sig->Write();
+
+				h_Eprompt_sub_DT1000_3sig->GetXaxis()->SetTitle("Energy [MeV]");
+				h_Eprompt_sub_DT1000_3sig->GetYaxis()->SetTitle("Counts");
+				h_Eprompt_sub_DT1000_3sig->Write();
+
+				h_Eprompt_sub_DT1500_3sig->GetXaxis()->SetTitle("Energy [MeV]");
+				h_Eprompt_sub_DT1500_3sig->GetYaxis()->SetTitle("Counts");
+				h_Eprompt_sub_DT1500_3sig->Write();
+
+				h_Eprompt_sub_DT2000_3sig->GetXaxis()->SetTitle("Energy [MeV]");
+				h_Eprompt_sub_DT2000_3sig->GetYaxis()->SetTitle("Counts");
+				h_Eprompt_sub_DT2000_3sig->Write();
+
 /*		TF1* delayedFit_DT800 = new TF1("delayedFit_DT800", "[0]*([1]*exp(-pow(x-[2],2)/(2*[3]*[3])) / ([3]*sqrt(2*TMath::Pi()))+(1.-[1])*[4]/(2*(exp([4]*[2])-1)) * exp([3]*[3]*[4]*[4]/2) * exp([4]*x) * ( TMath::Erf(([2]-(x+[3]*[3]*[4]))/(sqrt(2)*[3])) - TMath::Erf((0-(x+[3]*[3]*[4]))/(sqrt(2)*[3])) ))",1.6,2.8);
 			delayedFit_DT800->SetParameter(0,(h_Edelayed_sub_DT800->GetBinContent(h_Edelayed_sub_DT800->FindBin(2.3)))/3.); //normalization
 			delayedFit_DT800->SetParameter(1,0.8); //alpha
