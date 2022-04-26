@@ -1161,6 +1161,41 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 				h_delayed_energy_fine_DT800[iad]=new TH1F(name,name,23000,0.7,3.);
 			}
 
+			TH1F* h_delayed_energy_fine_DT300[maxAD]; //delayed energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_delayed_energy_fine_DT300_ad%d", iad+1);
+				h_delayed_energy_fine_DT300[iad]=new TH1F(name,name,23000,0.7,3.);
+			}
+
+			TH1F* h_delayed_energy_fine_DT500[maxAD]; //delayed energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_delayed_energy_fine_DT500_ad%d", iad+1);
+				h_delayed_energy_fine_DT500[iad]=new TH1F(name,name,23000,0.7,3.);
+			}
+
+			TH1F* h_delayed_energy_fine_DT1000[maxAD]; //delayed energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_delayed_energy_fine_DT1000_ad%d", iad+1);
+				h_delayed_energy_fine_DT1000[iad]=new TH1F(name,name,23000,0.7,3.);
+			}
+
+			TH1F* h_delayed_energy_fine_DT1500[maxAD]; //delayed energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_delayed_energy_fine_DT1500_ad%d", iad+1);
+				h_delayed_energy_fine_DT1500[iad]=new TH1F(name,name,23000,0.7,3.);
+			}
+
+			TH1F* h_delayed_energy_fine_DT2000[maxAD]; //delayed energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_delayed_energy_fine_DT2000_ad%d", iad+1);
+				h_delayed_energy_fine_DT2000[iad]=new TH1F(name,name,23000,0.7,3.);
+			}
+
 			TH1F* h_prompt_energy_DT800[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
@@ -1174,7 +1209,41 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 				sprintf(name, "h_prompt_energy_DT800_3sig_ad%d", iad+1);
 				h_prompt_energy_DT800_3sig[iad]=new TH1F(name,name,113,0.7,12.);
 			}
+			
+			TH1F* h_prompt_energy_DT300_3sig[maxAD]; //prompt energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_prompt_energy_DT300_3sig_ad%d", iad+1);
+				h_prompt_energy_DT300_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+			}
 
+			TH1F* h_prompt_energy_DT500_3sig[maxAD]; //prompt energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_prompt_energy_DT500_3sig_ad%d", iad+1);
+				h_prompt_energy_DT500_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+			}
+
+			TH1F* h_prompt_energy_DT1000_3sig[maxAD]; //prompt energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_prompt_energy_DT1000_3sig_ad%d", iad+1);
+				h_prompt_energy_DT1000_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+			}
+
+			TH1F* h_prompt_energy_DT1500_3sig[maxAD]; //prompt energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_prompt_energy_DT1500_3sig_ad%d", iad+1);
+				h_prompt_energy_DT1500_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+			}
+
+			TH1F* h_prompt_energy_DT2000_3sig[maxAD]; //prompt energy histogram
+			for(int iad=0; iad<maxAD; ++iad){
+				char name[64];
+				sprintf(name, "h_prompt_energy_DT2000_3sig_ad%d", iad+1);
+				h_prompt_energy_DT2000_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+			}
 
 		TH1D* h_delta_time_before[maxAD]; //delta time histogram
 		for(int iad=0; iad<maxAD; ++iad){
@@ -1730,6 +1799,19 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])) h_prompt_energy_DT800_3sig[det_num]->Fill(p_energy);
 		}
 
+		if(d_energy >= (peak_Ed[2*(EH-1)+det_num] - 3*sigma_Ed[2*(EH-1)+det_num]) && d_energy <= (peak_Ed[2*(EH-1)+det_num] + 3*sigma_Ed[2*(EH-1)+det_num])){
+			if(DTvalue < 0.3) h_prompt_energy_DT300_3sig[det_num]->Fill(p_energy);
+			if(DTvalue < 0.5) h_prompt_energy_DT500_3sig[det_num]->Fill(p_energy);
+			if(DTvalue < 1.0) h_prompt_energy_DT1000_3sig[det_num]->Fill(p_energy);
+			if(DTvalue < 1.5) h_prompt_energy_DT1500_3sig[det_num]->Fill(p_energy);
+			if(DTvalue < 2.0) h_prompt_energy_DT2000_3sig[det_num]->Fill(p_energy);
+		}
+
+		if(DTvalue < 0.3) h_delayed_energy_fine_DT300[det_num]->Fill(d_energy);
+		if(DTvalue < 0.5) h_delayed_energy_fine_DT500[det_num]->Fill(d_energy);
+		if(DTvalue < 1.0) h_delayed_energy_fine_DT1000[det_num]->Fill(d_energy);
+		if(DTvalue < 1.5) h_delayed_energy_fine_DT1500[det_num]->Fill(d_energy);
+		if(DTvalue < 2.0) h_delayed_energy_fine_DT2000[det_num]->Fill(d_energy);
 
 		h_delta_time_1us[det_num]->Fill(d_sec*1.e6+d_nanosec*1.e-3-p_sec*1.e6-p_nanosec*1.e-3);
 		h_distance_before[det_num]->Fill(distance*1.e-3);
@@ -1923,6 +2005,31 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			h_delayed_energy_fine_DT800[iad]->GetYaxis()->SetTitle("Counts");
 			h_delayed_energy_fine_DT800[iad]->Write();
 
+				h_delayed_energy_fine_DT300[iad]->SetStats(0);
+				h_delayed_energy_fine_DT300[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+				h_delayed_energy_fine_DT300[iad]->GetYaxis()->SetTitle("Counts");
+				h_delayed_energy_fine_DT300[iad]->Write();
+		
+				h_delayed_energy_fine_DT500[iad]->SetStats(0);
+				h_delayed_energy_fine_DT500[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+				h_delayed_energy_fine_DT500[iad]->GetYaxis()->SetTitle("Counts");
+				h_delayed_energy_fine_DT500[iad]->Write();
+		
+				h_delayed_energy_fine_DT1000[iad]->SetStats(0);
+				h_delayed_energy_fine_DT1000[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+				h_delayed_energy_fine_DT1000[iad]->GetYaxis()->SetTitle("Counts");
+				h_delayed_energy_fine_DT1000[iad]->Write();
+		
+				h_delayed_energy_fine_DT1500[iad]->SetStats(0);
+				h_delayed_energy_fine_DT1500[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+				h_delayed_energy_fine_DT1500[iad]->GetYaxis()->SetTitle("Counts");
+				h_delayed_energy_fine_DT1500[iad]->Write();
+
+				h_delayed_energy_fine_DT2000[iad]->SetStats(0);
+				h_delayed_energy_fine_DT2000[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
+				h_delayed_energy_fine_DT2000[iad]->GetYaxis()->SetTitle("Counts");
+				h_delayed_energy_fine_DT2000[iad]->Write();
+
 			h_delayed_energy_fine_Ep35[iad]->SetStats(0);
 			h_delayed_energy_fine_Ep35[iad]->GetXaxis()->SetTitle("Delayed Energy [MeV]");
 			h_delayed_energy_fine_Ep35[iad]->GetYaxis()->SetTitle("Counts");
@@ -2011,6 +2118,31 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			h_prompt_energy_DT800_3sig[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
 			h_prompt_energy_DT800_3sig[iad]->GetYaxis()->SetTitle("Counts");
 			h_prompt_energy_DT800_3sig[iad]->Write();
+
+			h_prompt_energy_DT300_3sig[iad]->SetStats(0);
+			h_prompt_energy_DT300_3sig[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
+			h_prompt_energy_DT300_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_prompt_energy_DT300_3sig[iad]->Write();
+
+			h_prompt_energy_DT500_3sig[iad]->SetStats(0);
+			h_prompt_energy_DT500_3sig[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
+			h_prompt_energy_DT500_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_prompt_energy_DT500_3sig[iad]->Write();
+
+			h_prompt_energy_DT1000_3sig[iad]->SetStats(0);
+			h_prompt_energy_DT1000_3sig[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
+			h_prompt_energy_DT1000_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_prompt_energy_DT1000_3sig[iad]->Write();
+
+			h_prompt_energy_DT1500_3sig[iad]->SetStats(0);
+			h_prompt_energy_DT1500_3sig[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
+			h_prompt_energy_DT1500_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_prompt_energy_DT1500_3sig[iad]->Write();
+
+			h_prompt_energy_DT2000_3sig[iad]->SetStats(0);
+			h_prompt_energy_DT2000_3sig[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
+			h_prompt_energy_DT2000_3sig[iad]->GetYaxis()->SetTitle("Counts");
+			h_prompt_energy_DT2000_3sig[iad]->Write();
 
 			h_prompt_energy_largeDist[iad]->SetStats(0);
 			h_prompt_energy_largeDist[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
