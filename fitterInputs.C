@@ -21,10 +21,11 @@ using namespace std;
 int EH[8] = {1,1,2,2,3,3,3,3};
 int AD[8] = {1,2,1,2,1,2,3,4};
 char prompt_label[64]="Olivia 4/22/2022 NU DT2000"; //Label for the prompt spectra
-char bgCount_label[64]="Olivia 4/22/2022 NU DT300"; //Label for the background counts
+char bgCount_label[64]="Olivia 4/22/2022 NU DT2000"; //Label for the background counts
 char accSpectra_label[64]="accidentals, Olivia 4/22/2022 NU DT2000"; //Label for the accidentals background spectra
 char bgSpectra_label[64]="nH backgrounds, Olivia 3/15/2022 NU"; //Label for the non-accidentals background spectra
 char muon_label[64]="Olivia 3/15/2022 NU"; //Label for the livetime/muon table
+const int DTcut = 2000;
 
 //const double livetime[8] = {72283163195734976, 81341302266285248, 94242900368444256, 84031181570224704, 143447962585023856, 143434576886712080, 143413538529066832, 127989198069118256}; //livetime in ns
 const double livetime[8] = {72244284936199984, 81301206745935696, 94204225977453632, 84001966789146096, 143440456179300048, 143430087896206080, 143408721398819648, 127989198069118256}; //livetime in ns for NU
@@ -42,6 +43,14 @@ const double radn_rate[1] = {0.151}; //rate of rad n in 1/day
 const double radn_rate_err[1] = {0.040}; //error of rate of rad n in 1/day
 const double amc_rate[8] = {0.04,0.04,0.04,0.03,0.02,0.01,0.01,0.01}; //rate of amc in 1/day
 const double amc_rate_err[8] = {0.02,0.02,0.02,0.01,0.01,0.01,0.01,0.01}; //error of rate of amc in 1/day
+
+double factor(int iad){
+	TFile* infile=new TFile(Form("../nH_files/SubtractedAccidentals_NU_1500_EH%dAD%d.root",EH[iad],AD[iad]));
+	TH1F *hist_800 = (TH1F*)infile->Get(Form("h_Eprompt_subtract_DT800_3sig_ad%d",AD[iad]));
+	TH1F *hist_DTcut = (TH1F*)infile->Get(Form("h_Eprompt_subtract_DT%d_3sig_ad%d",DTcut,AD[iad]));
+	
+	return (hist_DTcut->Integral())/(hist_800->Integral());
+}
 
 void muon(){
 
@@ -222,7 +231,7 @@ void fastN_spectrum(int eh){
 void fastN_counts(){
 	for(int iad=0; iad<8; iad++){
 		double temp_livetime_day = livetime[2*(EH[iad]-1)+AD[iad]-1] * 1.e-9/(60*60*24); //converting the livetime from ns to day
-		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"fast-neutron\"," << fastn_rate[EH[iad]-1]*temp_livetime_day << "," << fastn_rate_err[EH[iad]-1]*temp_livetime_day << ");" << endl;
+		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"fast-neutron\"," << fastn_rate[EH[iad]-1]*temp_livetime_day*factor(iad) << "," << fastn_rate_err[EH[iad]-1]*temp_livetime_day*factor(iad) << ");" << endl;
 	}
 }
 
@@ -266,21 +275,21 @@ void li9_spectrum(){
 void li9_counts(){
 	for(int iad = 0; iad < 8; iad++){
 		double temp_livetime_day = livetime[iad] * 1.e-9/(60*60*24); //converting the livetime from ns to day
-		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"li9\"," << li9_rate[EH[iad]-1]*temp_livetime_day << "," << li9_rate_err[EH[iad]-1]*temp_livetime_day << ");" << endl;
+		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"li9\"," << li9_rate[EH[iad]-1]*temp_livetime_day*factor(iad) << "," << li9_rate_err[EH[iad]-1]*temp_livetime_day*factor(iad) << ");" << endl;
 	}
 }
 
 void amc_counts(){
 	for(int iad = 0; iad < 8; iad++){
 		double temp_livetime_day = livetime[iad] * 1.e-9/(60*60*24); //converting the livetime from ns to day
-		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"amc\"," << amc_rate[iad]*temp_livetime_day << "," << amc_rate_err[iad]*temp_livetime_day << ");" << endl;
+		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"amc\"," << amc_rate[iad]*temp_livetime_day*factor(iad) << "," << amc_rate_err[iad]*temp_livetime_day*factor(iad) << ");" << endl;
 	}
 }
 
 void radN_counts(){
 	for(int iad = 0; iad < 8; iad++){
 		double temp_livetime_day = livetime[iad] * 1.e-9/(60*60*24); //converting the livetime from ns to day
-		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"rad-n\"," << radn_rate[0]*temp_livetime_day << "," << radn_rate_err[0]*temp_livetime_day << ");" << endl;
+		cout << "INSERT INTO bg_counts VALUES (\"" << bgCount_label << "\"," << EH[iad] << "," << AD[iad] << ",\"rad-n\"," << radn_rate[0]*temp_livetime_day*factor(iad) << "," << radn_rate_err[0]*temp_livetime_day*factor(iad) << ");" << endl;
 	}
 }
 
