@@ -42,22 +42,81 @@ double bkgd_counts_vals[2];
 char bkgd_spectra_fileName[64];
 char BgName[64];
 char BgLabel[64];
+char BgLabel_counts[64];
+char AccLabel[64];
 int num_bkgds = 5;
 double bkgd_spec_val;
 
 char db_hists[64];
 
-void init_file_names(){
-	sprintf(promptSource,"toyMC");
-	sprintf(BgLabel,"toyMC");
+void init_config(string config_file){
 
-	sprintf(prompt_db,"adtime_dt_eff_study.db");
-	sprintf(bkgd_db,"nH_backgrounds.db");
+	//The names of the output files
+	sprintf(prompt_fileName,"./ckDB/prompt_spectra_data.txt");
+	sprintf(bkgd_counts_fileName,"./ckDB/bkgd_counts_data.txt");
+	sprintf(bkgd_spectra_fileName,"./ckDB/bkgd_spectra_data.txt");
+	sprintf(db_hists,"./ckDB/db_spectra_data.root");
 
-	sprintf(prompt_fileName,"./ckDB/prompt_spectra.txt");
-	sprintf(bkgd_counts_fileName,"./ckDB/bkgd_counts.txt");
-	sprintf(bkgd_spectra_fileName,"./ckDB/bkgd_spectra.txt");
-	sprintf(db_hists,"./ckDB/db_spectra.root");
+	//Reading the config file
+	  ifstream myfile (config_file);
+	  string line;
+	  int iline=0;
+	  string slash="/";
+	  string quotes="\"";
+	  string comma=",";
+	  if (myfile.is_open())
+	  {
+	    while (getline(myfile, line, '\n')){
+	    	iline+=1;
+	    	if(iline == 4){//backgrounds database
+	    		while(line.find(slash) != string::npos){
+	    			line.erase(0, line.find(slash)+slash.length());
+	    		}
+	    		line.erase(line.find(quotes), line.find(quotes)+2);
+	    		sprintf(bkgd_db,"%s", line.c_str());
+	    		cout << bkgd_db << endl;
+	    	}
+	   	if(iline == 5){//background counts label
+	   		line.erase(line.find(comma)-1, line.find(comma)+1);
+	    		while(line.find(quotes) != string::npos){
+	    			line.erase(0, line.find(quotes)+1);
+	    		}
+	    		sprintf(BgLabel_counts,"%s", line.c_str());
+	    		cout << BgLabel_counts << endl;
+	   	}
+ 		if(iline == 8){//accidentals spectra label
+ 			line.erase(0, line.find(comma)+2);
+ 			line.erase(line.find(comma)-1, line.find(comma)+1);
+	    		sprintf(AccLabel,"%s", line.c_str());
+			cout << AccLabel << endl;
+		}
+		if(iline == 9){//backgrounds spectra label
+ 			line.erase(0, line.find(comma)+2);
+ 			line.erase(line.find(quotes), line.find(quotes)+1);
+	    		sprintf(BgLabel,"%s", line.c_str());
+			cout << BgLabel << endl;
+		}
+		if(iline == 21){//prompt database
+	    		while(line.find(slash) != string::npos){
+	    			line.erase(0, line.find(slash)+slash.length());
+	    		}
+	    		line.erase(line.find(quotes), line.find(quotes)+2);
+	    		sprintf(prompt_db,"%s", line.c_str());
+	    		cout << prompt_db << endl;
+		}
+		if(iline == 22){//prompt label
+	   		line.erase(line.find(comma)-1, line.find(comma)+1);
+	    		while(line.find(quotes) != string::npos){
+	    			line.erase(0, line.find(quotes)+1);
+	    		}
+	    		sprintf(promptSource,"%s", line.c_str());
+	    		cout << promptSource << endl;
+		}
+	    }
+	    myfile.close();
+	  }
+	  else cout << "Unable to open file" << endl;
+
 }
 
 
@@ -109,7 +168,7 @@ static int callback_bkgd_spectra(void *data, int argc, char **argv, char **azCol
 }
 
 
-void prompt_spectra(){
+void prompt_spectra(string config_file){
  	 ofstream myfile;
  	 myfile.open (prompt_fileName);
 
@@ -131,7 +190,7 @@ void prompt_spectra(){
 
 
 	for(int iad=0; iad<maxAD; iad++){
-		init_file_names();
+		init_config(config_file);
 	
 		  /* Create SQL statement */
 		  sql_prompt = Form("select * from  num_coincidences where Source = \"%s\" and Hall=%d and DetNo=%d",promptSource,EH[iad],AD[iad]); 
@@ -160,9 +219,9 @@ void prompt_spectra(){
 
 
 
-void bkgd_counts(){
+void bkgd_counts(string config_file){
 
-	init_file_names();
+	init_config(config_file);
 
  	 ofstream myfile;
  	 myfile.open (bkgd_counts_fileName);
@@ -191,7 +250,7 @@ void bkgd_counts(){
 			if(i==4) sprintf(BgName,"li9");
 			if(i==5) sprintf(BgName,"rad-n");
 		  // Create SQL statement
-		  sql_bkgd_counts = Form("select * from bg_counts where Label = \"%s\" and Hall=%d and DetNo=%d and BgName=\"%s\"",BgLabel,EH[iad],AD[iad],BgName); 
+		  sql_bkgd_counts = Form("select * from bg_counts where Label = \"%s\" and Hall=%d and DetNo=%d and BgName=\"%s\"",BgLabel_counts,EH[iad],AD[iad],BgName); 
 		   // Execute SQL statement
 		   rc_bkgd_counts = sqlite3_exec(db_bkgd_counts, sql_bkgd_counts, callback_bkgd_counts, (void*)data, &zErrMsg_bkgd_counts);
 		   myfile << BgName << "\t" << EH[iad] << "\t" << AD[iad] << "\t" << bkgd_counts_vals[0] << "\t" << bkgd_counts_vals[1] << endl;
@@ -214,9 +273,9 @@ void bkgd_counts(){
 	 ab:;
 }
 
-void bkgd_spectra(){
+void bkgd_spectra(string config_file){
 
-	init_file_names();
+	init_config(config_file);
 	
  	 ofstream myfile;
  	 myfile.open (bkgd_spectra_fileName);
@@ -250,7 +309,7 @@ void bkgd_spectra(){
 				myfile << BgName << "\t" << EH[iad] << "\t" << AD[iad];
 				for(int iBin=0; iBin<numBins; iBin++){
 					  // Create SQL statement
-					  sql_bkgd_spectra = Form("select * from %s where Label = \"accidentals, %s\" and Hall=%d and DetNo=%d and BinIndex=%d",BgName,BgLabel,EH[iad],AD[iad],iBin);
+					  sql_bkgd_spectra = Form("select * from %s where Label = \"accidentals, %s\" and Hall=%d and DetNo=%d and BinIndex=%d",BgName,AccLabel,EH[iad],AD[iad],iBin);
 					   // Execute SQL statement
 					   rc_bkgd_spectra = sqlite3_exec(db_bkgd_spectra, sql_bkgd_spectra, callback_bkgd_spectra, (void*)data, &zErrMsg_bkgd_spectra);
 					   myfile << " " << bkgd_spec_val;
@@ -287,9 +346,9 @@ void bkgd_spectra(){
 	 ab:;
 }
 
-void readOutput(){
+void readOutput(string config_file){
 
-	init_file_names();
+	init_config(config_file);
 
 	//Building the histograms
 	char name[64];
@@ -472,15 +531,15 @@ void readOutput(){
 }
 
 
-void allDB_check(){
+void allDB_check(string config_file){
 	
-	init_file_names();
+	init_config(config_file);
 	
-	prompt_spectra();
-	bkgd_counts();
-	bkgd_spectra();
+	prompt_spectra(config_file);
+	bkgd_counts(config_file);
+	bkgd_spectra(config_file);
 
-	readOutput();
+	readOutput(config_file);
 }
 
 
