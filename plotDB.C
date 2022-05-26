@@ -360,6 +360,7 @@ void readOutput(string config_file){
 	TH1F* h_li9[maxAD];
 	TH1F* h_radn[maxAD];
 	TH1F* h_ibds[maxAD];
+		TH1F* h_event_types[maxAD];
 
 	for(int iad=0; iad<maxAD; ++iad){
 		sprintf(name, "h_numCoincs_eh%dad%d", EH[iad],AD[iad]); //Prompt
@@ -382,6 +383,9 @@ void readOutput(string config_file){
 		
 		sprintf(name, "h_ibds_eh%dad%d", EH[iad],AD[iad]); //ibds: all backgrounds subtracted from the prompt spectra
 		h_ibds[iad]=new TH1F(name,name,numBins, binEdges);
+		
+		sprintf(name, "h_event_types_eh%dad%d", EH[iad],AD[iad]); //Event counts for the ADs
+		h_event_types[iad]=new TH1F(name,name,6, 0.5, 6.5);
 	}
 	
 	  int hall=0;
@@ -405,6 +409,7 @@ void readOutput(string config_file){
 	    		prompt_vals[2*(hall-1)+det-1][i] = stod(values[i]);
 			h_prompt[2*(hall-1)+det-1]->SetBinContent(i+1, prompt_vals[2*(hall-1)+det-1][i]);
 		}
+		h_event_types[2*(hall-1)+det-1]->Fill(1,h_prompt[2*(hall-1)+det-1]->Integral());
 	    }
 	    myfile.close();
 	  }
@@ -443,6 +448,7 @@ void readOutput(string config_file){
 				h_acc[2*(hall-1)+det-1]->SetBinError(iBin+1, bg_values[iBin]*BgError[2*(hall-1)+det-1][0]);
 			}
 			if(h_acc[2*(hall-1)+det-1]->Integral() != BgCounts[2*(hall-1)+det-1][0]) cout << "ACCIDENTALS FOR EH" << hall << "AD" << det << " ARE OFF BY " << (h_acc[2*(hall-1)+det-1]->Integral()-BgCounts[2*(hall-1)+det-1][0])/(h_acc[2*(hall-1)+det-1]->Integral()) << " %" << endl;
+			h_event_types[2*(hall-1)+det-1]->Fill(2,BgCounts[2*(hall-1)+det-1][0]);
 		}
 		else if(iline == 9){ //Amc
 			for(int iad=0; iad<maxAD; iad++){
@@ -451,6 +457,7 @@ void readOutput(string config_file){
 					h_amc[iad]->SetBinError(iBin+1, bg_values[iBin]*BgError[iad][1]);
 				}
 				if(h_amc[iad]->Integral() != BgCounts[iad][1]) cout << "AMC FOR EH" << EH[iad] << "AD" << AD[iad] << " ARE OFF BY " << (h_amc[iad]->Integral()-BgCounts[iad][1])/(h_amc[iad]->Integral()) << " %" << endl;
+				h_event_types[iad]->Fill(3,BgCounts[iad][1]);
 			}
 		}
 		else if(iline == 10){ //Fast-n
@@ -460,6 +467,7 @@ void readOutput(string config_file){
 					h_fastn[iad]->SetBinError(iBin+1, bg_values[iBin]*BgError[iad][2]);
 				}
 				if(h_fastn[iad]->Integral() != BgCounts[iad][2]) cout << "FAST N FOR EH" << EH[iad] << "AD" << AD[iad] << " ARE OFF BY " << (h_fastn[iad]->Integral()-BgCounts[iad][2])/(h_fastn[iad]->Integral()) << " %" << endl;
+				h_event_types[iad]->Fill(4,BgCounts[iad][2]);
 			}
 		}
 		else if(iline == 11){ //Li9
@@ -469,6 +477,7 @@ void readOutput(string config_file){
 					h_li9[iad]->SetBinError(iBin+1, bg_values[iBin]*BgError[iad][3]);
 				}
 				if(h_li9[iad]->Integral() != BgCounts[iad][3]) cout << "LI9 FOR EH" << EH[iad] << "AD" << AD[iad] << " ARE OFF BY " << (h_li9[iad]->Integral()-BgCounts[iad][3])/(h_li9[iad]->Integral()) << " %" << endl;
+				h_event_types[iad]->Fill(5,BgCounts[iad][3]);
 			}
 		}
 		else if(iline == 12){ //Rad-n
@@ -478,6 +487,7 @@ void readOutput(string config_file){
 					h_radn[iad]->SetBinError(iBin+1, bg_values[iBin]*BgError[iad][4]);
 				}
 				if(h_radn[iad]->Integral() != BgCounts[iad][4]) cout << "RAD N FOR EH" << EH[iad] << "AD" << AD[iad] << " ARE OFF BY " << (h_radn[iad]->Integral()-BgCounts[iad][4])/(h_radn[iad]->Integral()) << " %" << endl;
+				h_event_types[iad]->Fill(6,BgCounts[iad][4]);
 			}
 		}
 	    }
@@ -514,6 +524,10 @@ void readOutput(string config_file){
 		h_radn[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
 		h_radn[iad]->GetYaxis()->SetTitle("Counts");
 		h_radn[iad]->Write();
+
+		h_event_types[iad]->GetXaxis()->SetTitle("Event types");
+		h_event_types[iad]->GetYaxis()->SetTitle("Counts");
+		h_event_types[iad]->Write();
 }
 
 	for(int iad=0; iad<maxAD; iad++){
