@@ -1207,42 +1207,42 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_prompt_energy_DT800_3sig_ad%d", iad+1);
-				h_prompt_energy_DT800_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_prompt_energy_DT800_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 			
 			TH1F* h_prompt_energy_DT300_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_prompt_energy_DT300_3sig_ad%d", iad+1);
-				h_prompt_energy_DT300_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_prompt_energy_DT300_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_prompt_energy_DT500_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_prompt_energy_DT500_3sig_ad%d", iad+1);
-				h_prompt_energy_DT500_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_prompt_energy_DT500_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_prompt_energy_DT1000_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_prompt_energy_DT1000_3sig_ad%d", iad+1);
-				h_prompt_energy_DT1000_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_prompt_energy_DT1000_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_prompt_energy_DT1500_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_prompt_energy_DT1500_3sig_ad%d", iad+1);
-				h_prompt_energy_DT1500_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_prompt_energy_DT1500_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_prompt_energy_DT2000_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_prompt_energy_DT2000_3sig_ad%d", iad+1);
-				h_prompt_energy_DT2000_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_prompt_energy_DT2000_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 		TH1D* h_delta_time_before[maxAD]; //delta time histogram

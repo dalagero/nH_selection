@@ -1783,7 +1783,7 @@ void DTeff(){
 	char outputname[64];
 	char title[64];
 	
-	double DTcut = 0.8; //DT cut value in m
+	double DTcut = 0.3; //DT cut value in m
 	double eff100 = 3.0; //DT cut value in m
 	double DTeff_rate[8] = {0,0,0,0,0,0,0,0};
 	double DTeff_norm[8] = {0,0,0,0,0,0,0,0};
@@ -1795,29 +1795,29 @@ void DTeff(){
 
 	for(int iad = 0; iad < 8; iad++){
 		//Getting files:
-			sprintf(name,"../nH_files/SubtractedAccidentals_NU_1500_EH%dAD%d.root",EH[iad],AD[iad]);
+			sprintf(name,"../nH_files/SubtractedAccidentals_1500_EH%dAD%d.root",EH[iad],AD[iad]);
 			TFile *subFile = new TFile(name);
 			
-			sprintf(name, "../nH_files/TotaledPlots_NU_EH%d_1500.root",EH[iad]);
+			sprintf(name, "../nH_files/TotaledPlots_EH%d_1500.root",EH[iad]);
 			TFile *ibdFile = new TFile(name);
 
-			sprintf(name, "../nH_files/TotaledSingles_NU_1500_EH%d.root",EH[iad]);
+			sprintf(name, "../nH_files/TotaledSingles_1500_EH%d.root",EH[iad]);
 			TFile *accFile = new TFile(name);
 
 		//Getting the histograms:
-			sprintf(name, "h_total_ibd_DT_ad%d", AD[iad]);
+			sprintf(name, "h_total_ibd_DT_3sig_ad%d", AD[iad]);
 			TH1F* ibd_DT = (TH1F*)subFile->Get(name);
-			sprintf(name, "h_total_acc_DT_rate_ad%d", AD[iad]);
+			sprintf(name, "h_total_acc_DT_3sig_rate_ad%d", AD[iad]);
 			TH1F* acc_DT_rate = (TH1F*)subFile->Get(name);
-			sprintf(name, "h_total_acc_DT_norm_ad%d", AD[iad]);
+			sprintf(name, "h_total_acc_DT_3sig_norm_ad%d", AD[iad]);
 			TH1F* acc_DT_norm = (TH1F*)subFile->Get(name);
-			sprintf(name, "h_total_acc_DT_DTnorm_ad%d", AD[iad]);
+			sprintf(name, "h_total_acc_DT_3sig_DTnorm_ad%d", AD[iad]);
 			TH1F* acc_DT_DTnorm = (TH1F*)subFile->Get(name);
-			sprintf(name, "h_sub_DT_rate_ad%d", AD[iad]);
+			sprintf(name, "h_sub_DT_3sig_rate_ad%d", AD[iad]);
 			TH1F* sub_DT_rate = (TH1F*)subFile->Get(name);
-			sprintf(name, "h_sub_DT_norm_ad%d", AD[iad]);
+			sprintf(name, "h_sub_DT_3sig_norm_ad%d", AD[iad]);
 			TH1F* sub_DT_norm = (TH1F*)subFile->Get(name);
-			sprintf(name, "h_sub_DT_DTnorm_ad%d", AD[iad]);
+			sprintf(name, "h_sub_DT_3sig_DTnorm_ad%d", AD[iad]);
 			TH1F* sub_DT_DTnorm = (TH1F*)subFile->Get(name);
 
 			DTeff_rate[iad] = (sub_DT_rate->Integral(sub_DT_rate->FindBin(0.),sub_DT_rate->FindBin(DTcut)))/(sub_DT_rate->Integral(sub_DT_rate->FindBin(0.),sub_DT_rate->FindBin(eff100)));
@@ -1925,6 +1925,10 @@ void DTeff(){
 	cout << "Average DT Efficiency for Rate-Corrected = \t" << DTavg_rate << "\t+/-\t" << DTuncert_rate << endl;
 	cout << "Average DT Efficiency for Normalized = \t" << DTavg_norm << "\t+/-\t" << DTuncert_norm << endl;
 	cout << "Average DT Efficiency for DT normalized = \t" << DTavg_DTnorm << "\t+/-\t" << DTuncert_DTnorm << endl << endl;
+	
+	for(int iad=0; iad <8; iad++){
+		cout << iad+1 << "\t" << DTeff_rate[iad] << endl;
+	}
 
 	cout << "**********************NEAR ADS**********************" << endl;
 	cout << "Average DT Efficiency for Rate-Corrected = \t" << DTavg_rate_near << "\t+/-\t" << DTuncert_rate_near << endl;
@@ -2312,13 +2316,13 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 	for(int iad = 0; iad < 8; iad++){
 		//Getting files:
-			sprintf(name,"../nH_files/SubtractedAccidentals_1500_EH%dAD%d.root",EH[iad],AD[iad]);
+			sprintf(name,"../nH_files/SubtractedAccidentals_NU_1500_EH%dAD%d.root",EH[iad],AD[iad]);
 			TFile *subFile = new TFile(name);
 			
-			sprintf(name, "../nH_files/TotaledPlots_EH%d_1500.root",EH[iad]);
+			sprintf(name, "../nH_files/TotaledPlots_NU_EH%d_1500.root",EH[iad]);
 			TFile *ibdFile = new TFile(name);
 
-			sprintf(name, "../nH_files/TotaledSingles_1500_EH%d.root",EH[iad]);
+			sprintf(name, "../nH_files/TotaledSingles_NU_1500_EH%d.root",EH[iad]);
 			TFile *accFile = new TFile(name);
 
 		//Getting the histograms:
@@ -3400,6 +3404,8 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 			h_efficiency_DTnorm_ADs_Sam->SetBinError(h_efficiency_DTnorm_ADs_Sam->FindBin(iad+1), efficiencyError_DTnorm_Sam[iad]);
 
 		cout << "AD" << iad+1 << "\t" << peak_rate[iad] << "\t" << sigma_rate[iad] << endl;
+	//	cout << "**************************** AD" << iad+1 << "\t" << peak_rate[iad] << "\t" << peakError_rate[iad] << endl;
+
 	}
 
 		peakAvg = peakAvg/8.;
@@ -5207,7 +5213,67 @@ cout << "7" << endl;
 
 
 
+void DTscan(){
+	const int numPoints = 6;
+	double cutVal[6] = {300,500,800,1000,1500,2000};
+	double fitVal[6] = {0.07227,0.07416,0.07062,0.06763,0.07312,0.06618};
+	double errVal[6] = {0.0101,0.0087,0.0088,0.0093,0.0097,0.0118};
+	double cutVals_sec[2] = {300,500};
+	double fitVals_sec[2] = {0.07357,0.074919};
+	double errVals_sec[2] = {0.0108,0.0088};
+	double bkgd_10less = 0.07427;
+	double bkgd_10less_err = 0.0086;
+	double bkgd_10more = 0.07405;
+	double bkgd_10more_err = 0.0088;
 
+
+//parts to work from:
+	const int numBins = 11;
+	double binEdges[numBins+1] = {250,350,450,550,750,850,950,1050,1450,1550,1950,2050};
+	TH1D* h_DTscan=new TH1D("h_DTscan","h_DTscan",numBins,binEdges);
+	TH1D* h_DT500_10less=new TH1D("h_DT500_10less","h_DT500_10less",1,460,560);
+	TH1D* h_DT500_10more=new TH1D("h_DT500_10more","h_DT500_10more",1,470,570);
+	double binEdges_sec[4] = {240,340,440,540};
+	TH1D* h_DTscan_sec=new TH1D("h_DTscan_sec","h_DTscan_sec",3,binEdges_sec);
+		for(int iPoint = 0; iPoint < numPoints; iPoint++){
+			h_DTscan->Fill(cutVal[iPoint],fitVal[iPoint]);
+			h_DTscan->SetBinError(h_DTscan->FindBin(cutVal[iPoint]),errVal[iPoint]);
+		}
+		h_DT500_10less->Fill(500,bkgd_10less);
+		h_DT500_10less->SetBinError(1,bkgd_10less_err);
+		h_DT500_10more->Fill(500,bkgd_10more);
+		h_DT500_10more->SetBinError(1,bkgd_10more_err);
+		for(int iPoint = 0; iPoint < 2; iPoint++){
+			h_DTscan_sec->Fill(cutVals_sec[iPoint],fitVals_sec[iPoint]);
+			h_DTscan_sec->SetBinError(h_DTscan_sec->FindBin(cutVals_sec[iPoint]),errVals_sec[iPoint]);
+		}
+		
+	TCanvas *c1 = new TCanvas("c1","c1");
+	c1->cd();
+		h_DTscan->SetStats(0);
+		h_DTscan->GetXaxis()->SetTitle("DT cut");
+		h_DTscan->GetYaxis()->SetTitle("sin^2(2theta_13)");
+		h_DTscan->SetMarkerStyle(20);
+		h_DTscan->SetMarkerColor(kBlack);
+		h_DTscan->SetLineColor(kBlack);
+		h_DTscan->SetMarkerSize(1.5);
+		h_DT500_10less->SetMarkerStyle(20);
+		h_DT500_10less->SetMarkerColor(kBlue);
+		h_DT500_10less->SetLineColor(kBlue);
+		h_DT500_10less->SetMarkerSize(1.5);
+		h_DT500_10more->SetMarkerStyle(20);
+		h_DT500_10more->SetMarkerColor(kRed);
+		h_DT500_10more->SetLineColor(kRed);
+		h_DT500_10more->SetMarkerSize(1.5);
+		h_DTscan_sec->SetMarkerStyle(20);
+		h_DTscan_sec->SetMarkerColor(kMagenta);
+		h_DTscan_sec->SetLineColor(kMagenta);
+		h_DTscan_sec->SetMarkerSize(1.5);		
+		h_DTscan->Draw("e1x0");
+		h_DT500_10less->Draw("same e1x0");
+		h_DT500_10more->Draw("same e1x0");
+		h_DTscan_sec->Draw("same e1x0");
+}
 
 
 

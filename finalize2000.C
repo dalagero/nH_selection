@@ -18,7 +18,7 @@
 
 using namespace std;
 
-void finalize(int hall_num, int pd_window_microsec){
+void finalize(int hall_num, int pd_window_microsec, int period){
 
 	char hallList[64];
 	sprintf(hallList, "EH%druns_sync.txt",hall_num);
@@ -47,6 +47,9 @@ void finalize(int hall_num, int pd_window_microsec){
 //		nRuns = 1215;
 		nRuns = 1099;
 	}
+
+	const int start_8ad = 34527;
+	const int end_8ad = 67007;
 
 	const int NzBins = 20;
 	const int Nr2Bins = 20;
@@ -217,56 +220,56 @@ void finalize(int hall_num, int pd_window_microsec){
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
 			sprintf(name, "h_total_prompt_energy_before_ad%d", iad+1);
-			h_total_prompt_energy_before[iad]=new TH1F(name,name,113,0.7,12.);
+			h_total_prompt_energy_before[iad]=new TH1F(name,name,240,0,12.);
 		}
 
 		TH1F* h_total_prompt_energy_DT800[maxAD]; //prompt energy histogram
 		for(int iad=0; iad<maxAD; ++iad){
 			char name[64];
 			sprintf(name, "h_total_prompt_energy_DT800_ad%d", iad+1);
-			h_total_prompt_energy_DT800[iad]=new TH1F(name,name,113,0.7,12.);
+			h_total_prompt_energy_DT800[iad]=new TH1F(name,name,240,0,12.);
 		}
 
 			TH1F* h_total_prompt_energy_DT800_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_total_prompt_energy_DT800_3sig_ad%d", iad+1);
-				h_total_prompt_energy_DT800_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_total_prompt_energy_DT800_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_total_prompt_energy_DT300_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_total_prompt_energy_DT300_3sig_ad%d", iad+1);
-				h_total_prompt_energy_DT300_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_total_prompt_energy_DT300_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_total_prompt_energy_DT500_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_total_prompt_energy_DT500_3sig_ad%d", iad+1);
-				h_total_prompt_energy_DT500_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_total_prompt_energy_DT500_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_total_prompt_energy_DT1000_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_total_prompt_energy_DT1000_3sig_ad%d", iad+1);
-				h_total_prompt_energy_DT1000_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_total_prompt_energy_DT1000_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_total_prompt_energy_DT1500_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_total_prompt_energy_DT1500_3sig_ad%d", iad+1);
-				h_total_prompt_energy_DT1500_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_total_prompt_energy_DT1500_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 			TH1F* h_total_prompt_energy_DT2000_3sig[maxAD]; //prompt energy histogram
 			for(int iad=0; iad<maxAD; ++iad){
 				char name[64];
 				sprintf(name, "h_total_prompt_energy_DT2000_3sig_ad%d", iad+1);
-				h_total_prompt_energy_DT2000_3sig[iad]=new TH1F(name,name,113,0.7,12.);
+				h_total_prompt_energy_DT2000_3sig[iad]=new TH1F(name,name,240,0,12.);
 			}
 
 
@@ -748,6 +751,13 @@ void finalize(int hall_num, int pd_window_microsec){
 		if(EH != hall_num){
 			cout << " WARNING: HALL NUMBERS DO NOT MATCH!!! Run #" << run_num << endl;
 			continue;
+		}
+
+		if(period==6 && run_num >= start_8ad) break;
+		else if(period==7 && run_num <= end_8ad) continue;
+		else if(period==8){
+			if(run_num < start_8ad) continue;
+			if(run_num > end_8ad) break;
 		}
 
 		//For failed runs:
@@ -1387,7 +1397,7 @@ void finalize(int hall_num, int pd_window_microsec){
 
         char outputname[64];
 //	sprintf(outputname,"./IBDs/TotaledPlots_TcLong_EH%d_Ep2.root",hall_num);
-	sprintf(outputname,"./IBDs/TotaledPlots_NU_EH%d_%d.root",hall_num,pd_window_microsec);
+	sprintf(outputname,"./IBDs/TotaledPlots_NU_EH%d_%d_%dad.root",hall_num,pd_window_microsec,period);
 //	sprintf(outputname,"./IBDs/TotaledPlots_4sigma_EH%d.root",hall_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();

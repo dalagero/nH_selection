@@ -1404,7 +1404,7 @@ void finalize(int hall_num, int pd_window_microsec){
 
 		char ibdFileName[64];
 //		sprintf(ibdFileName, "./IBDs/EH%d/summary_TcLong_%d.root",EH,run_num);
-		sprintf(ibdFileName, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+		sprintf(ibdFileName, "./IBDs/EH%d/summary_%d_%d.root",EH,pd_window_microsec,run_num);
 		TFile *ibdFile = new TFile(ibdFileName);
 
 
@@ -1485,7 +1485,7 @@ void finalize(int hall_num, int pd_window_microsec){
 		char runFileName[64];
 //		sprintf(runFileName, "./accResults/EH%d/AccidentalsSummary_%d.root",hall_num, run_num);
 //		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_TcLong_%d.root",hall_num, run_num);
-		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_NU_%d_%d.root",hall_num, pd_window_microsec, run_num);
+		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_%d_%d.root",hall_num, pd_window_microsec, run_num);
 //		sprintf(runFileName, "./accResults/EH%d/round1/AccidentalsPlots_%d.root",hall_num, run_num);
 
 //		sprintf(runFileName, "./delayedSingles/EH%d/foundDelayedSingles_%d_%d.root",hall_num, pd_window_microsec, run_num);
@@ -2221,7 +2221,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 
         char outputname[64];
 //        sprintf(outputname,"./accResults/TotaledSingles_TcLong_EH%d.root",hall_num);
-        sprintf(outputname,"./accResults/TotaledSingles_NU_%d_EH%d.root",pd_window_microsec,hall_num);
+        sprintf(outputname,"./accResults/TotaledSingles_%d_EH%d.root",pd_window_microsec,hall_num);
 //        sprintf(outputname,"./accResults/TotaledSingles_4sigma_EH%d.root",hall_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
