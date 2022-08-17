@@ -52,10 +52,10 @@ char db_hists[64];
 void init_config(string config_file){
 
 	//The names of the output files
-	sprintf(prompt_fileName,"./ckDB/prompt_spectra_data.txt");
-	sprintf(bkgd_counts_fileName,"./ckDB/bkgd_counts_data.txt");
-	sprintf(bkgd_spectra_fileName,"./ckDB/bkgd_spectra_data.txt");
-	sprintf(db_hists,"./ckDB/db_spectra_data.root");
+	sprintf(prompt_fileName,"./ckDB/prompt_spectra_toy.txt");
+	sprintf(bkgd_counts_fileName,"./ckDB/bkgd_counts_toy.txt");
+	sprintf(bkgd_spectra_fileName,"./ckDB/bkgd_spectra_toy.txt");
+	sprintf(db_hists,"./ckDB/db_spectra_toy.root");
 
 	//Reading the config file
 	  ifstream myfile (config_file);
@@ -540,6 +540,22 @@ void readOutput(string config_file){
 		h_ibds[iad]->GetXaxis()->SetTitle("Prompt Energy [MeV]");
 		h_ibds[iad]->GetYaxis()->SetTitle("Counts");
 		h_ibds[iad]->Write();
+	}
+	
+	char canName[64];
+	char pngName[64];
+	for(int iad=0; iad<maxAD; iad++){
+		sprintf(canName,"EH%d-AD%d",EH[iad],AD[iad]);
+		TCanvas* c = new TCanvas("c",canName);
+		c->Divide(1,2);
+		c->cd(1);
+		h_prompt[iad]->SetTitle("Num Coincidences");
+		h_prompt[iad]->Draw();
+		c->cd(2);
+		h_ibds[iad]->SetTitle("Subracted Spectra");
+		h_ibds[iad]->Draw();
+		sprintf(pngName,"EH%dAD%d.png",EH[iad],AD[iad]);
+		c->Print(pngName);
 	}
 
 }
