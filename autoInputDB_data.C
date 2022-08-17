@@ -27,12 +27,14 @@
 #include <TSQLiteServer.h>
 
 const int maxAD=8;
-const int numStages=3;
 int EH[maxAD]={1,1,2,2,3,3,3,3};
 int AD[maxAD]={1,2,1,2,1,2,3,4};
-const int stage[3]={6,8,7};
 const int numBins=34;
 const int numColumns=10;
+const int numPeriods=3;
+const int period[numPeriods]={6,8,7};
+
+char suffix[64];
 
 char toyConfig[128];
 char exConfig[128];
@@ -42,12 +44,11 @@ char parameters_db[64];
 char background_db[64];
 char prompt_db[64];
 
-char toy_label[64];
 char bkgd_counts_label[64];
 char bkgd_spectra_label[64];
 char acc_spectra_label[64];
 char num_coincs_label[64];
-char det_resp_label[128];
+char det_resp_label[64];
 char muon_label[64];
 
 char livetime_table[64];
@@ -59,8 +60,8 @@ char amc_spec_table[64];
 char radn_spec_table[64];
 char num_coincs_table[64];
 
-char toy_file[64];
-char toy_hist[64];
+char data_file[64];
+char data_hist[64];
 char acc_spec_file[128];
 char acc_spec_hist[64];
 char li9_spec_file[128];
@@ -73,8 +74,7 @@ char radn_spec_file[128];
 char radn_spec_hist[64];
 
 //Numbers from toy config file
-double DAQ[maxAD][numStages];
-double totDAQ[maxAD];
+double DAQ[maxAD];
 double muonEff[maxAD];
 double multEff[maxAD];
 double accRate[maxAD];
@@ -90,27 +90,68 @@ double alphanRate_uncert[maxAD];
 
 
 //Other
-const double muon_rate[8] = {200.32, 200.32, 150.08, 149.80, 15.748, 15.748, 15.748, 15.747}; //rate in Hz
+//livetime in ns
+const long livetime_NU_6[maxAD] = {8735696643816849,8706935160442762,10113181067367890,0,15441985656608942,15435958971995376,15435603078800936,0};
+const long livetime_NU_8[maxAD] = {63508588292383088,63179191034858984,73224868299200272,73158035484463568,111480011143546768,111475373079604368,111457215448017744,111470651623536112}; 
+const long livetime_NU_7[maxAD] = {0,9415080550633996,10866176610885526,10843931304682508,16518459379144330,16518755844606340,16515902872001016,16518546445582180}; 
+const long livetime_noNU_6[maxAD] = {8740488756690403,8711184680746069,10118954001172654,0,15442900588282114,15436269946704184,15436039997326514,0};
+const long livetime_noNU_8[maxAD] = {63542674439044656,72630117585539184,84123946367271600,84031181570224704,128005061996741616,127998306940008000,127977498531740224,127994617784696048};
+const long livetime_noNU_7[maxAD] = {0,9419728361800096,10868317383974194,10843039451090238,16519117096602220,16519252000999172,16516429412179362,16518802730496970};
+const int maxIdent=3;
+const int noNU=0;
+const int NU=1;
+const int Sam=2;
+double livetime[maxIdent][maxAD][numPeriods];
+double tot_livetime[maxIdent][maxAD];
+double Ed_eff[maxIdent] = {0.934,0.936};
+double Ed_err[maxIdent] = {0.0021,0.0023};
+double DT_eff[maxIdent] = {0.706,0.706};
+double DT_err[maxIdent] = {0.0035,0.0034};
+double tarp_relErr = 0.0037;
+int identifier;
+const double muon_rate[maxAD] = {200.32, 200.32, 150.08, 149.80, 15.748, 15.748, 15.748, 15.747}; //rate in Hz
+const int DTcut = 800;
+const double convertToDays = 1.e-9/(60*60*24);
 
 
-void init_names(){
-	sprintf(toy_label, "toys_100");
+void init_names(){ //FIXME: Organize better.... This is pretty ugly.
+	for(int iad=0; iad<maxAD; iad++){
+		livetime[noNU][iad][0]=livetime_noNU_6[iad];
+		livetime[noNU][iad][1]=livetime_noNU_8[iad];
+		livetime[noNU][iad][2]=livetime_noNU_7[iad];
+		livetime[NU][iad][0]=livetime_NU_6[iad];
+		livetime[NU][iad][1]=livetime_NU_8[iad];
+		livetime[NU][iad][2]=livetime_NU_7[iad];
+		livetime[Sam][iad][0]=0;
+		livetime[Sam][iad][1]=0;
+		livetime[Sam][iad][2]=0;
+		for(int thisIdent=0; thisIdent<maxIdent; thisIdent++){
+			tot_livetime[thisIdent][iad]=0;
+		}
+	}
+	if(strcmp(suffix,"_NU")==0) identifier=NU;
+	if(strcmp(suffix,"_Sam")==0) identifier=Sam;
+	else identifier=noNU;
 
-	sprintf(toyConfig,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/input/Theta13-inputs_P17B_inclusive_");
+	if(strcmp(suffix,"_NU")==0) sprintf(toyConfig,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/input/Theta13-inputs_P17B_inclusive_8ad.txt");
+	else if(strcmp(suffix,"_Sam")==0) sprintf(toyConfig,"/global/homes/d/dalagero/dyb-event-selection/dyb_analysis/fitter/data/Theta13-inputs_P17B_inclusive_8ad_Sam.txt");
+	else sprintf(toyConfig,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/input/Theta13-inputs_P17B_inclusive_8ad_noNU.txt");
 	sprintf(exConfig,"fit_config_nH_resid_flash_example.json");
-	sprintf(fitConfig,"fit_config_nH_resid_flash_%s.json",toy_label);
+	sprintf(fitConfig,"fit_config_nH_resid_flash%s.json",suffix);
 	
 	sprintf(parameters_db,"parameters.db");
+		if(strcmp(suffix,"_Sam")==0) sprintf(parameters_db,"parameters_Sam.db");
 	sprintf(background_db,"nH_backgrounds.db");
 	sprintf(prompt_db,"adtime_dt_eff_study.db");
 
-	sprintf(bkgd_counts_label,"%s", toy_label);
-	sprintf(bkgd_spectra_label,"nH backgrounds, %s", toy_label);
-	sprintf(acc_spectra_label,"accidentals, %s", toy_label);
-	sprintf(num_coincs_label,"%s", toy_label);
-//	sprintf(det_resp_label,"Response based on Jinjing's matrices by Beda, nH modified 2 binning");
+	sprintf(bkgd_counts_label,"Olivia%s 8/10/2022",suffix);
+//	sprintf(bkgd_spectra_label,"nH backgrounds, Olivia%s 6/14/2022",suffix); //FIXME and the 2 following rows: Something is up here and doing a bad job.
+		if(identifier==NU) sprintf(bkgd_spectra_label,"nH backgrounds, Olivia 3/15/2022 NU");
+		else sprintf(bkgd_spectra_label,"nH backgrounds, Olivia 1/21/2022");
+	sprintf(acc_spectra_label,"accidentals, Olivia%s 6/14/2022",suffix);
+	sprintf(num_coincs_label,"Olivia%s 8/10/2022",suffix);
 	sprintf(det_resp_label,"Matrix for fitter from Beda, 8/1/22, nH modified 2 binning");
-	sprintf(muon_label,"%s", toy_label);
+	sprintf(muon_label,"Olivia%s 8/10/2022",suffix);
 
 	sprintf(livetime_table,"muon_rates");
 	sprintf(bkgd_table,"bg_counts");
@@ -121,27 +162,33 @@ void init_names(){
 	sprintf(radn_spec_table,"rad_n_spectrum");
 	sprintf(num_coincs_table,"num_coincidences");
 
-	sprintf(toy_file,"./toy/%s.root", toy_label);
-	sprintf(acc_spec_file,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/input/accidental_eprompt_shapes_8ad.root");
-	sprintf(li9_spec_file,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/li9_spectrum/8he9li_nominal_spectrum.root");
-	sprintf(fastn_spec_file,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/fn_spectrum/P15A_fn_spectrum.root");
+	sprintf(data_file,"./data/TotaledPlots%s_EH", suffix);
+	sprintf(acc_spec_file,"./data/TotaledSingles%s_1500_EH",suffix);
+	sprintf(li9_spec_file,"/global/homes/d/dalagero/dyb-event-selection/dyb_analysis/fitter/data/Li9He8shape.root");
+	sprintf(fastn_spec_file,"/global/homes/d/dalagero/dyb-event-selection/dyb_analysis/fitter/data/FastNshape.root");
 	sprintf(amc_spec_file,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/amc_spectrum/amc_spectrum.root");
 	sprintf(radn_spec_file,"/global/homes/d/dalagero/fromBeda/DybBerkFit-master/muon_decay_spectrum/MuonDecaySpec.root");
 
-	sprintf(toy_hist,"h_nominal_stage");
-	sprintf(acc_spec_hist,"h_accidental_eprompt_fine_inclusive");
-	sprintf(li9_spec_hist,"h_nominal");
-	sprintf(fastn_spec_hist,"h_2AD_fn_fine");
+	sprintf(data_hist,"%s",Form("h_total_prompt_energy_DT%d_3sig_ad",DTcut));
+	sprintf(acc_spec_hist,"%s",Form("h_total_prompt_energy_DT%d_3sig_scaled_ad",DTcut));
+	sprintf(li9_spec_hist,"Li9 prompt energy");
+	sprintf(fastn_spec_hist,"OWP_EH%d_nH_Ep1.5_DT0.8m_Ep_EpLt12MeV",EH[0]); //decide what to do with the fixed EH number
 	sprintf(amc_spec_hist,"h_toy");
 	sprintf(radn_spec_hist,"MdSpec_EH1");
 
+
+/*	cout << "Toy Config File: " << toyConfig << endl;
+	cout << "Fit Config File: " << fitConfig << endl;
+	cout << "Data File: " << data_file << endl;
+	cout << "Acc File: " << acc_spec_file << endl;*/
+
 }
 
-void parse_config(){ //FIXME: Going to only look at all 3 files for DAQ time, and stay on 8ad period for the rest
+void parse_config(){
 	init_names();
 	
 	//Reading the config file
-	  ifstream myfile (Form("%s%dad.txt",toyConfig,stage[1])); //Get all the values from the 8 AD period
+	  ifstream myfile (toyConfig);
 	  string line;
 	  int iline=0;
 	  string tab="\t";
@@ -163,13 +210,13 @@ void parse_config(){ //FIXME: Going to only look at all 3 files for DAQ time, an
 	    	
 	    	if(value[1]==2){//DAQ time
 	    		for(int iad=0; iad<maxAD; iad++){
-	    			DAQ[iad][1] = value[iad+2];
-				totDAQ[iad] = DAQ[iad][1];
+	    			DAQ[iad] = value[iad+2];
 	    		}
 	    	}
 	    	if(value[1]==3){//Muon Veto Efficiency
 	    		for(int iad=0; iad<maxAD; iad++){
 	    			muonEff[iad] = value[iad+2];
+				if(identifier==Sam) livetime[identifier][iad][1]=DAQ[iad]*muonEff[iad]/convertToDays;
 	    		}
 	    	}
 	    	if(value[1]==4){//Multiplicity Efficiency
@@ -231,68 +278,7 @@ void parse_config(){ //FIXME: Going to only look at all 3 files for DAQ time, an
 	    myfile.close();
 	  }
 	  else cout << "Unable to open file" << endl;
-	  
-//	  cout << "8AD period done. DAQ time for AD1=" << DAQ[0] <<" days.\t On to 6AD period." << endl;
 
-	//Reading the config file
-	  ifstream myfile_6 (Form("%s%dad.txt",toyConfig,stage[0])); //6AD period
-		iline=0;
-	  if (myfile_6.is_open())
-	  {
-	    while (getline(myfile_6, line, '\n')){
-	    	iline+=1;
-	    	if(iline<40) continue;
-	    	
-	    	//Breaking down the line
-	    	for(int i=0; i< numColumns; i++){
-	    		temp[i] = line.substr(0,line.find(tab));
-	    		line.erase(0,line.find(tab)+tab.length());
-	    		value[i] = stod(temp[i]);
-	    	}
-	    	
-	    	if(value[1]==2){//DAQ time
-	    		for(int iad=0; iad<maxAD; iad++){
-	    			DAQ[iad][0] = value[iad+2];
-				totDAQ[iad] += DAQ[iad][0];
-	    		}
-	    	}
-
-	    }
-	    myfile_6.close();
-	  }
-	  else cout << "Unable to open file" << endl;
-
-//	  cout << "6AD period done. DAQ time for AD1=" << DAQ[0] <<" days.\t On to 7AD period." << endl;
-
-	//Reading the config file
-	  ifstream myfile_7 (Form("%s%dad.txt",toyConfig,stage[2])); //7AD period
-		iline=0;
-	  if (myfile_7.is_open())
-	  {
-	    while (getline(myfile_7, line, '\n')){
-	    	iline+=1;
-	    	if(iline<40) continue;
-	    	
-	    	//Breaking down the line
-	    	for(int i=0; i< numColumns; i++){
-	    		temp[i] = line.substr(0,line.find(tab));
-	    		line.erase(0,line.find(tab)+tab.length());
-	    		value[i] = stod(temp[i]);
-	    	}
-	    	
-	    	if(value[1]==2){//DAQ time
-	    		for(int iad=0; iad<maxAD; iad++){
-	    			DAQ[iad][2] = value[iad+2];
-				totDAQ[iad] += DAQ[iad][2];
-	    		}
-	    	}
-
-	    }
-	    myfile_7.close();
-	  }
-	  else cout << "Unable to open file" << endl;
-
-//	  cout << "Total DAQ time for AD1=" << DAQ[0] <<" days." << endl;
 }
 
 
@@ -368,7 +354,17 @@ void write_fitConfig(){
 			continue;
 		}
 
-		if(iline==21){ //prompt database
+		else if(iline==17){ //Detection efficiency (DT & Ed)
+			fit_file << line.substr(0,line.find(bracket)+bracket.length());
+			for(int iad=0; iad<maxAD; iad++){
+				if(iad != maxAD-1) fit_file << Ed_eff[identifier]*DT_eff[identifier] << ",";
+				else fit_file << Ed_eff[identifier]*DT_eff[identifier];
+			}
+			fit_file << "],\n";
+			continue;
+		}
+
+		else if(iline==21){ //prompt database
 			while(line.find(slash) != string::npos){
 				fit_file << line.substr(0,line.find(slash)+slash.length());
 	    			line.erase(0, line.find(slash)+slash.length());
@@ -383,12 +379,18 @@ void write_fitConfig(){
 			continue;
 		}
 
-		else if(iline==25){ //prompt source
+		else if(iline==25){ //detector response matrix
 			fit_file << line.substr(0,line.find(colon)+colon.length());
 	    		fit_file << " \"" << det_resp_label << "\",\n";
 			continue;
 		}
 
+		else if(iline==30){ //detection efficiency error
+			fit_file << line.substr(0,line.find(colon)+colon.length());
+	    		fit_file << " " << sqrt(pow((Ed_err[identifier]/Ed_eff[identifier]),2)+pow((DT_err[identifier]/DT_eff[identifier]),2)+pow(tarp_relErr,2)) << ",\n";
+			continue;
+		}
+		
 		else{
 			fit_file << line << endl;
 			continue;
@@ -420,6 +422,8 @@ static int callback(void *data, int argc, char **argv, char **azColName){
 void fill_livetimes(){
 
 	parse_config();
+	
+	identifier=NU;
 
 	  sqlite3 *db_livetime;
 	  char *zErrMsg_livetime = 0;
@@ -438,34 +442,22 @@ void fill_livetimes(){
 	  }
 	  
 	  cout << "Database:\t" << parameters_db << endl;
-
+	  
 	  //First need to delete the previous entries!!!!
 	  sql_livetime = Form("DELETE FROM %s;",livetime_table);
 	  rc_livetime = sqlite3_exec(db_livetime, sql_livetime, callback, (void*)data, &zErrMsg_livetime);
-	  
-/*	for(int iad=0; iad<maxAD; iad++){
-		  // Create SQL statement //
-		  sql_livetime = Form("INSERT OR REPLACE INTO %s VALUES (%d,%d,\"%s\",%ld,%f,%f,%f);",livetime_table,EH[iad],AD[iad],muon_label,long(muon_rate[iad]*totDAQ[iad]*86400),totDAQ[iad]*muonEff[iad]*86400*1.e9,muon_rate[iad],muonEff[iad]);
+	
+	for(int iad=0; iad<maxAD; iad++){
+		for(int iperiod=0; iperiod<numPeriods; iperiod++){
+		  /* Create SQL statement */
+		  sql_livetime = Form("INSERT OR REPLACE INTO %s VALUES (%d%d,%d,\"%s\",%ld,%ld,%f,%f);",livetime_table,EH[iad],period[iperiod],AD[iad],muon_label,long(muon_rate[iad]*DAQ[iad]*86400),long(livetime[identifier][iad][iperiod]),muon_rate[iad],muonEff[iad]);
 
 		cout << sql_livetime << endl;
-		
-		   // Execute SQL statement //
-		   rc_livetime = sqlite3_exec(db_livetime, sql_livetime, callback, (void*)data, &zErrMsg_livetime);
-	}*/
-	
-	for(int istage=0; istage<numStages; istage++){
-		for(int iad=0; iad<maxAD; iad++){
-			  // Create SQL statement //
-			  sql_livetime = Form("INSERT OR REPLACE INTO %s VALUES (%d%d,%d,\"%s\",%ld,%f,%f,%f);",livetime_table,EH[iad],stage[istage],AD[iad],muon_label,long(muon_rate[iad]*DAQ[iad][istage]*86400),DAQ[iad][istage]*muonEff[iad]*86400*1.e9,muon_rate[iad],muonEff[iad]);
 
-			cout << sql_livetime << endl;
-//			if(EH[iad]==1 && AD[iad]==1 && stage[istage]==7) continue; //Skip for 7AD period of EH1AD1
-//			if(EH[iad]==2 && AD[iad]==2 && stage[istage]==6) continue; //Skip for 6AD period of EH2AD2
-//			if(EH[iad]==3 && AD[iad]==4 && stage[istage]==6) continue; //Skip for 6AD period of EH3AD4
-			   // Execute SQL statement //
-			   rc_livetime = sqlite3_exec(db_livetime, sql_livetime, callback, (void*)data, &zErrMsg_livetime);
+		   // Execute SQL statement
+		   rc_livetime = sqlite3_exec(db_livetime, sql_livetime, callback, (void*)data, &zErrMsg_livetime);
 		}
-	}
+	}   
 	   if( rc_livetime != SQLITE_OK ) {
 	     fprintf(stderr, "SQL error: %s\n", zErrMsg_livetime);
 	     sqlite3_free(zErrMsg_livetime);
@@ -480,7 +472,9 @@ void fill_livetimes(){
 
 	 ab:;
 
-
+	for(int iad=0; iad<maxAD; iad++){
+		cout << "***Livetime in ns for EH" << EH[iad] << "-AD" << AD[iad] << "*** 6AD: " << livetime[identifier][iad][0] << "\t8AD: " << livetime[identifier][iad][1] << "\t7AD: " << livetime[identifier][iad][2] << endl;
+	}
 
 }
 
@@ -506,19 +500,50 @@ void fill_bkgd_counts(){
 	  }
 	  
 	  cout << "Database:\t" << background_db << endl;
-	
-	for(int iad=0; iad<maxAD; iad++){ //ACCIDENTALS
-		  // Create SQL statement
-		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"accidental\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],accRate[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad],accRate_uncert[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad]); 
-		//Check it
-		cout << sql_bkgd << endl;
-		   // Execute SQL statement
-		   rc_bkgd = sqlite3_exec(db_bkgd, sql_bkgd, callback, (void*)data, &zErrMsg_bkgd);
+
+	for(int iad=0; iad<maxAD; iad++){
+		  for(int iperiod=0; iperiod<numPeriods; iperiod++){
+		  	for(int thisIdent=0; thisIdent<maxIdent; thisIdent++){
+		  		tot_livetime[thisIdent][iad]+=livetime[thisIdent][iad][iperiod];
+		  	}
+		  }
+	}
+
+	if(strcmp(suffix,"_Sam")==0){
+		for(int iad=0; iad<maxAD; iad++){ //Accidentals for Sam's numbers
+			  // Create SQL statement
+			  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"accidental\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],accRate[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays,accRate_uncert[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays);  
+			//Check it
+			cout << sql_bkgd << endl;
+			   // Execute SQL statement
+			   rc_bkgd = sqlite3_exec(db_bkgd, sql_bkgd, callback, (void*)data, &zErrMsg_bkgd);
+		}
+	}
+	else{
+		for(int iad=0; iad<maxAD; iad++){ //ACCIDENTALS
+			TFile *in_file = new TFile(Form("%s%d.root",acc_spec_file,EH[iad]));
+			TH1F *in_hist = (TH1F*)in_file->Get(Form("%s%d",acc_spec_hist,AD[iad]));
+			double counts = 0;
+			counts = in_hist->Integral();
+			double scale = 0;
+			TH1F *scaled_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_scaled_ad%d",AD[iad]));
+			TH1F *before_hist = (TH1F*)in_file->Get(Form("h_total_prompt_energy_before_ad%d",AD[iad]));
+			scale = (scaled_hist->Integral())/(before_hist->Integral());
+
+			  // Create SQL statement
+			  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"accidental\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],counts,sqrt(counts/scale)*scale); 
+			//Check it
+			cout << sql_bkgd << endl;
+			   // Execute SQL statement
+			   rc_bkgd = sqlite3_exec(db_bkgd, sql_bkgd, callback, (void*)data, &zErrMsg_bkgd);
+			
+			in_file->Close();
+		}
 	}
 	
 	for(int iad=0; iad<maxAD; iad++){ //Li9
 		  // Create SQL statement
-		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"li9\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],li9Rate[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad],li9Rate_uncert[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad]); 
+		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"li9\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],li9Rate[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays,li9Rate_uncert[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays); 
 		//Check it
 		cout << sql_bkgd << endl;
 		   // Execute SQL statement
@@ -527,7 +552,7 @@ void fill_bkgd_counts(){
 
 	for(int iad=0; iad<maxAD; iad++){ //Fast-n
 		  // Create SQL statement
-		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"fast-neutron\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],fastnRate[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad],fastnRate_uncert[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad]); 
+		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"fast-neutron\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],fastnRate[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays,fastnRate_uncert[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays); 
 		//Check it
 		cout << sql_bkgd << endl;
 		   // Execute SQL statement
@@ -536,7 +561,7 @@ void fill_bkgd_counts(){
 
 	for(int iad=0; iad<maxAD; iad++){ //Amc
 		  // Create SQL statement
-		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"amc\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],amcRate[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad],amcRate_uncert[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad]); 
+		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"amc\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],amcRate[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays,amcRate_uncert[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays); 
 		//Check it
 		cout << sql_bkgd << endl;
 		   // Execute SQL statement
@@ -545,7 +570,7 @@ void fill_bkgd_counts(){
 
 	for(int iad=0; iad<maxAD; iad++){ //Radiogenic neutrons = alpha n .......
 		  // Create SQL statement
-		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"rad-n\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],alphanRate[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad],alphanRate_uncert[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad]); 
+		  sql_bkgd = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",%d,%d,\"rad-n\",%f,%f);",bkgd_table,bkgd_counts_label,EH[iad],AD[iad],alphanRate[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays,alphanRate_uncert[iad]*multEff[iad]*tot_livetime[identifier][iad]*convertToDays); 
 		//Check it
 		cout << sql_bkgd << endl;
 		   // Execute SQL statement
@@ -575,8 +600,7 @@ void fill_bkgd_counts(){
 void fill_prompt(){
 
 	parse_config();
-	
-	TFile *in_file = new TFile(toy_file);
+
 
 	  sqlite3 *db_prompt;
 	  char *zErrMsg_prompt = 0;
@@ -597,15 +621,23 @@ void fill_prompt(){
 	  cout << "Database:\t" << prompt_db << endl;
 	
 	for(int iad=0; iad<maxAD; iad++){
-		TH1F *in_hist = (TH1F*)in_file->Get(Form("%s1_ad%d",toy_hist,iad+1)); //Stage1 hist
-		for(int istage=2; istage <=3; istage++){
-			in_hist->Add((TH1F*)in_file->Get(Form("%s%d_ad%d",toy_hist,istage,iad+1))); //Adding Stage2 and Stage3 hists
+		TFile *in_file = new TFile(Form("%s%d_1500.root",data_file,EH[iad]));
+		TH1F *in_hist = (TH1F*)in_file->Get(Form("%s%d",data_hist,AD[iad]));
+		double binEdges[numBins+1] = {1.5,1.7,1.9,2.1,2.3,2.5,2.7,2.9,3.1,3.3,3.5,3.7,3.9,4.1,4.3,4.5,4.7,4.9,5.1,5.3,5.5,5.7,5.9,6.1,6.3,6.5,6.7,6.9,7.1,7.3,7.5,7.7,7.9,8.1,12.};
+		TH1F* h_rebinned_spectrum=new TH1F(Form("h_rebinned_%d",iad+1),Form("h_rebinned_%d",iad+1),numBins, binEdges);
+		
+		//Rebin:
+		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){
+			if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
+			if((in_hist->GetBinCenter(iBin))<binEdges[0]) continue;
+			h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
 		}
+		
 		// Create SQL statement
 		sql_prompt = Form("INSERT OR REPLACE INTO %s VALUES (%d,%d,1,\"[",num_coincs_table,EH[iad],AD[iad]);
 		for(int iBin=1; iBin<numBins+1; iBin++){
-			if(iBin == numBins) sql_prompt = Form("%s%f]\",\"%s\");",sql_prompt,in_hist->GetBinContent(iBin),num_coincs_label);
-			else sql_prompt = Form("%s%f,",sql_prompt,in_hist->GetBinContent(iBin));
+			if(iBin == numBins) sql_prompt = Form("%s%f]\",\"%s\");",sql_prompt,h_rebinned_spectrum->GetBinContent(iBin),num_coincs_label);
+			else sql_prompt = Form("%s%f,",sql_prompt,h_rebinned_spectrum->GetBinContent(iBin));
 		}
 		//Check it
 		cout << sql_prompt << endl;
@@ -634,8 +666,6 @@ void fill_prompt(){
 void fill_acc_spec(){
 
 	parse_config();
-	
-	TFile *in_file = new TFile(acc_spec_file);
 
 	  sqlite3 *db_acc_spec;
 	  char *zErrMsg_acc_spec = 0;
@@ -656,13 +686,13 @@ void fill_acc_spec(){
 	  cout << "Database:\t" << background_db << endl;
 	
 	for(int iad=0; iad<maxAD; iad++){
-	
-		TH1F *in_hist = (TH1F*)in_file->Get(Form("%s_eh%d_ad%d",acc_spec_hist,EH[iad],AD[iad]));
+		TFile *in_file = new TFile(Form("%s%d.root",acc_spec_file,EH[iad]));
+		TH1F *in_hist = (TH1F*)in_file->Get(Form("%s%d",acc_spec_hist,AD[iad]));
 		double binEdges[numBins+1] = {1.5,1.7,1.9,2.1,2.3,2.5,2.7,2.9,3.1,3.3,3.5,3.7,3.9,4.1,4.3,4.5,4.7,4.9,5.1,5.3,5.5,5.7,5.9,6.1,6.3,6.5,6.7,6.9,7.1,7.3,7.5,7.7,7.9,8.1,12.};
 		TH1F* h_rebinned_spectrum=new TH1F(Form("h_rebinned_%d",iad+1),Form("h_rebinned_%d",iad+1),numBins, binEdges);
 		
 		//Rebin:
-		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){ //+1 not +2
+		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){
 			if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
 			if((in_hist->GetBinCenter(iBin))<binEdges[0]) continue;
 			h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
@@ -676,7 +706,7 @@ void fill_acc_spec(){
 			//Check it
 			cout << sql_acc_spec << endl;
 			   // Execute SQL statement
-			   rc_acc_spec = sqlite3_exec(db_acc_spec, sql_acc_spec, callback, (void*)data, &zErrMsg_acc_spec);
+		   	rc_acc_spec = sqlite3_exec(db_acc_spec, sql_acc_spec, callback, (void*)data, &zErrMsg_acc_spec);
 		}
 	}
 
@@ -710,7 +740,7 @@ void fill_li9_spec(){
 		TH1F* h_rebinned_spectrum=new TH1F("h_rebinned","h_rebinned",numBins, binEdges);
 		
 		//Rebin:
-		for(int iBin=1; iBin < (in_hist->GetNbinsX())+2; iBin++){
+		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){
 			if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
 			if((in_hist->GetBinCenter(iBin))<binEdges[0]) continue;
 			h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
@@ -742,10 +772,9 @@ void fill_li9_spec(){
 			sql_li9_spec = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",1,%d,%f);",li9_spec_table,bkgd_spectra_label,iBin-1,(h_rebinned_spectrum->GetBinContent(iBin))/spec_integral);
 			//Check it
 			cout << sql_li9_spec << endl;
-
-			   // Execute SQL statement
-			   rc_li9_spec = sqlite3_exec(db_li9_spec, sql_li9_spec, callback, (void*)data, &zErrMsg_li9_spec);
 		}
+		   // Execute SQL statement
+		   rc_li9_spec = sqlite3_exec(db_li9_spec, sql_li9_spec, callback, (void*)data, &zErrMsg_li9_spec);
 
 
 	
@@ -777,7 +806,7 @@ void fill_fastn_spec(){
 		TH1F* h_rebinned_spectrum=new TH1F("h_rebinned","h_rebinned",numBins, binEdges);
 		
 		//Rebin:
-		for(int iBin=1; iBin < (in_hist->GetNbinsX())+2; iBin++){
+		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){
 			if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
 			if((in_hist->GetBinCenter(iBin))<binEdges[0]) continue;
 			h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
@@ -809,11 +838,9 @@ void fill_fastn_spec(){
 			sql_fastn_spec = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",1,%d,%f);",fastn_spec_table,bkgd_spectra_label,iBin-1,(h_rebinned_spectrum->GetBinContent(iBin))/spec_integral);
 			//Check it
 			cout << sql_fastn_spec << endl;
-			
-			   // Execute SQL statement
-			   rc_fastn_spec = sqlite3_exec(db_fastn_spec, sql_fastn_spec, callback, (void*)data, &zErrMsg_fastn_spec);
 		}
-
+		   // Execute SQL statement
+		   rc_fastn_spec = sqlite3_exec(db_fastn_spec, sql_fastn_spec, callback, (void*)data, &zErrMsg_fastn_spec);
 
 
 	
@@ -844,7 +871,7 @@ void fill_amc_spec(){
 		TH1F* h_rebinned_spectrum=new TH1F("h_rebinned","h_rebinned",numBins, binEdges);
 		
 		//Rebin:
-		for(int iBin=1; iBin < (in_hist->GetNbinsX())+2; iBin++){
+		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){
 			if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
 			if((in_hist->GetBinCenter(iBin))<binEdges[0]) continue;
 			h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
@@ -876,11 +903,9 @@ void fill_amc_spec(){
 			sql_amc_spec = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",1,%d,%f);",amc_spec_table,bkgd_spectra_label,iBin-1,(h_rebinned_spectrum->GetBinContent(iBin))/spec_integral);
 			//Check it
 			cout << sql_amc_spec << endl;
-
-			   // Execute SQL statement
-			   rc_amc_spec = sqlite3_exec(db_amc_spec, sql_amc_spec, callback, (void*)data, &zErrMsg_amc_spec);
 		}
-
+		   // Execute SQL statement
+		   rc_amc_spec = sqlite3_exec(db_amc_spec, sql_amc_spec, callback, (void*)data, &zErrMsg_amc_spec);
 
 
 	
@@ -912,7 +937,7 @@ void fill_radn_spec(){
 		TH1F* h_rebinned_spectrum=new TH1F("h_rebinned","h_rebinned",numBins, binEdges);
 		
 		//Rebin:
-		for(int iBin=1; iBin < (in_hist->GetNbinsX())+2; iBin++){
+		for(int iBin=1; iBin < (in_hist->GetNbinsX())+1; iBin++){
 			if((in_hist->GetBinCenter(iBin))>binEdges[numBins]) break;
 			if((in_hist->GetBinCenter(iBin))<binEdges[0]) continue;
 			h_rebinned_spectrum->Fill(in_hist->GetBinCenter(iBin),in_hist->GetBinContent(iBin));
@@ -944,11 +969,9 @@ void fill_radn_spec(){
 			sql_radn_spec = Form("INSERT OR REPLACE INTO %s VALUES (\"%s\",1,%d,%f);",radn_spec_table,bkgd_spectra_label,iBin-1,(h_rebinned_spectrum->GetBinContent(iBin))/spec_integral);
 			//Check it
 			cout << sql_radn_spec << endl;
-
-			   // Execute SQL statement
-			   rc_radn_spec = sqlite3_exec(db_radn_spec, sql_radn_spec, callback, (void*)data, &zErrMsg_radn_spec);
 		}
-
+		   // Execute SQL statement
+		   rc_radn_spec = sqlite3_exec(db_radn_spec, sql_radn_spec, callback, (void*)data, &zErrMsg_radn_spec);
 
 
 	
@@ -973,40 +996,43 @@ void plot_sub(int iad){
 
 	parse_config();
 	
-	TFile *in_file_prompt = new TFile(toy_file);
-		TH1F *in_hist_prompt = (TH1F*)in_file_prompt->Get(Form("%s1_ad%d",toy_hist,iad+1));
-		for(int istage=2; istage <=3; istage++){
-			in_hist_prompt->Add((TH1F*)in_file_prompt->Get(Form("%s%d_ad%d",toy_hist,istage,iad+1))); //Adding Stage2 and Stage3 hists
-		}
-		TH1F *h_sub;
-		h_sub = (TH1F*)in_hist_prompt->Clone();
-		cout << "Number of events in prompt spectrum:\t" << in_hist_prompt->Integral() << endl;
-	
-	TFile *in_file_acc = new TFile(acc_spec_file);
-		TH1F *in_hist_acc = (TH1F*)in_file_acc->Get(Form("%s_eh%d_ad%d",acc_spec_hist,EH[iad],AD[iad]));
+	TFile *in_file_prompt = new TFile(Form("%s%d_1500.root",data_file,EH[iad]));
+		TH1F *in_hist_prompt = (TH1F*)in_file_prompt->Get(Form("%s%d",data_hist,AD[iad]));
 		double binEdges[numBins+1] = {1.5,1.7,1.9,2.1,2.3,2.5,2.7,2.9,3.1,3.3,3.5,3.7,3.9,4.1,4.3,4.5,4.7,4.9,5.1,5.3,5.5,5.7,5.9,6.1,6.3,6.5,6.7,6.9,7.1,7.3,7.5,7.7,7.9,8.1,12.};
-		TH1F* h_rebinned_spectrum=new TH1F("h_rebinned","h_rebinned",numBins, binEdges);
+		TH1F* h_rebinned_spec_prompt=new TH1F("h_rebinned_prompt","h_rebinned_prompt",numBins, binEdges);
 		
 		//Rebin:
-		for(int iBin=1; iBin < (in_hist_acc->GetNbinsX())+2; iBin++){
+		for(int iBin=1; iBin < (in_hist_prompt->GetNbinsX())+1; iBin++){
+			if((in_hist_prompt->GetBinCenter(iBin))>binEdges[numBins]) break;
+			if((in_hist_prompt->GetBinCenter(iBin))<binEdges[0]) continue;
+			h_rebinned_spec_prompt->Fill(in_hist_prompt->GetBinCenter(iBin),in_hist_prompt->GetBinContent(iBin));
+		}
+	
+	TFile *in_file_acc = new TFile(Form("%s%d.root",acc_spec_file,EH[iad]));
+		TH1F *in_hist_acc = (TH1F*)in_file_acc->Get(Form("%s%d",acc_spec_hist,AD[iad]));
+		TH1F* h_rebinned_spec_acc=new TH1F("h_rebinned_acc","h_rebinned_acc",numBins, binEdges);
+		
+		//Rebin:
+		for(int iBin=1; iBin < (in_hist_acc->GetNbinsX())+1; iBin++){
 			if((in_hist_acc->GetBinCenter(iBin))>binEdges[numBins]) break;
 			if((in_hist_acc->GetBinCenter(iBin))<binEdges[0]) continue;
-			h_rebinned_spectrum->Fill(in_hist_acc->GetBinCenter(iBin),in_hist_acc->GetBinContent(iBin));
+			h_rebinned_spec_acc->Fill(in_hist_acc->GetBinCenter(iBin),in_hist_acc->GetBinContent(iBin));
 		}
-		//Scale:
-		h_rebinned_spectrum->Scale((accRate[iad]*multEff[iad]*muonEff[iad]*totDAQ[iad])/(h_rebinned_spectrum->Integral()));
-		
+
+	TH1F *h_sub;
+	h_sub = (TH1F*)h_rebinned_spec_prompt->Clone();
+	cout << "Number of events in prompt spectrum:\t" << h_rebinned_spec_prompt->Integral() << endl;
 
 	//Writing to the file
 	TFile* outfile=new TFile(Form("./ckDB/inputSub_eh%dad%d.root",EH[iad],AD[iad]), "RECREATE");
 	outfile->cd();
-		in_hist_prompt->Write();
+		h_rebinned_spec_prompt->Write();
 
-		h_rebinned_spectrum->GetXaxis()->SetTitle("Prompt Energy [MeV]");
-		h_rebinned_spectrum->GetYaxis()->SetTitle("Counts");
-		h_rebinned_spectrum->Write();
+		h_rebinned_spec_acc->GetXaxis()->SetTitle("Prompt Energy [MeV]");
+		h_rebinned_spec_acc->GetYaxis()->SetTitle("Counts");
+		h_rebinned_spec_acc->Write();
 
-		h_sub->Add(h_rebinned_spectrum,-1);
+		h_sub->Add(h_rebinned_spec_acc,-1);
 		h_sub->Write();
 
 }
@@ -1015,13 +1041,41 @@ void plot_sub(int iad){
 
 
 void all(){
-//	write_fitConfig();
+	write_fitConfig();
 	fill_livetimes();
-//	fill_bkgd_counts();
-//	fill_prompt();
-//	fill_acc_spec();
-//	fill_li9_spec();
-//	fill_fastn_spec();
-//	fill_amc_spec();
-//	fill_radn_spec();
+	fill_bkgd_counts();
+	if(strcmp(suffix,"_Sam")!=0) fill_prompt();
+	if(strcmp(suffix,"_Sam")!=0) fill_acc_spec(); //don't fill if it's Sam's inputs
+/*	fill_li9_spec();
+	fill_fastn_spec();
+	fill_amc_spec();
+	fill_radn_spec();*/
+}
+
+void process(string input){
+	if(input == ""){
+		sprintf(suffix, "");
+		all();
+	}
+	else if(input == "NU"){
+		sprintf(suffix,"_%s", input.c_str());
+		cout << "Input: " << input << "\tSuffix: " << suffix << endl;
+		all();
+	}
+	else if(input == "Sam"){
+		sprintf(suffix,"_%s", input.c_str());
+		cout << "Input: " << input << "\tSuffix: " << suffix << endl;
+		all();
+	}
+/*	else if(input == "THU"){
+		sprintf(suffix,"_%s", input.c_str());
+		cout << "Input: " << input << "\tSuffix: " << suffix << endl; //change
+		init_names();
+	}*/
+	else{
+		cout << "Unknown input!! No information passed to the database!!" << endl;
+	}
+
+
+
 }
