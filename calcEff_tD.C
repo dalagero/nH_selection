@@ -2282,7 +2282,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	char title[64];
 
 
-        sprintf(outputname,"../nH_files/delayedEnergy.root");
+        sprintf(outputname,"../nH_files/delayedEnergy_thuNU.root");
 	TFile* outfile=new TFile(outputname, "RECREATE");
 
 		gStyle->SetOptFit(1111);
@@ -2316,13 +2316,13 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 
 	for(int iad = 0; iad < 8; iad++){
 		//Getting files:
-			sprintf(name,"../nH_files/SubtractedAccidentals_NU_1500_EH%dAD%d.root",EH[iad],AD[iad]);
+			sprintf(name,"../nH_files/SubtractedAccidentals_thuNU_1500_EH%dAD%d.root",EH[iad],AD[iad]);
 			TFile *subFile = new TFile(name);
 			
-			sprintf(name, "../nH_files/TotaledPlots_NU_EH%d_1500.root",EH[iad]);
+			sprintf(name, "../nH_files/TotaledPlots_thuNU_EH%d_1500_1ad.root",EH[iad]);
 			TFile *ibdFile = new TFile(name);
 
-			sprintf(name, "../nH_files/TotaledSingles_NU_1500_EH%d.root",EH[iad]);
+			sprintf(name, "../nH_files/TotaledSingles_thuNU_1500_EH%d.root",EH[iad]);
 			TFile *accFile = new TFile(name);
 
 		//Getting the histograms:
@@ -3403,7 +3403,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 			h_efficiency_norm_ADs_Sam->SetBinError(h_efficiency_norm_ADs_Sam->FindBin(iad+1), efficiencyError_norm_Sam[iad]);
 			h_efficiency_DTnorm_ADs_Sam->SetBinError(h_efficiency_DTnorm_ADs_Sam->FindBin(iad+1), efficiencyError_DTnorm_Sam[iad]);
 
-		cout << "AD" << iad+1 << "\t" << peak_rate[iad] << "\t" << sigma_rate[iad] << endl;
+		cout << "AD" << iad+1 << "\t" << peak_rate[iad] << "\t" << sigma_rate[iad] << "\t" << peak_rate[iad]-3*sigma_rate[iad] << "\t" << peak_rate[iad]+3*sigma_rate[iad] << endl;
 	//	cout << "**************************** AD" << iad+1 << "\t" << peak_rate[iad] << "\t" << peakError_rate[iad] << endl;
 
 	}
@@ -3621,6 +3621,7 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	//	h_peak_DTnorm_ADs_Sam->Draw("e1x0 same");
 	peakVsAD_AllFits->BuildLegend();
 
+
 	TCanvas *sigmaVsAD_AllFits = new TCanvas("sigmaVsAD_AllFits","sigmaVsAD_AllFits");
 		sigmaVsAD_AllFits->cd();
 		h_sigma_rate_ADs->SetStats(0);
@@ -3758,6 +3759,20 @@ void delayed(int DT, int a){ //Elow = 1.5, Ehigh = 2.8 for Sam ... used to have 
 	//	h_lambda_norm_ADs_Sam->Draw("e1x0 same");
 	//	h_lambda_DTnorm_ADs_Sam->Draw("e1x0 same");
 	lambdaVsAD_AllFits->BuildLegend();
+	
+		outfile->cd();
+		h_peak_rate_ADs->Write();
+		h_peak_norm_ADs->Write();
+		h_peak_DTnorm_ADs->Write();
+		h_sigma_rate_ADs->Write();
+		h_sigma_norm_ADs->Write();
+		h_sigma_DTnorm_ADs->Write();
+		h_alpha_rate_ADs->Write();
+		h_alpha_norm_ADs->Write();
+		h_alpha_DTnorm_ADs->Write();
+		h_lambda_rate_ADs->Write();
+		h_lambda_norm_ADs->Write();
+		h_lambda_DTnorm_ADs->Write();
 
 	TCanvas *efficiencyVsAD_AllFits = new TCanvas("efficiencyVsAD_AllFits","efficiencyVsAD_AllFits");
 		efficiencyVsAD_AllFits->cd();
