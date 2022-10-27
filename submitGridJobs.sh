@@ -2,7 +2,7 @@
 
 config='fit_config_nH_resid_flash_yasu.json'
 filename='test'
-setup='shape'
+setup='shape' #options: rate, sin2, dm2, shape
 
 numVals_s22t13=1 #True number of values is this number+1
 s22t13_low=0.05
@@ -12,8 +12,11 @@ numVals_dm2ee=1 #True number of values is this number+1
 dm2ee_low=0.0002
 dm2ee_high=0.0055
 
-#FIXME Add a thing here about which setup to do for the best fit
-python fit.py $config --dm2ee 0.0025227 --avg-near --dm2ee-behavior 'free' --pulls all --shape --save-fit $filename
+if [ $setup = 'rate' ]
+    python fit.py $config --dm2ee 0.0025227 --avg-near --dm2ee-behavior pulled --pulls all --save-fit $filename
+else
+    python fit.py $config --dm2ee 0.0025227 --avg-near --dm2ee-behavior 'free' --pulls all --shape --save-fit $filename
+fi
 
 chmod 777 $filename.npz
 
