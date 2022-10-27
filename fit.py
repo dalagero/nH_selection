@@ -178,6 +178,7 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
     if return_array:
         return return_array_values
     else:
+        print("chi_square: ", chi_square)
         return chi_square
 
 def poisson_stat_term(n_observed, n_predicted):
@@ -292,7 +293,7 @@ def fit_lsq_frozen(starting_params, constants, frozen_params, near_ads, rate_onl
             reverse_map[i] = num_frozen_so_far
             num_frozen_so_far += 1
     residual = residual_frozen_param(frozen_params_dict, near_ads, rate_only, avg_near)
-    result = least_squares(residual, x0, args=(constants,), method='trf')
+    result = least_squares(residual, x0, args=(constants,), method='trf') #Here is where we'd change how long the fitter fits for...
     # Assemble best-fit FitParams object from fitter fitter output
     starting_param_list = starting_params.to_list()
     result_param_list = []
@@ -306,6 +307,7 @@ def fit_lsq_frozen(starting_params, constants, frozen_params, near_ads, rate_onl
     if raw_result:
         return (fit_params, result)
     else:
+        print("done with fit_lsq_frozen")
         return fit_params
 
 def chi_square_grid(starting_params, constants, theta13_values):
@@ -565,20 +567,18 @@ def grid(
     itertools.product(theta13_values, m2_ee_values).
     """
     def fit_args_generator():
-        for theta13_value, m2_ee_value in itertools.product(
-            theta13_values, m2_ee_values
-        ):
-            new_params = starting_params.clone()
-            new_params.theta13 = theta13_value
-            new_params.m2_ee = m2_ee_value
-            yield (
-                new_params,
-                constants,
-                frozen_params,
-                near_ads,
-                rate_only,
-                avg_near,
-            )
+        print(theta13_values, m2_ee_values)
+        new_params = starting_params.clone()
+        new_params.theta13 = theta13_values
+        new_params.m2_ee = m2_ee_values
+        yield (
+            new_params,
+            constants,
+            frozen_params,
+            near_ads,
+            rate_only,
+            avg_near,
+        )
         return
     def chi_square_args_generator(fit_params_list):
         for fit_params_value in fit_params_list:
@@ -723,7 +723,7 @@ def _spectrum_ratio_plot(
         for (data, errs), label in zip(errorbar_dicts, errorbar_labels):
             obs = data[halldet]
             err = errs[halldet]
-            _plot_point_hist(ax, bin_edges, obs, yerr=err, elinewidth=2, label=label, color='k')
+            _plot_point_hist(ax, bin_edges, obs, yerr=err, elinewidth=2, label=label, color='g')
             #ax.errorbar(
                 #bin_centers, obs, yerr=err, fmt='_', elinewidth=2, markersize=5,
                 #label=label
@@ -767,11 +767,11 @@ def _spectrum_ratio_plot(
         for data, errs in errorbar_dicts:
             obs = data[halldet]/denominator[halldet]
             err = errs[halldet]/denominator[halldet]
-            _plot_point_hist(ax, bin_edges, obs, yerr=err, elinewidth=0, label=label, color='k')
-            #ax.errorbar(bin_centers, obs, yerr=err, fmt='_', elinewidth=2, markersize=5)
+            _plot_point_hist(ax, bin_edges, obs, yerr=err, elinewidth=0, label=label, color='g')
+            ax.errorbar(bin_centers, obs, yerr=err, fmt='_', elinewidth=2, markersize=5)
         if ax_index_main in (0, 2):
             ax.set_ylim(ratio_ylim)
-            ax.set_ylabel('Ratio to Toy MC', fontsize=12)
+            ax.set_ylabel('Ratio to No Osc', fontsize=12)
         ax.grid()
         ax.set_xlabel('Prompt energy [MeV]', fontsize=16)
         ax.tick_params(axis='both', which='major', labelsize=14)
@@ -790,7 +790,7 @@ def plot_prompt_spectrum(constants, fit_params):
         constants.reco_bins,
         [far_no_osc, far_best_fits],
         [(data, {halldet: np.sqrt(obs) for halldet, obs in data.items()})],
-        [0.99, 1.01],
+        [0.999, 1.001],
         ['No oscillations', 'Prediction'],
         ['Data'],
         [data],
@@ -829,10 +829,10 @@ def plot_prompt_sub_spectrum(constants, fit_params):
         constants.reco_bins,
         [far_no_osc, far_best_fits],
         [(data, {halldet: np.sqrt(obs) for halldet, obs in data.items()})],
-        [0.99, 1.01],
-        ['No oscillations', 'Prediction'],
+        [0.85, 1.05],
+        ['No oscillations', 'Best Fit'],
         ['Data'],
-        [data],
+        [far_no_osc],
     )
     return fig
 
@@ -864,7 +864,7 @@ def plot_prompt_spectrum_ADtoAD(constants, fit_params):
         constants.reco_bins,
         [far_best_fits, separate_ADs_1, separate_ADs_2, separate_ADs_3, separate_ADs_4],
         [(data, {halldet: np.sqrt(obs) for halldet, obs in data.items()})],
-        [0.975, 1.025],
+        [0.999, 1.001],
         ['Prediction', 'EH1-AD1', 'EH1-AD2', 'EH2-AD1', 'EH2-AD2'],
         ['Data'],
         [data],
@@ -892,6 +892,7 @@ if __name__ == "__main__":
     parser.add_argument("config")
     parser.add_argument("--no-fit", action='store_true')
     parser.add_argument("--scan", action='store_true')
+    parser.add_argument("--plot", action='store_true')
     parser.add_argument("--source")
     parser.add_argument("--source-index", type=int)
     parser.add_argument("--update-db")
@@ -908,6 +909,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--save-db", help="db file to save the results")
     parser.add_argument("--save-descr", help="verbose description to be saved")
+    parser.add_argument("--save-fit", help="file name to save best fit information to")
     args = parser.parse_args()
     if (args.save_db is None) != (args.save_descr is None):
         raise ValueError("Must specify both or neither of --save-db and --save-descr")
@@ -968,13 +970,20 @@ if __name__ == "__main__":
         if not result.success:
             sys.exit(0)
 
-        print('Min chi-square:', chi_square(constants, fit_params, return_array=False, near_ads=near_ads,
-            rate_only=rate_only, avg_near=args.avg_near, variant='poisson'))
-	#show me the plots!
-        fig_prompt_ADtoAD = plot_prompt_spectrum_ADtoAD(constants, fit_params)
-        fig_prompt = plot_prompt_spectrum(constants, fit_params)
-        fig_prompt_sub = plot_prompt_sub_spectrum(constants, fit_params)
-        plt.show()
+        min_chi2=chi_square(constants, fit_params, return_array=False, near_ads=near_ads,
+            rate_only=rate_only, avg_near=args.avg_near, variant='poisson')
+        print('Min chi-square:', min_chi2)
+        if args.plot == True:
+	    #show me the plots!
+            fig_prompt_ADtoAD = plot_prompt_spectrum_ADtoAD(constants, fit_params)
+            fig_prompt = plot_prompt_spectrum(constants, fit_params)
+            fig_prompt_sub = plot_prompt_sub_spectrum(constants, fit_params)
+            fig_prompt_sub.tight_layout()
+            fig_rate = pred.plot_data_fit_points(constants, fit_params)
+            fig_rate.tight_layout()
+            plt.show()
+        if args.save_fit is not None:
+            np.savez(args.save_fit,theta13_values=np.array(fit_params.theta13),results=min_chi2,config=args.config,m2ee_values=np.array(fit_params.m2_ee),frozen_params=np.array(frozen_params))
         if args.debug:
             print("O-chi square function with return_array=true")
             print(chi_square(constants, fit_params, return_array=True, near_ads=near_ads,
