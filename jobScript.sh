@@ -20,6 +20,13 @@ echo "config file: $1"
 echo "filename: $2"
 echo "setup: $3"
 echo "s22t13: $4"
-echo "dm2ee: $5"
+echo "number of dm2ee values: $5"
+echo "dm2ee_low: $6"
+echo "dm2ee_high: $7"
 
-python make_chi2grid.py --config $1 --save $2 --set-up $3 --sin22theta $4 --dm2ee $5
+for (( dm2ee_counter=0; dm2ee_counter<=$5; dm2ee_counter++ ))
+do
+    runVal_dm2ee=$(echo "scale=10;$6+$dm2ee_counter*($7-$6)/$5" | bc)
+    echo $runVal_dm2ee
+    python make_chi2grid.py --config $1 --save $2 --set-up $3 --sin22theta $4 --dm2ee $runVal_dm2ee
+done
