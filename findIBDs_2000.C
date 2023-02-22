@@ -40,7 +40,8 @@ float phase[8] = {0.727572, 0.671381, 0.0868127, -0.129778, -1.18759, -1.05132, 
 void LoadMaps(){ //load the correction maps from the file
     int EH[8]={1,1,2,2,3,3,3,3};
     int AD[8]={1,2,1,2,1,2,3,4};
-    TFile infile("./non_uniformity_correction_maps.root","READ");
+//    TFile infile("./non_uniformity_correction_maps.root","READ"); //Original version
+    TFile infile("./non_uniformity_correction_maps_v2.root","READ"); //Second version
     for(int iad=0; iad<8; ++iad){
         h_phiz_nu_correction_map[iad][0]=(TH2F*)infile.Get(Form("h_nu_corr_map_alpha_only_phiz_wholeAD_eh%d_ad%d_time0",EH[iad],AD[iad]));
         h_phiz_nu_correction_map[iad][1]=(TH2F*)infile.Get(Form("h_nu_corr_map_alpha_only_phiz_wholeAD_eh%d_ad%d_time1",EH[iad],AD[iad]));
@@ -127,6 +128,153 @@ float CorrectedEnergy(int eh, int detector, float energy, float x, float y, floa
     //returns final corrected energy
     return corrected_energy;
 }
+
+const double yasu[8]={0.9927,0.9934,0.9921,0.9922,0.9901,0.9904,0.9899,0.9895};
+const double katherine[8]={0.9910,0.9920,0.9917,0.9919,0.9896,0.9889,0.9882,0.9881};
+
+float CorrectedEnergyKatherine(int eh, int detector, float energy, float x, float y, float z, int time_sec, bool use_alphas_only=false, bool use_nh=false){
+    //eh number 1,2 or 3
+    //ad number 1,2,3 or 4
+    //energy - energy in AdSimpleNL TTree
+    // x, y, z - in mm
+    //time_sec - time of the trigger in sec (enough to determine the period)
+    
+    float corrected_energy = energy; //no correction yet
+    
+    int iad=2*(eh-1)+detector-1; //give you the proper iad number, EH1-AD1 iad=0, EH1-AD2 iad=1, EH2-AD1 iad=2, EH2-AD2 iad=3, EH3-AD1 iad=4, EH3-AD2 iad=5, EH3-AD3 iad=6, EH3-AD4 iad=7
+    
+    //detemination of the pre or post dead PMT period
+    int period=-1;
+    if(time_sec<=period_division_sec[iad]) period=0;
+    else period=1;
+    
+    float phi_rad = atan2(y, x);
+    float original_anticorrection_factor = 1.+ amplitude[iad]*sin(phi_rad + phase[iad]);
+    
+    //removing "original" phi-correction
+    corrected_energy*=original_anticorrection_factor;
+    
+    //eventually loading the input non-uniformity maps
+    if(h_phiz_nu_correction_map[iad][period]==NULL || h_r2z_nu_correction_map_nh[iad][period]==NULL || h_r2z_nu_correction_map_alphas_only[iad][period]==NULL || h_r2z_nu_correction_map_alphas_ngd[iad][period]==NULL) LoadMaps();
+    
+    float phi_deg = 180.*phi_rad/3.1415926;  //fyi, original correction used radians and phi in (-pi, pi), new correction uses degress and phi in (0,360)
+    if (phi_deg < 0) phi_deg += 360.;
+    
+    int phi_bin = int(phi_deg/30.) + 1;
+    if (phi_bin > 12) phi_bin = 12;
+    
+    int z_bin_for_phiz = int((z+2000.)/500.) + 1;
+    if(z_bin_for_phiz<1) z_bin_for_phiz=1; //events reconstructed below the map are corrected as being at the edge in z, i.e. -2 m,
+    if(z_bin_for_phiz>8) z_bin_for_phiz=8; //events reconstructed above the map are corrected as being at the edge in z, i.e. 2 m
+    
+    float r = sqrt(x*x + y*y)/1.E3;//in m, NOT mm
+    
+    //application of the new phi-z(-r) correction
+    float correction_factor_phiz = 1. - r*h_phiz_nu_correction_map[iad][period]->GetBinContent(phi_bin,z_bin_for_phiz); //phi-z correction based on map and linearly on radius
+    corrected_energy*=correction_factor_phiz;
+    
+    int r2_bin=int((x*x+y*y)/0.4E6) + 1; //hard-coded nu correction map dimensions - r^2 has 0.4 m^2 = 0.4E6 mm^2 bins, + 1 is due to ROOT bin numbering convention
+    if(r2_bin>10) r2_bin=10; //events outside the map are corrected as being at the edge in r^2, i.e. 4 m^2
+    
+    int z_bin=int((z+2000.)/400.) + 1; //hard-coded nu correction map dimensions - z has 0.4 m = 400 mm bins, + 1 is due to ROOT bin numbering convention
+    if(z_bin<1) z_bin=1; //events reconstucted below the map are corrected as being at the edge in z, i.e. -2 m,
+    if(z_bin>10) z_bin=10; //events reconstucted above the map are corrected as being at the edge in z, i.e. 2 m
+    
+    if(use_alphas_only == true && use_nh==true) return -1; //if this happens, you did not select the r2-z map correctly
+    
+    //retriving the r2-z correction factor from a proper map - by defaults, nGd+alpha map is used
+    float correction_factor_r2z=-1.;
+    if(use_alphas_only) correction_factor_r2z=h_r2z_nu_correction_map_alphas_only[iad][period]->GetBinContent(r2_bin,z_bin);
+    else if(use_nh) correction_factor_r2z=h_r2z_nu_correction_map_nh[iad][period]->GetBinContent(r2_bin,z_bin);
+    else correction_factor_r2z=h_r2z_nu_correction_map_alphas_ngd[iad][period]->GetBinContent(r2_bin,z_bin);
+    
+    //applying r2-z correction
+    corrected_energy*=correction_factor_r2z;
+    
+    //Converting from Yasu's to Katherine's Factors
+    corrected_energy*=(katherine[iad]/yasu[iad]);
+    
+    //returns final corrected energy
+    return corrected_energy;
+}
+
+
+const int Nads = 8;
+const int Ntime = 2;
+TH2F* h_alpha_nu[Nads][Ntime];
+TH1F* h_gamma_ad_to_ad_escale[Ntime];
+TH1F* h_beta_tdnu_global_correction = NULL;
+
+const int Neh = 3;
+int division_run[Neh] = {54249, 53438, 51999}; //run for time bin division
+
+const int Nr2Bins = 5;
+const int NzBins = 5;
+const float r2_bins[Nr2Bins+1] = {0.,1.,2.,2.5,3.25,4.}; //m^2
+const float z_bins[NzBins+1] = {-2.,-1.4,-0.5,0.5,1.4,2.}; //m
+
+void LoadMapsTHU(){
+    TFile infile("./thu_nu_data_20210313.root","READ");
+    h_beta_tdnu_global_correction = (TH1F*)infile.Get("h_beta_tdnu_global_correction");
+    h_beta_tdnu_global_correction->SetDirectory(0);
+    
+    for(int itime = 0; itime < Ntime; ++itime){
+        h_gamma_ad_to_ad_escale[itime] = (TH1F*)infile.Get(Form("h_gamma_ad_to_ad_escale_time%d",itime));
+        h_gamma_ad_to_ad_escale[itime]->SetDirectory(0);
+    }
+    
+    for(int itime = 0; itime < Ntime; ++itime){
+        for(int iad=0; iad<Nads; ++iad){
+            h_alpha_nu[iad][itime] = (TH2F*)infile.Get(Form("h_alpha_nu_ad%d_time%d",iad+1,itime));
+            h_alpha_nu[iad][itime]->SetDirectory(0);
+        }
+    }
+    
+    infile.Close();
+}
+
+
+float CorrectedEnergyTHU(int runnum, int eh, int detector, float energy, float x, float y, float z, bool use_escale_correction = true){
+    //runnum 21221 - 7xxxxx
+    //eh number 1,2 or 3
+    //detector number 1,2,3 or 4
+    //energy - energy in AdSimpleNL TTree
+    // x, y, z - in mm
+    if(h_beta_tdnu_global_correction==NULL) LoadMapsTHU();
+    
+    float corrected_energy_thu = energy; //no correction yet
+    
+    int iad=2*(eh-1)+detector-1; //give you the proper iad number, EH1-AD1 iad=0, EH1-AD2 iad=1, EH2-AD1 iad=2, EH2-AD2 iad=3, EH3-AD1 iad=4, EH3-AD2 iad=5, EH3-AD3 iad=6, EH3-AD4 iad=7
+    
+    //detemination of the pre or post division run
+    int period=-1;
+    if(runnum < division_run[eh-1]) period=0;
+    else period=1;
+    
+    float r2_in_m = (x*x+y*y)*1.E-6;
+    int temp_r2bin = h_alpha_nu[iad][period]->GetXaxis()->FindBin(r2_in_m);
+    if(temp_r2bin>Nr2Bins) temp_r2bin = Nr2Bins; //if I am outside 2 m radius, use the 2 m bin correction
+    
+    float z_in_m = z*1.E-3;
+    int temp_zbin = h_alpha_nu[iad][period]->GetYaxis()->FindBin(z_in_m);
+    if(temp_zbin<1) temp_zbin = 1; //if I am below -2 m volume, use -2 m bin correction
+    if(temp_zbin>NzBins) temp_zbin=NzBins; //if I am above 2 m volume, use 2 m bin correction
+    
+    //application of the alpha-based NU and beta-based TDNU correction
+    corrected_energy_thu*=h_beta_tdnu_global_correction->GetBinContent(period+1);
+    corrected_energy_thu*=h_alpha_nu[iad][period]->GetBinContent(temp_r2bin,temp_zbin); //there bin numbers are already with +1 convention
+    
+    //application of the optional gamma-based energy scale correction
+    if(use_escale_correction) corrected_energy_thu*=h_gamma_ad_to_ad_escale[period]->GetBinContent(iad+1);
+        
+    //apply Yasu's factors
+	corrected_energy_thu/=yasu[iad];
+
+    
+    //returns final corrected energy
+    return corrected_energy_thu;
+}
+
 
 
 
@@ -646,7 +794,9 @@ void find(int run_order, int pd_window_microsec){
 			}
 		} //End of WS muon
 
-		if(detector < 5) energy = CorrectedEnergy(EH, detector, energy, x, y, z, time_sec, false, false);
+//		if(detector < 5) energy = CorrectedEnergy(EH, detector, energy, x, y, z, time_sec, true, false);
+		if(detector < 5) energy = CorrectedEnergyKatherine(EH, detector, energy, x, y, z, time_sec, false, false);
+//		if(detector < 5) energy = CorrectedEnergyTHU(run_num, EH, detector, energy, x, y, z);
 
 		//Shower muon
 		if(energy>2.5e3 && detector < 5){
@@ -782,7 +932,9 @@ void find(int run_order, int pd_window_microsec){
 			
 			if(detector-1 != delay_det) continue; //Want to look for events in the same detector
 
-			energy = CorrectedEnergy(EH, detector, energy, x, y, z, time_sec, false, false);
+//			energy = CorrectedEnergy(EH, detector, energy, x, y, z, time_sec, true, false);
+			energy = CorrectedEnergyKatherine(EH, detector, energy, x, y, z, time_sec, false, false);
+//			energy = CorrectedEnergyTHU(run_num, EH, detector, energy, x, y, z);
 			
 			if(IsFlasher(MaxQ, Quadrant, MaxQ_2inchPMT, time_PSD, time_PSD1, Q1, Q2, x, y, z)==1) continue; //Ignore flashers
 			
@@ -849,7 +1001,9 @@ void find(int run_order, int pd_window_microsec){
 				break;
 			}
 
-			if(detector<5) energy = CorrectedEnergy(EH, detector, energy, x, y, z, time_sec, false, false);
+//			if(detector<5) energy = CorrectedEnergy(EH, detector, energy, x, y, z, time_sec, true, false);
+			if(detector<5) energy = CorrectedEnergyKatherine(EH, detector, energy, x, y, z, time_sec, false, false);
+//			if(detector<5) energy = CorrectedEnergyTHU(run_num, EH, detector, energy, x, y, z);
 			
 			//Check for shower or ad muon
 			if(energy > 20.){
@@ -1003,8 +1157,20 @@ void summarize(int run_num, int pd_window_microsec){ //For making plots out of t
 //	double sigma_Ed[8] = {0.136083, 0.137839, 0.135009, 0.134626, 0.135502, 0.134837, 0.136808, 0.134884};
 
 //For NU Results
-	double peak_Ed[8] = {2.26019, 2.26252, 2.26865, 2.26805, 2.26442, 2.26818, 2.26226, 2.27394};
-	double sigma_Ed[8] = {0.136494, 0.137613, 0.135735, 0.135387, 0.136701, 0.134367, 0.135997, 0.135052};
+/*	double peak_Ed[8] = {2.26019, 2.26252, 2.26865, 2.26805, 2.26442, 2.26818, 2.26226, 2.27394};
+	double sigma_Ed[8] = {0.136494, 0.137613, 0.135735, 0.135387, 0.136701, 0.134367, 0.135997, 0.135052};*/
+
+//For THU Corrected Results
+/*	double peak_Ed[8] = {2.24992, 2.25039, 2.25055, 2.24995, 2.24347, 2.24391, 2.24168, 2.24507};
+	double sigma_Ed[8] = {0.135605, 0.137252, 0.134459, 0.133758, 0.134627, 0.134461, 0.135875, 0.134629};*/
+
+//For Yasu Corrected Results
+//	double peak_Ed[8] = {2.26634,2.26536,2.26860,2.26747,2.26459,2.26619,2.26415,2.26849};
+//	double sigma_Ed[8] = { 0.136692,0.138167,0.135464,0.134778,0.136464,0.135132,0.137466,0.136048};
+
+//For Alpha Corrected Results
+	double peak_Ed[8] = {2.26053,2.26276,2.27005,2.2682,2.26516,2.26841,2.26274,2.27572};
+	double sigma_Ed[8] = {0.136598,0.137757,0.135708,0.135307,0.136778,0.134479,0.136186,0.134739};
 
 	if(EH == 1 || EH == 2) maxAD = 2;
 	if(EH == 3) maxAD = 4;
@@ -2408,11 +2574,11 @@ void all(int run_order, int pd_window_microsec){
 	}
 	fclose(runfile);
 
-	sprintf(outputname_find, "./IBDs/EH%d/foundIBDs_NU_%d_%d.root",EH,pd_window_microsec,run_num);
-	sprintf(outputname_summarize, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+	sprintf(outputname_find, "./IBDs/EH%d/foundIBDs_ktrain_%d_%d.root",EH,pd_window_microsec,run_num);
+	sprintf(outputname_summarize, "./IBDs/EH%d/summary_ktrain_%d_%d.root",EH,pd_window_microsec,run_num);
 
 
-//	find(run_order, pd_window_microsec); //Finding the IBD candidates
+	find(run_order, pd_window_microsec); //Finding the IBD candidates
 	summarize(run_num, pd_window_microsec); //Making the plots
 
 }

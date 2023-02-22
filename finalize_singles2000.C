@@ -1404,7 +1404,7 @@ void finalize(int hall_num, int pd_window_microsec){
 
 		char ibdFileName[64];
 //		sprintf(ibdFileName, "./IBDs/EH%d/summary_TcLong_%d.root",EH,run_num);
-		sprintf(ibdFileName, "./IBDs/EH%d/summary_%d_%d.root",EH,pd_window_microsec,run_num);
+		sprintf(ibdFileName, "./IBDs/EH%d/summary_ktrain_%d_%d.root",EH,pd_window_microsec,run_num);
 		TFile *ibdFile = new TFile(ibdFileName);
 
 
@@ -1413,9 +1413,9 @@ void finalize(int hall_num, int pd_window_microsec){
 			run[EH-1] +=1;
 			run_order += 1;
 			continue;
-		}
+		}*/
 		//For failed runs:
-		if(run_num == 63825){
+	/*	if(run_num == 65844){
 			run[EH-1] +=1;
 			run_order += 1;
 			continue;
@@ -1460,8 +1460,8 @@ void finalize(int hall_num, int pd_window_microsec){
 			run_order+=1;
 			continue;
 		}
-
-		if(run_order < 828){
+*/
+/*		if(run_num < 65800){
 			run[EH-1] +=1;
 			run_order+=1;
 			continue;
@@ -1485,7 +1485,7 @@ void finalize(int hall_num, int pd_window_microsec){
 		char runFileName[64];
 //		sprintf(runFileName, "./accResults/EH%d/AccidentalsSummary_%d.root",hall_num, run_num);
 //		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_TcLong_%d.root",hall_num, run_num);
-		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_%d_%d.root",hall_num, pd_window_microsec, run_num);
+		sprintf(runFileName, "./accResults/EH%d/AccidentalsPlots_ktrain_%d_%d.root",hall_num, pd_window_microsec, run_num);
 //		sprintf(runFileName, "./accResults/EH%d/round1/AccidentalsPlots_%d.root",hall_num, run_num);
 
 //		sprintf(runFileName, "./delayedSingles/EH%d/foundDelayedSingles_%d_%d.root",hall_num, pd_window_microsec, run_num);
@@ -1604,6 +1604,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 				}
 				
 		ibd2m[iad] = (h_ibd_distance->Integral(startBin,500));
+		
 
 			sprintf(name,"h_p_singles_locations_ad%d",iad+1);
 			TH2F *h_run_plocations_before = (TH2F*)runFile->Get(name);
@@ -1628,6 +1629,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			sprintf(name,"h_d_singles_energy_ad%d",iad+1);
 			TH1F *h_run_delayed_energy_before = (TH1F*)runFile->Get(name);
 			h_total_delayed_energy_before[iad]->Add(h_run_delayed_energy_before);
+
 
 			for(int iz = 0; iz < NzBins; iz++){
 				TH1F *h_run_delayed_energy_before_z = (TH1F*)runFile->Get(Form("h_d_singles_energy_z_ad%d_iz%d", iad+1, iz+1));
@@ -1734,7 +1736,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 					prompt_rate[2*(EH-1) + iad] = correct(prompt_div[2*(EH-1) + iad],timing);
 				}
 
-		//		cout << "Calculated the prompt rate" << endl;
+			//	cout << "Calculated the prompt rate" << endl;
 
 			h_p_rate_before[iad]->Fill(run[EH-1],prompt_div[2*(EH-1) + iad]);
 			h_p_rate[iad]->Fill(run[EH-1],prompt_rate[2*(EH-1) + iad]);
@@ -1848,7 +1850,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_scale[iad]->Fill(run[EH-1],scale[2*(EH-1)+iad]);
 			h_normScale[iad]->Fill(run[EH-1],normScale[2*(EH-1)+iad]);
 
-			h_diffScales_time[iad]->Fill(run[EH-1],scale[2*(EH-1)+iad]-normScale[2*(EH-1)+iad]);
+//			h_diffScales_time[iad]->Fill(run[EH-1],scale[2*(EH-1)+iad]-normScale[2*(EH-1)+iad]);
 			h_diffScales[iad]->Fill(scale[2*(EH-1)+iad]-normScale[2*(EH-1)+iad]);
 			if(sigma[iad] != 0){
 				h_diffScales_sigma_time[iad]->Fill(run[EH-1],(scale[2*(EH-1)+iad]-normScale[2*(EH-1)+iad])/sigma[iad]);
@@ -1983,6 +1985,8 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_prompt_energy_DT1000_3sig_scaled[iad]->Add(h_run_prompt_energy_DT1000_3sig,scale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT1500_3sig_scaled[iad]->Add(h_run_prompt_energy_DT1500_3sig,scale[2*(EH-1)+iad]);
 			h_total_prompt_energy_DT2000_3sig_scaled[iad]->Add(h_run_prompt_energy_DT2000_3sig,scale[2*(EH-1)+iad]);
+
+
 //	cout << "Before Ep35" << endl;
 				sprintf(name,"h_delayed_energy_scaled_Ep35_ad%d",iad+1);
 				TH1F *h_run_delayed_energy_fine_Ep35 = (TH1F*)runFile->Get(name);
@@ -2020,6 +2024,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 /*			sprintf(name,"h_acc_distVStime_ad%d",iad+1);
 			TH2F *h_run_acc_distVStime_norm = (TH2F*)runFile->Get(name);
 			h_run_acc_distVStime_norm->Scale(normScale[2*(EH-1)+iad]);*/
+
 			h_total_acc_distVStime_norm[iad]->Add(h_run_acc_distVStime,normScale[2*(EH-1)+iad]);
 			h_total_acc_distVStime_Ep35_norm[iad]->Add(h_run_acc_distVStime_Ep35,normScale[2*(EH-1)+iad]);
 			h_total_acc_DT_norm[iad]->Add(h_run_acc_DT,normScale[2*(EH-1)+iad]);
@@ -2089,6 +2094,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_total_acc_DT_3sig_rate[iad]->Add(h_run_acc_DT_3sig,scale[2*(EH-1)+iad]);
 			h_total_acc_DT_Ep35_rate[iad]->Add(h_run_acc_DT_Ep35,scale[2*(EH-1)+iad]);
 
+
 			//DT normalized DT plots
 			sprintf(name,"h_ibd_DT_ad%d",iad+1);
 			TH1D *h_ibd_DT = (TH1D*)ibdFile->Get(name);
@@ -2096,19 +2102,33 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			sprintf(name,"h_ibd_DT_Ep35_ad%d",iad+1);
 			TH1D *h_ibd_DT_Ep35 = (TH1D*)ibdFile->Get(name);
 
-				int startBinDT = 0;
-				for(int ibin=0; ibin<502; ibin++){
-					if(h_ibd_DT->GetBinCenter(ibin)>3){
+
+
+				int startBinDT = 151;
+				
+/*				for(int ibin=0; ibin<502; ibin++){
+					if(h_ibd_DT_Ep35->GetBinCenter(ibin)>3){
 						startBinDT = ibin;
+						cout << startBinDT << endl;
 						break;
 					}
-				}
-				
+				}*/
+
+
+/*			if(EH==3 && run_num==65844) DTscale[2*(EH-1)+iad] = scale[2*(EH-1)+iad];	
+			else DTscale[2*(EH-1)+iad] = (h_ibd_DT->Integral(startBinDT,500))/(h_run_acc_DT->Integral(startBinDT,500));*/
+
 			DTscale[2*(EH-1)+iad] = (h_ibd_DT->Integral(startBinDT,500))/(h_run_acc_DT->Integral(startBinDT,500));
+
+			h_diffScales_time[iad]->Fill(run[EH-1],100*(DTscale[2*(EH-1)+iad]-scale[2*(EH-1)+iad])/DTscale[2*(EH-1)+iad]);
 
 			h_total_acc_DT_DTnorm[iad]->Add(h_run_acc_DT,DTscale[2*(EH-1)+iad]);
 			h_total_acc_DT_3sig_DTnorm[iad]->Add(h_run_acc_DT_3sig,DTscale[2*(EH-1)+iad]);
+			
+/*			if(EH==3 && run_num==65844) DTscale_Ep35[2*(EH-1)+iad] = scale[2*(EH-1)+iad];	
+			else DTscale_Ep35[2*(EH-1)+iad] = (h_ibd_DT_Ep35->Integral(startBinDT,500))/(h_run_acc_DT_Ep35->Integral(startBinDT,500));*/
 			DTscale_Ep35[2*(EH-1)+iad] = (h_ibd_DT_Ep35->Integral(startBinDT,500))/(h_run_acc_DT_Ep35->Integral(startBinDT,500));
+			
 			h_total_acc_DT_Ep35_DTnorm[iad]->Add(h_run_acc_DT_Ep35,DTscale_Ep35[2*(EH-1)+iad]);
 			h_total_acc_DT_Ep35_DTnorm[iad]->Add(h_run_acc_DT_Ep35,DTscale[2*(EH-1)+iad]);
 
@@ -2171,8 +2191,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			TH1F *h_run_promptVStime_DTnorm = (TH1F*)runFile->Get(name);
 			h_total_acc_promptVStime_DTnorm[iad]->Add(h_run_promptVStime_DTnorm,DTscale[2*(EH-1)+iad]);
 
-
-
+			if(EH==3 && run_num==65844) continue;
 			//400 us distance plots:
 			sprintf(name,"h_distance_before_400_ad%d",iad+1);
 			TH1F *h_ibd_distance_400 = (TH1F*)ibdFile->Get(name);
@@ -2221,7 +2240,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 
         char outputname[64];
 //        sprintf(outputname,"./accResults/TotaledSingles_TcLong_EH%d.root",hall_num);
-        sprintf(outputname,"./accResults/TotaledSingles_%d_EH%d.root",pd_window_microsec,hall_num);
+        sprintf(outputname,"./accResults/TotaledSingles_ktrain_%d_EH%d.root",pd_window_microsec,hall_num);
 //        sprintf(outputname,"./accResults/TotaledSingles_4sigma_EH%d.root",hall_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
@@ -2753,7 +2772,7 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 			h_normScale[iad]->Write();
 
 			h_diffScales_time[iad]->GetXaxis()->SetTitle("Number of Runs (Since Start of P17B)");
-			h_diffScales_time[iad]->GetYaxis()->SetTitle("Difference in scales (Rate-Norm)");
+			h_diffScales_time[iad]->GetYaxis()->SetTitle("Difference in scales 100% * (DTnorm-Rate)/DTnorm");
 			h_diffScales_time[iad]->Write();
 
 			h_diffScales_sigma_time[iad]->GetXaxis()->SetTitle("Number of Runs (Since Start of P17B)");
@@ -2978,8 +2997,8 @@ cout << "On run# " << run_order+1 << " out of " << nRuns << endl;
 		cout << endl << "Total eff_m for EH" << EH << " AD" << iad+1 << ":\t" << TOTAL_Eff_mult[2*(EH-1)+iad] << endl;
 		cout << "Total R_s,prompt [Hz] for EH" << EH << " AD" << iad+1 << ":\t" << TOTAL_prompt_rate[2*(EH-1)+iad] << endl;
 		cout << "Total R_s,delayed [Hz] (1.5-3MeV) for EH" << EH << " AD" << iad+1 << ":\t" << TOTAL_delayed_rate[2*(EH-1)+iad] << endl;
-		cout << "Total N_Acc for EH" << EH << " AD" << iad+1 << ":\t" << h_total_prompt_energy_DT800_3sig_DTnorm[iad]->Integral() << endl;
-		cout << "Total R_Acc [1/d] for EH" << EH << " AD" << iad+1 << ":\t" << ((h_total_prompt_energy_DT800_3sig_DTnorm[iad]->Integral())/(TOTAL_LIVE[2*(EH-1)+iad]/(60*60*24)))/(TOTAL_Eff_mult[2*(EH-1)+iad]) << endl;
+		cout << "Total N_Acc for EH" << EH << " AD" << iad+1 << ":\t" << h_total_prompt_energy_DT800_3sig_scaled[iad]->Integral() << endl;
+		cout << "Total R_Acc [1/d] for EH" << EH << " AD" << iad+1 << ":\t" << ((h_total_prompt_energy_DT800_3sig_scaled[iad]->Integral())/(TOTAL_LIVE[2*(EH-1)+iad]/(60*60*24)))/(TOTAL_Eff_mult[2*(EH-1)+iad]) << endl;
 		cout << "Total Percent Error on Prompt Singles Rate (uncorrected) for EH" << EH << " AD" << iad+1 << ":\t" << sqrt(h_total_prompt_energy_before_raw[iad]->Integral())/(h_total_prompt_energy_before_raw[iad]->Integral())*100 << endl << endl;
 	}
 

@@ -783,7 +783,7 @@ void finalize(int hall_num, int pd_window_microsec, int period){
 		} 
 
 
-		if(run_order >= 207){
+		if(run_order >= 200){
 			run_order+=1;
 			continue;
 		}
@@ -838,7 +838,7 @@ void finalize(int hall_num, int pd_window_microsec, int period){
 
 		char runFileName[64];
 //		sprintf(runFileName, "./IBDs/EH%d/summary_TcLong_2_%d.root",EH,run_num);
-		sprintf(runFileName, "./IBDs/EH%d/summary_NU_%d_%d.root",EH,pd_window_microsec,run_num);
+		sprintf(runFileName, "./IBDs/EH%d/summary_ktrain_%d_%d.root",EH,pd_window_microsec,run_num);
 //		sprintf(runFileName, "./IBDs/EH%d/round1/summary_%d.root",EH,run_num);
 
 		if(FILE *file = fopen(runFileName, "r")) fclose(file);
@@ -1397,7 +1397,7 @@ void finalize(int hall_num, int pd_window_microsec, int period){
 
         char outputname[64];
 //	sprintf(outputname,"./IBDs/TotaledPlots_TcLong_EH%d_Ep2.root",hall_num);
-	sprintf(outputname,"./IBDs/TotaledPlots_NU_EH%d_%d_%dad.root",hall_num,pd_window_microsec,period);
+	sprintf(outputname,"./IBDs/TotaledPlots_ktrain_EH%d_%d_%dad.root",hall_num,pd_window_microsec,period);
 //	sprintf(outputname,"./IBDs/TotaledPlots_4sigma_EH%d.root",hall_num);
 	TFile* outfile=new TFile(outputname, "RECREATE");
 		outfile->cd();
