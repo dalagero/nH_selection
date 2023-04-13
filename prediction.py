@@ -20,8 +20,12 @@ import matplotlib as mpl
 import scipy.interpolate
 import ROOT as root
 
-from dyb_analysis import common
-from dyb_analysis.event_selection import compute_dataset_summary
+import sys
+sys.path.append("..")
+import common
+from event_selection import compute_dataset_summary
+#from dyb_analysis import common
+#from dyb_analysis.event_selection import compute_dataset_summary
 
 @dataclass
 class InputOscParams:
@@ -428,13 +432,16 @@ def load_constants(config_file, json_str=False):
     matrix, true_bins_response, reco_bins_response = true_to_reco_energy_matrix(
             database, source_det_resp
     )
+    total_livetimes = ad_dict(0)
     if config.period == "all":
         # Sum over all periods TODO
         total_emitted_by_AD = defaultdict(int)
         for period in ad_periods.values():
-            total_emitted_for_period, true_bins_spectrum = total_emitted_shortcut(
+            total_emitted_for_period, true_bins_spectrum, livetime_by_AD_per_period = total_emitted_shortcut(
                 database, period
             )
+            for halldet in all_ads:
+                total_livetimes[halldet]+=livetime_by_AD_per_period[halldet,period.name]
             for halldetcore, spec in total_emitted_for_period.items():
                 total_emitted_by_AD[halldetcore] += spec
     else:
@@ -470,65 +477,6 @@ def load_constants(config_file, json_str=False):
             np.concatenate((true_bins_spectrum, [12])),
             true_bins_response
     )
-
-    # Parse num coincidences: Nominal, 0, hard-coded, or alternate database
-    coincs_source = config.num_coincs_source
-    coincs_format = config.num_coincs_format_version
-    if config.num_coincs is True:
-        num_coincidences, reco_bins = num_coincidences_per_AD(database, coincs_source,
-            version=coincs_format, binning_id=config.binning_id)
-    elif config.num_coincs is False:
-        num_coincidences = ad_dict(0)
-        reco_bins = config.reco_bins
-    elif isinstance(config.num_coincs, list):
-        coinc_arrays = [np.array(coincs) for coincs in config.num_coincs]
-        num_coincidences = dict(zip(all_ads, coinc_arrays))
-        reco_bins = config.reco_bins
-    elif isinstance(config.num_coincs, str):
-        num_coincidences, reco_bins = num_coincidences_per_AD(
-            config.num_coincs, coincs_source, version=coincs_format,
-            binning_id=config.binning_id
-        )
-    else:
-        raise ValueError(
-                f"Invalid num coincidences specification: {config.num_coincs}"
-        )
-
-    # Parse backgrounds: Nominal, 0, hard-coded, or alternate database
-    bg_counts_source = config.background_counts_source
-    bg_spec_source = config.background_spectra_source
-    bg_types = config.background_types
-    if config.backgrounds is True:
-        nominal_bgs, bg_errors = backgrounds_per_AD(
-            database, bg_counts_source, bg_spec_source, types=bg_types
-        )
-    elif config.backgrounds is False:
-        nominal_bgs, bg_errors = backgrounds_per_AD(
-            None, None, None, return_zero=True, types=bg_types
-        )
-    elif isinstance(config.backgrounds, list):
-        # List of lists to get each AD's spectrum
-        # List of floats to get each AD's absolute error (then divide by sum(count) for
-        # relative)
-        bg_arrays = [np.array(bg) for bg in config.backgrounds]
-        bg_errors_input = [
-            err / sum(count) for err, count in zip(config.background_errors, bg_arrays)
-        ]
-        nominal_bgs, bg_errors = backgrounds_per_AD(
-            None, None, None, return_zero=True, types=bg_types[0]
-        )
-        # Assign supplied backgrounds to be the first type given in background_types
-        nominal_bgs[bg_types[0]] = dict(zip(all_ads, bg_arrays))
-        bg_errors[bg_types[0]] = dict(zip(all_ads, bg_errors_input))
-    elif isinstance(config.backgrounds, str):
-        nominal_bgs, bg_errors = backgrounds_per_AD(
-            config.backgrounds,
-            bg_counts_source,
-            bg_spec_source,
-            types=bg_types,
-        )
-    else:
-        raise ValueError(f"Invalid backgrounds specification: {config.backgrounds}")
 
     def zip_ads(list_of_values):
         return dict(zip(all_ads, list_of_values))
@@ -572,6 +520,68 @@ def load_constants(config_file, json_str=False):
         )
     else:
         raise ValueError(f"Invalid mult_eff specification: {config.mult_eff}")
+
+    # Parse num coincidences: Nominal, 0, hard-coded, or alternate database
+    coincs_source = config.num_coincs_source
+    coincs_format = config.num_coincs_format_version
+    if config.num_coincs is True:
+        num_coincidences, reco_bins = num_coincidences_per_AD(database, coincs_source,
+            version=coincs_format, binning_id=config.binning_id)
+    elif config.num_coincs is False:
+        num_coincidences = ad_dict(0)
+        reco_bins = config.reco_bins
+    elif isinstance(config.num_coincs, list):
+        coinc_arrays = [np.array(coincs) for coincs in config.num_coincs]
+        num_coincidences = dict(zip(all_ads, coinc_arrays))
+        reco_bins = config.reco_bins
+    elif isinstance(config.num_coincs, str):
+        num_coincidences, reco_bins = num_coincidences_per_AD(
+            config.num_coincs, coincs_source, version=coincs_format,
+            binning_id=config.binning_id
+        )
+    else:
+        raise ValueError(
+                f"Invalid num coincidences specification: {config.num_coincs}"
+        )
+
+    # Parse backgrounds: Nominal, 0, hard-coded, or alternate database !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    bg_counts_source = config.background_counts_source
+    bg_spec_source = config.background_spectra_source
+    bg_types = config.background_types
+    if config.backgrounds is True:
+        nominal_bgs, bg_errors = backgrounds_per_AD(
+            database, bg_counts_source, bg_spec_source, total_livetimes, muon_eff, multiplicity_eff, types=bg_types
+        )
+    elif config.backgrounds is False:
+        nominal_bgs, bg_errors = backgrounds_per_AD(
+            None, None, None, total_livetimes, muon_eff, multiplicity_eff, return_zero=True, types=bg_types
+        )
+    elif isinstance(config.backgrounds, list):
+        # List of lists to get each AD's spectrum
+        # List of floats to get each AD's absolute error (then divide by sum(count) for
+        # relative)
+        bg_arrays = [np.array(bg) for bg in config.backgrounds]
+        bg_errors_input = [
+            err / sum(count) for err, count in zip(config.background_errors, bg_arrays)
+        ]
+        nominal_bgs, bg_errors = backgrounds_per_AD(
+            None, None, None, total_livetimes, muon_eff, multiplicity_eff, return_zero=True, types=bg_types[0]
+        )
+        # Assign supplied backgrounds to be the first type given in background_types
+        nominal_bgs[bg_types[0]] = dict(zip(all_ads, bg_arrays))
+        bg_errors[bg_types[0]] = dict(zip(all_ads, bg_errors_input))
+    elif isinstance(config.backgrounds, str):
+        nominal_bgs, bg_errors = backgrounds_per_AD(
+            config.backgrounds,
+            bg_counts_source,
+            bg_spec_source,
+            total_livetimes,
+            muon_eff,
+            multiplicity_eff,
+            types=bg_types,
+        )
+    else:
+        raise ValueError(f"Invalid backgrounds specification: {config.backgrounds}")
 
     # Parse dist_time_eff: Nominal, 1, hard-coded, or alternate database
     if config.dist_time_eff is True:
@@ -691,6 +701,29 @@ def survival_probability(L, E, theta13, m2_ee, input_osc_params=default_osc_para
         - cos2theta12 * sin2_2theta13 * delta_31
         - sin2theta12 * sin2_2theta13 * delta_32
     )
+
+#def survival_probability(L, E, theta13, m2_ee, input_osc_params=default_osc_params):
+#    theta12 = input_osc_params.theta12
+#    m2_21 = input_osc_params.m2_21
+    # Hierarchy factor = 2 * int(hierarchy) - 1 (+1 if True, else -1)
+#    hierarchy = 2 * int(input_osc_params.hierarchy) - 1
+#    m2_32 = m2_ee - hierarchy * input_osc_params.m2_ee_conversion
+#    m2_31 = m2_32 + hierarchy * m2_21
+
+#    cos4theta13 = np.power(np.cos(theta13), 4) #Leave this
+#    cos2theta12 = np.power(np.cos(theta12), 2) #Leave this
+#    sin2theta12 = np.power(np.sin(theta12), 2) #Leave this
+#    sin2_2theta12 = np.power(np.sin(2*theta12), 2) #Leave this
+#    sin2_2theta13 = np.power(np.sin(2*theta13), 2) #Leave this
+#    delta_21 = delta_ij(L, E, m2_21) #Leave this
+#    delta_ee = delta_ij(L, E, m2_ee) #Changed
+
+
+#    return (
+#        1
+#        - cos4theta13 * sin2_2theta12 * delta_21
+#        - sin2_2theta13 * delta_ee
+#    )
 
 
 def delta_ij(L, E, m2_ij):
@@ -1030,8 +1063,8 @@ def livetime_by_week(database, weekly_time_bins):
  (3, 2): 5.8327610278713265e-05,
  (3, 3): 6.88640992131794e-05,
  (3, 4): 5.8191618278611e-05}
-    for halldet in by_week:
-        by_week[halldet] = by_week[halldet] * (1 + mc_corrections[halldet])
+#    for halldet in by_week:
+#        by_week[halldet] = by_week[halldet] * (1 + mc_corrections[halldet])
 
     return by_week
 
@@ -1042,7 +1075,7 @@ def livetime_by_period(database):
         cursor = conn.cursor()
         for hall, det in all_ads:
             cursor.execute('''SELECT Hall, DetNo, Start_time, Livetime_ns/Efficiency
-                FROM muon_rates_original NATURAL JOIN runs
+                FROM muon_rates NATURAL JOIN runs
                 WHERE Hall = ? AND DetNo = ?
                 ORDER BY Start_time''', (hall, det))
             ordered[(hall, det)] = np.array(cursor.fetchall())
@@ -1110,14 +1143,13 @@ def total_emitted_shortcut(database, data_period):
             period_livetime[halldet][istage]
             for halldet in all_ads
     }
-#    print("Livetime: ", livetime_by_AD_for_periods)
     with common.get_db(database) as conn:
         cursor = conn.cursor()
         for core in range(1, 7):
             cursor.execute('''SELECT Energy, NuPerMeVPerSec
             FROM reactor_emitted_spectrum
             WHERE Core = ? AND DataPeriod = ?
-                AND Source = "Full Power Check 8/2/2022"
+                AND Source = "True Power 9/9/2022"
                 AND Energy <= 10
             ORDER BY Energy''',
             (core, data_period.name))
@@ -1131,7 +1163,7 @@ def total_emitted_shortcut(database, data_period):
                 )
 
             energies = result[:-1, 0]  # Last entry is upper bin boundary
-    return total_spectrum_by_AD, energies
+    return total_spectrum_by_AD, energies, livetime_by_AD_for_periods
 
 
 def total_emitted_shortcut_old(database, data_period):
@@ -1148,7 +1180,6 @@ def total_emitted_shortcut_old(database, data_period):
             for period in [period_6ad, period_8ad, period_7ad]
             for halldet in all_ads
     }
-    print("Livetime: ", livetime_by_AD_for_periods)
     with common.get_db(database) as conn:
         cursor = conn.cursor()
         for core in range(1, 7):
@@ -1346,6 +1377,7 @@ def num_coincidences_per_AD(database, source, version, binning_id):
         # Parse binned records
         for hall, det, coincidence_str in full_data:
             results[hall, det] = np.array(json.loads(coincidence_str))
+#            print(hall, det, sum(results[hall,det]))
         bins = np.array(bins, dtype=float).reshape(-1)  # flatten bins
         # convert keV to MeV
         bins /= 1000
@@ -1386,7 +1418,7 @@ def efficiency_weighted_counts(constants, fit_params, halls='all'):
         # NB: combined_eff has a bin dependence due to rel_escale_params
         combined_eff = (
             mult_eff * muon_eff * dist_time_eff * mass_eff * (1 + pull_eff)
-            * (1 + pull_rel_escale * rel_escale_params)
+            * (1 + abs(pull_rel_escale) * rel_escale_params)
         )
         # Account for near hall statistics pull parameter
         if halldet in pull_near_stat:
@@ -1394,11 +1426,20 @@ def efficiency_weighted_counts(constants, fit_params, halls='all'):
         else:
             pulled_coincidences = coincidences
         to_return[halldet] = pulled_coincidences / combined_eff
+
+#        fig_dm_relE, ax_dm_relE = plt.subplots()
+#        ax_dm_relE.plot(coincidences)
+#        ax_dm_relE.plot(0.33*pulled_coincidences / combined_eff)
+#        ax_dm_relE.grid(False)
+#        ax_dm_relE.set_xlabel(r'Bin Number')
+#        ax_dm_relE.set_ylabel(r'Counts')
+#        plt.show()
+
     return to_return
 
 
 def backgrounds_per_AD(
-    database, counts_source, spectra_sources, return_zero=False, types=None
+    database, counts_sources, spectra_sources, daq_livetimes, muon_eff, mult_effs, return_zero=False, types=None
 ):
     """Retrieve the number of predicted background events and rate errors in each AD.
 
@@ -1440,6 +1481,7 @@ def backgrounds_per_AD(
     successive sources until the first one that has more than 0 entries.
     So if one spectrum is updated, use spectra_sources = [newer, older, oldest].
     """
+#    print(daq_livetimes)
     if return_zero:
         if types is None:
             return (
@@ -1467,6 +1509,8 @@ def backgrounds_per_AD(
             )
     if isinstance(spectra_sources, str):
         spectra_sources = [spectra_sources]
+    if isinstance(counts_sources, str):
+        counts_sources = [counts_sources]
     result = {}
     errors = {}
     with common.get_db(database) as conn:
@@ -1502,15 +1546,17 @@ def backgrounds_per_AD(
                 SELECT
                     Count, Error
                 FROM
-                    bg_counts
+                    acc_counts
                 WHERE
                     BgName = "accidental"
                     AND Label = ?
                     AND Hall = ?
                     AND DetNo = ?
-                ''', (counts_source, hall, det)
+                ''', (counts_sources[0], hall, det)
                 )
                 count, error = cursor.fetchone()
+                acc_data[hall, det] /= sum(acc_data[hall, det])
+    #            print("Accidentals EH", hall, "AD", det, "--", sum(acc_data[hall,det]))
                 acc_data[hall, det] *= count
                 acc_errors[hall, det] = error/count
             result['accidental'] = acc_data
@@ -1542,19 +1588,22 @@ def backgrounds_per_AD(
             for hall, det in all_ads:
                 cursor.execute('''
                 SELECT
-                    Count, Error
+                    Rate, Error
                 FROM
-                    bg_counts
+                    bg_rates
                 WHERE
                     BgName = "li9"
                     AND Label = ?
                     AND Hall = ?
                     AND DetNo = ?
-                ''', (counts_source, hall, det)
+                ''', (counts_sources[1], hall, det)
                 )
-                count, error = cursor.fetchone()
-                li9_data[hall, det] = count * li9_spectrum
-                li9_errors[hall, det] = error/count
+                rate, error = cursor.fetchone()
+                li9_spectrum /= sum(li9_spectrum) #normalize
+#                print("Li9 EH", hall, "AD", det, "--", sum(li9_spectrum))
+                li9_data[hall, det] = rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] * li9_spectrum / (86400)
+#                print("li9", hall, det, rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400))
+                if rate != 0: li9_errors[hall, det] = error/rate
             result['li9'] = li9_data
             errors['li9'] = li9_errors
         if 'fast-neutron' in types:
@@ -1584,19 +1633,22 @@ def backgrounds_per_AD(
             for hall, det in all_ads:
                 cursor.execute('''
                 SELECT
-                    Count, Error
+                    Rate, Error
                 FROM
-                    bg_counts
+                    bg_rates
                 WHERE
                     BgName = "fast-neutron"
                     AND Label = ?
                     AND Hall = ?
                     AND DetNo = ?
-                ''', (counts_source, hall, det)
+                ''', (counts_sources[1], hall, det)
                 )
-                count, error = cursor.fetchone()
-                fast_neutron_data[hall, det] = count * fast_neutron_spectrum
-                fast_neutron_errors[hall, det] = error/count
+                rate, error = cursor.fetchone()
+                fast_neutron_spectrum /= sum(fast_neutron_spectrum)
+   #             print("Fast n EH", hall, "AD", det, "--", sum(fast_neutron_spectrum))
+                fast_neutron_data[hall, det] = rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] * fast_neutron_spectrum / (86400)
+#                print("fast_n", hall, det, rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400))
+                if rate != 0: fast_neutron_errors[hall, det] = error/rate
             result['fast-neutron'] = fast_neutron_data
             errors['fast-neutron'] = fast_neutron_errors
         if 'amc' in types:
@@ -1626,19 +1678,22 @@ def backgrounds_per_AD(
             for hall, det in all_ads:
                 cursor.execute('''
                 SELECT
-                    Count, Error
+                    Rate, Error
                 FROM
-                    bg_counts
+                    bg_rates
                 WHERE
                     BgName = "amc"
                     AND Label = ?
                     AND Hall = ?
                     AND DetNo = ?
-                ''', (counts_source, hall, det)
+                ''', (counts_sources[1], hall, det)
                 )
-                count, error = cursor.fetchone()
-                amc_data[hall, det] = count * amc_spectrum
-                amc_errors[hall, det] = error/count
+                rate, error = cursor.fetchone()
+                amc_spectrum /= sum(amc_spectrum)
+    #            print("AmC EH", hall, "AD", det, "--", sum(amc_spectrum))
+                amc_data[hall, det] = rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] * amc_spectrum / (86400)
+#                print("amc", hall, det, rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400))
+                if rate != 0: amc_errors[hall, det] = error/rate
             result['amc'] = amc_data
             errors['amc'] = amc_errors
         if 'alpha-n' in types:
@@ -1670,19 +1725,22 @@ def backgrounds_per_AD(
                     )
                 cursor.execute('''
                 SELECT
-                    Count, Error
+                    Rate, Error
                 FROM
-                    bg_counts
+                    bg_rates
                 WHERE
                     BgName = "alpha-n"
                     AND Label = ?
                     AND Hall = ?
                     AND DetNo = ?
-                ''', (counts_source, hall, det)
+                ''', (counts_sources[1], hall, det)
                 )
-                count, error = cursor.fetchone()
-                alpha_n_data[hall, det] *= count
-                alpha_n_errors[hall, det] = error/count
+                rate, error = cursor.fetchone()
+                alpha_n_data[hall, det] /= sum(alpha_n_data[hall, det])
+      #          print("alpha n EH", hall, "AD", det, "--", sum(alpha_n_data[hall,det]))
+                alpha_n_data[hall, det] *= rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400)
+#                print("alpha_n", hall, det, rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400))
+                if rate != 0: alpha_n_errors[hall, det] = error/rate
             result['alpha-n'] = alpha_n_data
             errors['alpha-n'] = alpha_n_errors
         if 'rad-n' in types:
@@ -1712,19 +1770,22 @@ def backgrounds_per_AD(
                     )
                 cursor.execute('''
                 SELECT
-                    Count, Error
+                    Rate, Error
                 FROM
-                    bg_counts
+                    bg_rates
                 WHERE
                     BgName = "rad-n"
                     AND Label = ?
                     AND Hall = ?
                     AND DetNo = ?
-                ''', (counts_source, hall, det)
+                ''', (counts_sources[1], hall, det)
                 )
-                count, error = cursor.fetchone()
-                rad_n_data[hall, det] *= count
-                rad_n_errors[hall, det] = error/count
+                rate, error = cursor.fetchone()
+                rad_n_data[hall, det] /= sum(rad_n_data[hall, det])
+      #          print("Rad n EH", hall, "AD", det, "--", sum(rad_n_data[hall,det]))
+                rad_n_data[hall, det] *= rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400)
+#                print("rad_n", hall, det, rate * daq_livetimes[hall, det] * muon_eff[hall, det] * mult_effs[hall, det] / (86400))
+                if rate != 0: rad_n_errors[hall, det] = error/rate
             result['rad-n'] = rad_n_data
             errors['rad-n'] = rad_n_errors
     return (result, errors)
@@ -2073,7 +2134,7 @@ def predict_ad_to_ad_obs(constants, fit_params):
         # NB: combined_eff has a bin dependence due to rel_escale_params
         combined_eff = (
             mult_eff * muon_eff * dist_time_eff * mass_eff * (1 + pull_eff)
-            * (1 + pull_rel_escale * rel_escale_params)
+            * (1 + abs(pull_rel_escale) * rel_escale_params)
         )
         results[far_halldet, near_halldet] = (
                 result * combined_eff
@@ -2425,7 +2486,7 @@ def plot_prompt_spectrum(constants, fit_params):
         constants.reco_bins,
         [far_no_osc, far_best_fits],
         [(data, {halldet: np.sqrt(obs) for halldet, obs in data.items()})],
-        [0.99, 1.01],
+        [0.999, 1.001],
         ['No oscillations', 'Prediction'],
         ['ToyMC'],
         [data],
@@ -2437,6 +2498,44 @@ def plot_prompt_spectrum(constants, fit_params):
 #            if reco_bin_centers[x]==selectEnergies[E]:
 #                print(selectEnergies[E], "\t", data[(3,1)][x], "\t", far_best_fits[(3,1)][x], "\t", (data[(3,1)][x]-far_best_fits[(3,1)][x])/far_no_osc[(3,1)][x])
     return fig
+
+def plot_subtracted_prompt_spectrum(constants, fit_params): #take from here
+    far_best_fits_ad_by_ad = predict_ad_to_ad_obs(constants, fit_params)
+    pulled_bg = bg_with_pulls(constants, fit_params, halls='far')
+    far_pred_ibds_ad_by_ad = {}
+    total_bg = ad_dict(0, halls='far')
+    for bg_type, bg_dict in pulled_bg.items():
+        for halldet, bg_spec in bg_dict.items():
+            total_bg[halldet] += bg_spec
+    for (far_halldet, near_halldet), n_pred in far_best_fits_ad_by_ad.items():
+        far_pred_ibds_ad_by_ad[far_halldet, near_halldet] = (
+            n_pred - total_bg[far_halldet]
+        )
+    far_best_fits = _average_near_hall_predictions(far_pred_ibds_ad_by_ad)
+    no_osc_params = fit_params.clone()
+    no_osc_params.theta13 = 0
+    no_osc_params.pull_theta12 = -1  # turn off theta12
+    far_no_osc_ad_by_ad = predict_ad_to_ad_obs(constants, no_osc_params)
+    far_no_osc_ibds_ad_by_ad = {}
+    for (far_halldet, near_halldet), n_pred in far_no_osc_ad_by_ad.items():
+        far_no_osc_ibds_ad_by_ad[far_halldet, near_halldet] = (
+            n_pred - total_bg[far_halldet]
+        )
+    far_no_osc = _average_near_hall_predictions(far_no_osc_ibds_ad_by_ad)
+    data_w_bg = constants.observed_candidates
+    data = {}
+    for halldet, n_obs in data_w_bg.items():
+        if halldet in common.far_ads:
+            data[halldet] = n_obs - total_bg[halldet]
+    fig = _spectrum_ratio_plot(
+        constants.reco_bins,
+        [far_no_osc, far_best_fits],
+        [(data, {halldet: np.sqrt(obs) for halldet, obs in data_w_bg.items()})],
+        [0.999, 1.001],
+        ['No oscillations', 'Prediction'],
+        ['ToyMC'],
+        [data],
+    )
 
 def plot_prompt_spectrum_ADtoAD(constants, fit_params):
     far_best_fits_ad_by_ad = predict_ad_to_ad_obs(constants, fit_params)
@@ -2460,12 +2559,57 @@ def plot_prompt_spectrum_ADtoAD(constants, fit_params):
         constants.reco_bins,
         [far_best_fits, separate_ADs_1, separate_ADs_2, separate_ADs_3, separate_ADs_4],
         [(data, {halldet: np.sqrt(obs) for halldet, obs in data.items()})],
-        [0.975, 1.025],
+        [0.999, 1.001],
         ['Prediction', 'EH1-AD1', 'EH1-AD2', 'EH2-AD1', 'EH2-AD2'],
         ['ToyMC'],
         [data],
     )
     return fig
+
+
+def plot_prompt_spectrum_sub_ADtoAD(constants, fit_params):
+    far_best_fits_ad_by_ad = predict_ad_to_ad_obs(constants, fit_params)
+    pulled_bg = bg_with_pulls(constants, fit_params, halls='far')
+    far_pred_ibds_ad_by_ad = {}
+    total_bg = ad_dict(0, halls='far')
+    for bg_type, bg_dict in pulled_bg.items():
+        for halldet, bg_spec in bg_dict.items():
+            total_bg[halldet] += bg_spec
+    for (far_halldet, near_halldet), n_pred in far_best_fits_ad_by_ad.items():
+        far_pred_ibds_ad_by_ad[far_halldet, near_halldet] = (
+            n_pred - total_bg[far_halldet]
+        )
+    far_best_fits = _average_near_hall_predictions(far_pred_ibds_ad_by_ad)
+    for i, neardet in enumerate(common.near_ads):
+        if i==0:
+            separate_ADs_1 = _select_near_hall_predictions(far_pred_ibds_ad_by_ad, neardet)
+        if i==1:
+            separate_ADs_2 = _select_near_hall_predictions(far_pred_ibds_ad_by_ad, neardet)
+        if i==2:
+            separate_ADs_3 = _select_near_hall_predictions(far_pred_ibds_ad_by_ad, neardet)
+        if i==3:
+            separate_ADs_4 = _select_near_hall_predictions(far_pred_ibds_ad_by_ad, neardet)
+    no_osc_params = fit_params.clone()
+    no_osc_params.theta13 = 0
+    no_osc_params.pull_theta12 = -1  # turn off theta12
+    far_no_osc_ad_by_ad = predict_ad_to_ad_obs(constants, no_osc_params)
+    far_no_osc = _average_near_hall_predictions(far_no_osc_ad_by_ad)
+    data_w_bg = constants.observed_candidates
+    data = {}
+    for halldet, n_obs in data_w_bg.items():
+        if halldet in common.far_ads:
+            data[halldet] = n_obs - total_bg[halldet]
+    fig = _spectrum_ratio_plot(
+        constants.reco_bins,
+        [far_best_fits, separate_ADs_1, separate_ADs_2, separate_ADs_3, separate_ADs_4],
+        [(data, {halldet: np.sqrt(obs) for halldet, obs in data.items()})],
+        [0.999, 1.001],
+        ['Prediction', 'EH1-AD1', 'EH1-AD2', 'EH2-AD1', 'EH2-AD2'],
+        ['ToyMC'],
+        [data],
+    )
+    return fig
+
 
 def plot_flowchart(constants, fit_params):
 #Getting the values
@@ -2587,19 +2731,20 @@ def plot_rateOnly_ADtoAD_prediction(constants, fit_params):
         h_pred_perNearAD.append(root.TH1D("Prediction from EH"+str(neardet[0])+"-AD"+str(neardet[1]),"",4,0.5,4.5))
 #Fill the histograms
     for fardet in common.far_ads:
-        h_toyMC.Fill(fardet[1],data[fardet].sum())
+        h_toyMC.Fill(fardet[1],(data[fardet].sum())/(data[fardet].sum()))
         h_pred_far_avg.Fill(fardet[1],pred_far_avg[fardet].sum())
         for h, neardet in enumerate(common.near_ads):
-            h_pred_perNearAD[h].Fill(fardet[1],(pred_far_obs[(fardet[0],fardet[1]),(neardet[0],neardet[1])].sum()))
+            h_pred_perNearAD[h].Fill(fardet[1],(pred_far_obs[(fardet[0],fardet[1]),(neardet[0],neardet[1])].sum())/(data[fardet].sum()))
 #Plot
     color = [root.kRed, root.kGreen, root.kMagenta, root.kBlue]
     can = root.TCanvas("canvas","canvas",800,800)
     can.cd(1)
     h_toyMC.GetXaxis().SetTitle("EH3-AD Number")
-    h_toyMC.GetYaxis().SetTitle("Counts")
+    h_toyMC.GetYaxis().SetTitle("Prediction/ToyMC")
     h_toyMC.SetStats(0)
 #    h_toyMC.GetYaxis().SetRangeUser(h_toyMC.GetBinContent(2)-2500,h_toyMC.GetBinContent(2)+2500)
-    h_toyMC.GetYaxis().SetRangeUser(h_toyMC.GetMinimum()-1000,h_toyMC.GetMaximum()+1000)
+#    h_toyMC.GetYaxis().SetRangeUser(h_toyMC.GetMinimum()-1000,h_toyMC.GetMaximum()+1000)
+    h_toyMC.GetYaxis().SetRangeUser(.99,1.006)
     h_toyMC.SetLineColor(root.kBlack)
     h_toyMC.SetLineWidth(3)
     h_toyMC.Draw("hist")
@@ -2611,8 +2756,8 @@ def plot_rateOnly_ADtoAD_prediction(constants, fit_params):
          h_pred_perNearAD[h].SetLineStyle(7)
          h_pred_perNearAD[h].SetLineWidth(3)
          h_pred_perNearAD[h].Draw("hist same")
-    can.BuildLegend(0.15,0.15,0.46,0.35,"")
-    can.Print("rateOnly_ADtoADpred.png")
+    can.BuildLegend(0.15,0.65,0.46,0.85,"")
+    can.Print("rateOnly_ADtoADpred_rel.png")
     return 1
 
 if __name__ == '__main__':
@@ -2638,8 +2783,12 @@ if __name__ == '__main__':
     fig_rateOnly_ADtoAD_prediction = plot_rateOnly_ADtoAD_prediction(constants, fit_params)
     fig_prompt_ADtoAD = plot_prompt_spectrum_ADtoAD(constants, fit_params)
     fig_prompt_ADtoAD.tight_layout()
+    fig_prompt_sub_ADtoAD = plot_prompt_spectrum_sub_ADtoAD(constants, fit_params)
+    fig_prompt_sub_ADtoAD.tight_layout()
     fig_prompt = plot_prompt_spectrum(constants, fit_params)
     fig_prompt.tight_layout()
+    fig_prompt_sub = plot_subtracted_prompt_spectrum(constants, fit_params)
+#    fig_prompt_sub.tight_layout()
     fig_rate_only_data = plot_data_fit_points(constants, fit_params)
     fig_rate_only_data.tight_layout()
     plt.show()

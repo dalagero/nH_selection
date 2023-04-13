@@ -8,9 +8,14 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import least_squares
+import ROOT as root
 
-from dyb_analysis import common
-import dyb_analysis.fitter.prediction as pred
+sys.path.append("..")
+import common
+import prediction as pred
+
+#from dyb_analysis import common
+#import dyb_analysis.fitter.prediction as pred
 
 def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=None,
         rate_only=False, avg_near=False, variant='poisson'):
@@ -168,13 +173,19 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
     chi_square += numerator/denominator
     return_array_values[term_index] = numerator/denominator
     term_index += 1
-    if rate_only:
-        m2_ee_error = constants.m2_ee_err
-        numerator = fit_params.pull_m2_ee**2
-        denominator = m2_ee_error**2
-        chi_square += numerator/denominator
-        return_array_values[term_index] = numerator/denominator
-        term_index += 1
+#    if rate_only:
+#        m2_ee_error = constants.m2_ee_err
+#        numerator = fit_params.pull_m2_ee**2
+#        denominator = m2_ee_error**2
+#        chi_square += numerator/denominator
+#        return_array_values[term_index] = numerator/denominator
+#        term_index += 1
+    m2_ee_error = constants.m2_ee_err
+    numerator = fit_params.pull_m2_ee**2
+    denominator = m2_ee_error**2
+    chi_square += numerator/denominator
+    return_array_values[term_index] = numerator/denominator
+    term_index += 1
     if return_array:
         return return_array_values
     else:
@@ -567,7 +578,7 @@ def grid(
     itertools.product(theta13_values, m2_ee_values).
     """
     def fit_args_generator():
-        print(theta13_values, m2_ee_values)
+ #       print(theta13_values, m2_ee_values)
         new_params = starting_params.clone()
         new_params.theta13 = theta13_values
         new_params.m2_ee = m2_ee_values
@@ -599,7 +610,9 @@ def grid(
             chi_square,
             chi_square_args_generator(fit_param_results),
         )
-    return min_chisquares
+#    print(fit_param_results[0].theta13, fit_param_results[0].m2_ee)
+#    print(fit_param_results[0])
+    return min_chisquares, fit_param_results[0].theta13, fit_param_results[0].m2_ee, fit_param_results[0].pull_rel_escale[(1,1)], fit_param_results[0].pull_rel_escale[(1,2)], fit_param_results[0].pull_rel_escale[(2,1)], fit_param_results[0].pull_rel_escale[(2,2)], fit_param_results[0].pull_rel_escale[(3,1)], fit_param_results[0].pull_rel_escale[(3,2)], fit_param_results[0].pull_rel_escale[(3,3)], fit_param_results[0].pull_rel_escale[(3,4)]
 
 def get_frozen_params(pulls, freeze_theta13, dm2ee_behavior, near_ads=None):
     """Get the list of frozen params given the fitter configuration.
@@ -631,6 +644,7 @@ def get_frozen_params(pulls, freeze_theta13, dm2ee_behavior, near_ads=None):
         frozen_params.append(index_map['pull_m2_ee'])
     elif dm2ee_behavior == 'pulled':
         frozen_params.append(index_map['m2_ee'])
+        #print("What happens if m2_ee is not frozen")
     elif dm2ee_behavior == 'free':
         frozen_params.append(index_map['pull_m2_ee'])
     else:
@@ -834,6 +848,90 @@ def plot_prompt_sub_spectrum(constants, fit_params):
         ['Data'],
         [far_no_osc],
     )
+    reco_bins = constants.reco_bins
+    reco_bin_centers = reco_bins[:-1] + 0.5 * np.diff(reco_bins)
+    h_farHall_osc = root.TH1F("h_farHall_osc","Data",len(reco_bin_centers),reco_bins)
+    h_farHall_no_osc = root.TH1F("h_farHall_no_osc","No Oscillations",len(reco_bin_centers),reco_bins)
+    h_farHall_bestFit = root.TH1F("h_farHall_bestFit","Best Fit",len(reco_bin_centers),reco_bins)
+    h_farHall_ratio_osc = root.TH1F("h_farHall_ratio_osc","Data",len(reco_bin_centers),reco_bins)
+    h_farHall_ratio_no_osc = root.TH1F("h_farHall_ratio_no_osc","No Oscillations",len(reco_bin_centers),reco_bins)
+    h_farHall_ratio_bestFit = root.TH1F("h_farHall_ratio_bestFit","Best Fit",len(reco_bin_centers),reco_bins)
+    for halldet, obs in far_no_osc.items():
+        for iReco in enumerate(reco_bin_centers):
+            h_farHall_no_osc.Fill(iReco[1],obs[iReco[0]])
+    for halldet, obs in far_best_fits.items():
+        for iReco in enumerate(reco_bin_centers):
+            h_farHall_bestFit.Fill(iReco[1],obs[iReco[0]])
+    for halldet, obs in data.items():
+        for iReco in enumerate(reco_bin_centers):
+            h_farHall_osc.Fill(iReco[1],obs[iReco[0]])
+    for iReco in enumerate(reco_bin_centers):
+        h_farHall_osc.SetBinError(iReco[0]+1,np.sqrt(h_farHall_osc.GetBinContent(iReco[0]+1)))
+        h_farHall_ratio_bestFit.Fill(iReco[1], h_farHall_bestFit.GetBinContent(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
+        h_farHall_ratio_no_osc.Fill(iReco[1], h_farHall_no_osc.GetBinContent(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
+        h_farHall_ratio_osc.Fill(iReco[1], h_farHall_osc.GetBinContent(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
+        h_farHall_ratio_osc.SetBinError(iReco[0]+1,h_farHall_osc.GetBinError(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
+    can = root.TCanvas("canvas","canvas",800,1200)
+    pad1 = root.TPad("pad1", "", 0, 0.3, 1, 1)
+    pad1.SetBottomMargin(0)
+    pad1.Range(-0.2582158,-111.3482,12.85446,23340.29);
+    pad1.SetFillColor(0);
+    pad1.SetBorderMode(0);
+    pad1.SetBorderSize(2);
+    pad1.SetLeftMargin(0.1340852);
+    pad1.SetRightMargin(0.0651629);
+    pad1.SetBottomMargin(0.007655641);
+    pad1.SetFrameBorderMode(0);
+    pad1.SetFrameBorderMode(0);
+    pad1.Draw()
+    pad2 = root.TPad("pad2", "", 0, 0, 1, 0.3)
+    pad2.SetTopMargin(0)
+    pad2.SetBottomMargin(0.3)
+    pad2.Draw()
+
+    pad1.cd()
+#    h_farHall_no_osc.GetXaxis().SetTitle("Prompt Energy [MeV]")
+    h_farHall_no_osc.GetYaxis().SetTitle("Counts")
+    h_farHall_no_osc.SetTitle("")
+    h_farHall_no_osc.SetStats(0)
+    h_farHall_no_osc.SetLineColor(root.kBlue)
+    h_farHall_no_osc.SetLineWidth(3)
+    h_farHall_no_osc.SetMinimum(1)
+    h_farHall_no_osc.Draw("hist")
+    h_farHall_osc.SetLineColor(root.kBlack)
+    h_farHall_osc.SetLineWidth(3)
+    h_farHall_osc.Draw("same")
+    h_farHall_bestFit.SetLineColor(root.kRed)
+    h_farHall_bestFit.SetLineWidth(3)
+    h_farHall_bestFit.Draw("hist same")
+    legend = root.TLegend(0.1,0.7,0.48,0.9)
+    legend.AddEntry(h_farHall_no_osc,"No Oscillations","l")
+    legend.AddEntry(h_farHall_osc,"Data","le")
+    legend.AddEntry(h_farHall_bestFit,"Best Fit","l")
+    legend.Draw("same")
+
+    pad2.cd()
+    h_farHall_ratio_bestFit.GetXaxis().SetTitle("Prompt Energy [MeV]")
+    h_farHall_ratio_bestFit.GetYaxis().SetTitle("N^{obs}/N^{pred}_{no-osc}")
+    h_farHall_ratio_bestFit.GetXaxis().SetTitleSize(.06)
+    h_farHall_ratio_bestFit.GetXaxis().SetLabelSize(.06)
+    h_farHall_ratio_bestFit.GetYaxis().SetTitleSize(.08)
+    h_farHall_ratio_bestFit.GetYaxis().SetLabelSize(.07)
+    h_farHall_ratio_bestFit.GetYaxis().SetTitleOffset(0.64)
+    h_farHall_ratio_bestFit.SetStats(0)
+    h_farHall_ratio_bestFit.SetTitle("")
+    h_farHall_ratio_bestFit.GetYaxis().SetRangeUser(0.86,1.02)
+    h_farHall_ratio_bestFit.SetLineColor(root.kRed)
+    h_farHall_ratio_bestFit.SetLineWidth(3)
+    h_farHall_ratio_bestFit.Draw("hist")
+    h_farHall_ratio_osc.SetLineColor(root.kBlack)
+    h_farHall_ratio_osc.SetLineWidth(3)
+    h_farHall_ratio_osc.Draw("same")
+    h_farHall_ratio_no_osc.SetLineColor(root.kBlue)
+    h_farHall_ratio_no_osc.SetLineWidth(3)
+    h_farHall_ratio_no_osc.Draw("hist same")
+    can.Update() #SWAP THE COLORS OF NO OSC AND DATA
+    can.Print("farHall_osc.C")
     return fig
 
 def _select_near_hall_predictions(predicted, nearAD):
@@ -973,6 +1071,7 @@ if __name__ == "__main__":
         min_chi2=chi_square(constants, fit_params, return_array=False, near_ads=near_ads,
             rate_only=rate_only, avg_near=args.avg_near, variant='poisson')
         print('Min chi-square:', min_chi2)
+        print("fitted m2_ee (!!): ", (1+fit_params.pull_m2_ee)*fit_params.m2_ee)
         if args.plot == True:
 	    #show me the plots!
             fig_prompt_ADtoAD = plot_prompt_spectrum_ADtoAD(constants, fit_params)
@@ -983,7 +1082,7 @@ if __name__ == "__main__":
             fig_rate.tight_layout()
             plt.show()
         if args.save_fit is not None:
-            np.savez(args.save_fit,theta13_values=np.array(fit_params.theta13),results=min_chi2,config=args.config,m2ee_values=np.array(fit_params.m2_ee),frozen_params=np.array(frozen_params))
+            np.savez(args.save_fit,theta13_values=np.array(fit_params.theta13),results=min_chi2,config=args.config,m2ee_values=np.array(fit_params.m2_ee), frozen_params=np.array(frozen_params), fit_theta13=np.array(fit_params.theta13),fit_dm2ee=np.array(fit_params.m2_ee),fit_relE_1=np.array(fit_params.pull_rel_escale[(1,1)]), fit_relE_2=np.array(fit_params.pull_rel_escale[(1,2)]),fit_relE_3=np.array(fit_params.pull_rel_escale[(2,1)]),fit_relE_4=np.array(fit_params.pull_rel_escale[(2,2)]), fit_relE_5=np.array(fit_params.pull_rel_escale[(3,1)]),fit_relE_6=np.array(fit_params.pull_rel_escale[(3,2)]),fit_relE_7=np.array(fit_params.pull_rel_escale[(3,3)]),fit_relE_8=np.array(fit_params.pull_rel_escale[(3,4)]))
         if args.debug:
             print("O-chi square function with return_array=true")
             print(chi_square(constants, fit_params, return_array=True, near_ads=near_ads,
