@@ -12,7 +12,7 @@ import ROOT as root
 
 sys.path.append("..")
 import common
-import prediction_nl as pred
+import prediction_nl_bgs as pred
 
 #from dyb_analysis import common
 #import dyb_analysis.fitter.prediction as pred
@@ -84,56 +84,43 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
         term_index += len(stat_term)
 
     # Pull terms
-    if 'accidental' in constants.nominal_bgs:
-        acc_errors = constants.bg_errors['accidental']
-        for halldet, pull in fit_params.pull_accidental.items():
-            numerator = pull*pull
-            denominator = acc_errors[halldet]**2
+    nominal_bg = constants.nominal_bgs
+    bg_types = list(nominal_bg.keys())
+    bg_pulls = {}
+#    print("Li9 Uncertainty in chi2:", constants.bg_errors['li9'])
+#    print("Fast n Uncertainty in chi2:", constants.bg_errors['fast-neutron'])
+    #Most of the backgrounds
+    for bg in bg_types:
+        if bg == 'amc': continue #not a dictionary, I'll leave that one separate
+        if bg == 'accidental':
+            bg_pulls['accidental'] = fit_params.pull_accidental
+        if bg == 'li9':
+            bg_pulls['li9'] = fit_params.pull_li9
+        if bg == 'fast-neutron':
+            bg_pulls['fast-neutron'] = fit_params.pull_fast_neutron
+        if bg == 'alpha-n':
+            bg_pulls['alpha-n'] = fit_params.pull_alpha_n
+        if bg == 'rad-n':
+            bg_pulls['rad-n'] = fit_params.pull_rad_n
+        
+        for pull in bg_pulls[bg].keys(): #counts sites for Li9 and Fast-n (1,2,3) and ADs for the rest ((1,1), (1,2), ...)
+            numerator = bg_pulls[bg][pull]**2
+            if bg=='li9' or bg=='fast-neutron': error_key = (pull, 1) #Use EH#-AD1 for the site-dependent ones
+            else: error_key = pull #Use EH#-AD# for the ad-specific ones
+            denominator = constants.bg_errors[bg][error_key]**2
+#            if bg=='li9' or bg=='fast-neutron':
+#                print("Contribution of:", bg, pull, numerator/denominator)
             chi_square += numerator/denominator
             return_array_values[term_index] = numerator/denominator
             term_index += 1
-    if 'li9' in constants.nominal_bgs:
-        li9_errors = constants.bg_errors['li9']
-        for site, pull in fit_params.pull_li9.items():
-            numerator = pull*pull
-            # relative errors within site are the same so just pick EHX-AD1
-            denominator = li9_errors[(site, 1)]**2
-            chi_square += numerator/denominator
-            return_array_values[term_index] = numerator/denominator
-            term_index += 1
-    if 'fast-neutron' in constants.nominal_bgs:
-        fast_neutron_errors = constants.bg_errors['fast-neutron']
-        for site, pull in fit_params.pull_fast_neutron.items():
-            numerator = pull*pull
-            # relative errors within site are the same so just pick EHX-AD1
-            denominator = fast_neutron_errors[(site, 1)]**2
-            chi_square += numerator/denominator
-            return_array_values[term_index] = numerator/denominator
-            term_index += 1
+    # Only 1 AmC pull parameter
     if 'amc' in constants.nominal_bgs:
-        # Only 1 AmC pull parameter
         amc_errors = constants.bg_errors['amc']
         numerator = fit_params.pull_amc**2
         denominator = amc_errors[1, 1]**2
         chi_square += numerator/denominator
         return_array_values[term_index] = numerator/denominator
         term_index += 1
-    if 'alpha-n' in constants.nominal_bgs:
-        alpha_n_errors = constants.bg_errors['alpha-n']
-        for halldet, pull in fit_params.pull_alpha_n.items():
-            numerator = pull*pull
-            denominator = alpha_n_errors[halldet]**2
-            chi_square += numerator/denominator
-            return_array_values[term_index] = numerator/denominator
-            term_index += 1
-    if 'rad-n' in constants.nominal_bgs:
-        rad_n_errors = constants.bg_errors['rad-n']
-        for halldet, pull in fit_params.pull_rad_n.items():
-            numerator = pull*pull
-            denominator = rad_n_errors[halldet]**2
-            chi_square += numerator/denominator
-            return_array_values[term_index] = numerator/denominator
-            term_index += 1
     for halldet, pull in fit_params.pull_near_stat.items():
         numerator = pull * pull
         denominator = 1 / constants.observed_candidates[halldet]
@@ -151,7 +138,7 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
         term_index += 1
     for halldet, pull in fit_params.pull_efficiency.items():
         numerator = pull * pull
-        denominator = constants.efficiency_err**2
+        denominator = constants.efficiency_err[halldet]**2
         chi_square += numerator/denominator
         return_array_values[term_index] = numerator/denominator
         term_index += 1
@@ -167,6 +154,13 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
         chi_square += numerator/denominator
         return_array_values[term_index] = numerator/denominator
         term_index += 1
+    for halldet, pull in fit_params.pulls_IAV.items():
+        numerator = pull * pull
+        denominator = 1 #CHECK THIS!!!!!!! FIXME
+        chi_square += numerator/denominator
+        return_array_values[term_index] = numerator/denominator
+        term_index += 1
+#    print("IAV PULLS: ", fit_params.pulls_IAV)
     theta12_error = constants.theta12_err
     numerator = fit_params.pull_theta12**2
     denominator = theta12_error**2
@@ -179,7 +173,7 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
     chi_square += numerator/denominator
     return_array_values[term_index] = numerator/denominator
     term_index += 1
-#    if rate_only:
+#    if rate_only: hereherehere
 #        m2_ee_error = constants.m2_ee_err
 #        numerator = fit_params.pull_m2_ee**2
 #        denominator = m2_ee_error**2
@@ -196,6 +190,8 @@ def chi_square(constants, fit_params, return_array=False, debug=False, near_ads=
         return return_array_values
     else:
         print("chi_square: ", chi_square)
+#        print("efficiency pulls: ", fit_params.pull_efficiency)
+#        print("efficiency error: ", constants.efficiency_err)
         return chi_square
 
 def poisson_stat_term(n_observed, n_predicted):
@@ -206,8 +202,9 @@ def poisson_stat_term(n_observed, n_predicted):
 
     The Poisson maximum-likelihood term is Pred - Obs + Obs * log(Obs / Pred).
     """
-    diff_term = n_predicted - n_observed
-    log_term = np.nan_to_num(n_observed * np.log(n_observed / n_predicted), nan=0,
+    thisBin=34
+    diff_term = n_predicted[0:thisBin] - n_observed[0:thisBin] #DO THE TEST HERE
+    log_term = np.nan_to_num(n_observed[0:thisBin] * np.log(n_observed[0:thisBin] / n_predicted[0:thisBin]), nan=0,
             posinf=0, neginf=0)
     full_term = 2 * (diff_term + log_term)
     # Hedge against occasional floating-point errors where an element is
@@ -293,6 +290,11 @@ def residual_frozen_param(frozen_dict, near_ads, rate_only, avg_near):
             avg_near=avg_near
         )
     return residual
+    
+#Testing a new function ~error_budget_nl.py method
+
+
+
 
 def fit_lsq_frozen(starting_params, constants, frozen_params, near_ads, rate_only,
         avg_near, raw_result=False): #hereherehere
@@ -313,6 +315,8 @@ def fit_lsq_frozen(starting_params, constants, frozen_params, near_ads, rate_onl
             reverse_map[i] = num_frozen_so_far
             num_frozen_so_far += 1
     residual = residual_frozen_param(frozen_params_dict, near_ads, rate_only, avg_near)
+#    print("Here #1.5") #Something is not working in the next line. Figure that out, then the parabola code will hopefully work!
+#    print(len(x0), x0)
     result = least_squares(residual, x0, args=(constants,), method='trf') #Here is where we'd change how long the fitter fits for...
 #    print("Here #2")
     # Assemble best-fit FitParams object from fitter fitter output
@@ -587,43 +591,33 @@ def grid(
     Returns chisquare values according to the parameter order of
     itertools.product(theta13_values, m2_ee_values).
     """
-    def fit_args_generator():
- #       print(theta13_values, m2_ee_values)
-        new_params = starting_params.clone()
- #       new_params = copy.copy(starting_params)
-        new_params.theta13 = theta13_values
-        new_params.m2_ee = m2_ee_values
-        yield (
-            new_params,
-            constants,
-            frozen_params,
-            near_ads,
-            rate_only,
-            avg_near,
-        )
-        return
-    def chi_square_args_generator(fit_params_list):
-        for fit_params_value in fit_params_list:
-            yield (
-                constants,
-                fit_params_value,
-                False,
-                False,
-                near_ads,
-                rate_only,
-                avg_near,
-                'poisson',
-            )
-        return
-    with multiprocessing.Pool() as pool:
-        fit_param_results = pool.starmap(fit_lsq_frozen, fit_args_generator())
-        min_chisquares = pool.starmap(
-            chi_square,
-            chi_square_args_generator(fit_param_results),
-        )
-#    print(fit_param_results[0].theta13, fit_param_results[0].m2_ee)
-#    print(fit_param_results[0])
-    return min_chisquares, fit_param_results[0].theta13, fit_param_results[0].m2_ee, fit_param_results[0].pull_efficiency[(1,1)], fit_param_results[0].pull_efficiency[(1,2)], fit_param_results[0].pull_efficiency[(2,1)], fit_param_results[0].pull_efficiency[(2,2)],  fit_param_results[0].pull_efficiency[(3,1)], fit_param_results[0].pull_efficiency[(3,2)], fit_param_results[0].pull_efficiency[(3,3)], fit_param_results[0].pull_efficiency[(3,4)]
+    new_params = starting_params.clone()  # Clone the starting parameters
+    new_params.theta13 = theta13_values
+    new_params.m2_ee = m2_ee_values
+
+    fit_param_results = fit_lsq_frozen(
+        new_params,
+        constants,
+        frozen_params,
+        near_ads,
+        rate_only,
+        avg_near,
+    )
+    print("hello? Is this working?")
+
+    min_chisquares = chi_square(
+        constants,
+        fit_param_results,
+        False,
+        False,
+        near_ads,
+        rate_only,
+        avg_near,
+        'poisson',
+    )
+#    print(fit_param_results.theta13, fit_param_results.m2_ee)
+#    print(fit_param_results)
+    return min_chisquares, fit_param_results.theta13, fit_param_results.m2_ee, fit_param_results.pull_efficiency[(1,1)], fit_param_results.pull_efficiency[(1,2)], fit_param_results.pull_efficiency[(2,1)], fit_param_results.pull_efficiency[(2,2)],  fit_param_results.pull_efficiency[(3,1)], fit_param_results.pull_efficiency[(3,2)], fit_param_results.pull_efficiency[(3,3)], fit_param_results.pull_efficiency[(3,4)]
 
 def get_frozen_params(pulls, freeze_theta13, dm2ee_behavior, near_ads=None):
     """Get the list of frozen params given the fitter configuration.
@@ -673,7 +667,9 @@ def get_frozen_params(pulls, freeze_theta13, dm2ee_behavior, near_ads=None):
         else:
             raise ValueError(f"Can't parse starting_params.index_map()[{name!r}]")
     if 'all' in pulls:
-#        freeze('efficiency') #DELETE THIS LINE AFTER THIS TEST!!!
+#        freeze('li9') #TEST TEST TEST WARNING THIS IS A TEST!!!!!!!!!!!!!!!!!!!!!!!!!
+#        freeze('fast-neutron')
+#        freeze('IAV')
         pass
     else:
         for pull_name in pull_choices:
@@ -718,6 +714,8 @@ def _plot_point_hist(ax, bin_edges, vals, **kwargs):
         kwargs['markevery'] = (1, 4)
     if 'yerr' in kwargs:
         plain_err = kwargs.pop('yerr')
+        for iVal in range(0,len(plain_err)):
+            if plain_err[iVal] <0: plain_err[iVal] = 0
         err = np.c_[plain_err, plain_err, plain_err, np.zeros_like(bin_edges[:-1])].flatten()
         return ax.errorbar(X, Y, yerr=err, errorevery=(1, 4), **kwargs)
     else:
@@ -880,18 +878,11 @@ def plot_prompt_sub_spectrum(constants, fit_params):
         for iReco in enumerate(reco_bin_centers):
             h_farHall_osc.Fill(iReco[1],obs[iReco[0]])
     for iReco in enumerate(reco_bin_centers):
-        h_farHall_osc.SetBinError(iReco[0]+1,np.sqrt(h_farHall_osc.GetBinContent(iReco[0]+1)))
+        h_farHall_osc.SetBinError(iReco[0]+1,np.sqrt(data_w_bg[(3,1)][iReco[0]]+data_w_bg[(3,2)][iReco[0]]+data_w_bg[(3,3)][iReco[0]]+data_w_bg[(3,4)][iReco[0]])) #should be the sqrt of observed, not the subtracted
         h_farHall_ratio_bestFit.Fill(iReco[1], h_farHall_bestFit.GetBinContent(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
         h_farHall_ratio_no_osc.Fill(iReco[1], h_farHall_no_osc.GetBinContent(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
         h_farHall_ratio_osc.Fill(iReco[1], h_farHall_osc.GetBinContent(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
         h_farHall_ratio_osc.SetBinError(iReco[0]+1,h_farHall_osc.GetBinError(iReco[0]+1)/h_farHall_no_osc.GetBinContent(iReco[0]+1))
-        
-    outfile = root.TFile("farHall_osc_bestfit.root","recreate")
-    outfile.cd()
-    h_farHall_bestFit.GetXaxis().SetTitle("Prompt Energy [MeV]")
-    h_farHall_bestFit.GetYaxis().SetTitle("Counts")
-    h_farHall_bestFit.SetTitle("")
-    h_farHall_bestFit.Write()
     
     can = root.TCanvas("canvas","canvas",800,1200)
     pad1 = root.TPad("pad1", "", 0, 0.3, 1, 1)
@@ -954,6 +945,19 @@ def plot_prompt_sub_spectrum(constants, fit_params):
     h_farHall_ratio_no_osc.Draw("hist same")
     can.Update() #SWAP THE COLORS OF NO OSC AND DATA
     can.Print("farHall_osc.C")
+
+
+    outfile = root.TFile("farHall_osc_bestfit.root","recreate")
+    outfile.cd()
+    h_farHall_bestFit.GetXaxis().SetTitle("Prompt Energy [MeV]")
+    h_farHall_bestFit.GetYaxis().SetTitle("Counts")
+    h_farHall_bestFit.SetTitle("")
+    h_farHall_bestFit.Write()
+    h_farHall_ratio_bestFit.Write()
+    h_farHall_ratio_osc.Write()
+    h_farHall_ratio_no_osc.Write()
+    h_farHall_osc.Write()
+
     return fig
 
 def _select_near_hall_predictions(predicted, nearAD):
@@ -990,14 +994,14 @@ def plot_prompt_spectrum_ADtoAD(constants, fit_params):
         [data],
     )
     return fig
-
-
+    
 
 pull_choices = (
     'reactor',
     'efficiency',
     'rel-escale',
     'nonlinearity',
+    'IAV',
     'accidental',
     'li9',
     'fast-neutron',
@@ -1102,6 +1106,9 @@ if __name__ == "__main__":
         print("Fitted dm2_32!!! ")
         print("\tNormal Hierarchy:", m2_32_normal)
         print("\tInverted Hierarchy:", -m2_32_inverted)
+        print("Li9 pulls:", fit_params.pull_li9)
+        print("Fast n pulls:", fit_params.pull_fast_neutron)
+        print("IAV PULLS: ", fit_params.pulls_IAV)
         if args.plot == True:
 	    #show me the plots!
             fig_prompt_ADtoAD = plot_prompt_spectrum_ADtoAD(constants, fit_params)
